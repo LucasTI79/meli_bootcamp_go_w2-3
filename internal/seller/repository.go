@@ -10,11 +10,11 @@ import (
 // Repository encapsulates the storage of a Seller.
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Seller, error)
-	Get(ctx context.Context, id int) (domain.Seller, error)
-	Exists(ctx context.Context, cid int) bool
-	Save(ctx context.Context, s domain.Seller) (int, error)
-	Update(ctx context.Context, s domain.Seller) error
-	Delete(ctx context.Context, id int) error
+	// Get(ctx context.Context, id int) (domain.Seller, error)
+	// Exists(ctx context.Context, cid int) bool
+	// Save(ctx context.Context, s domain.Seller) (int, error)
+	// Update(ctx context.Context, s domain.Seller) error
+	// Delete(ctx context.Context, id int) error
 }
 
 type repository struct {
