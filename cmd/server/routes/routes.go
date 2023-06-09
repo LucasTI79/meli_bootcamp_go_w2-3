@@ -43,6 +43,7 @@ func (r *router) buildSellerRoutes() {
 	service := seller.NewService(repo)
 	handler := handler.NewSeller(service)
 	r.rg.GET("/seller", handler.GetAll())
+	r.rg.POST("/seller", handler.Create())
 }
 
 func (r *router) buildProductRoutes() {}

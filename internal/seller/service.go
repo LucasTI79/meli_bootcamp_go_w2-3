@@ -14,6 +14,7 @@ var (
 
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Seller, error)
+	Save(ctx context.Context, d domain.Seller) (int, error)
 }
 
 type sellerService struct {
@@ -29,4 +30,13 @@ func NewService(r Repository) Service {
 func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 	sellers, err := s.repository.GetAll(ctx)
 	return sellers, err
+}
+
+func (s *sellerService) Save(ctx context.Context, d domain.Seller) (int, error) {
+	userExist := s.repository.Exists(ctx, d.CID)
+	if userExist {
+		return 0, errors.New("user already exists")
+	}
+	sellerId, err := s.repository.Save(ctx, d)
+	return sellerId, err
 }
