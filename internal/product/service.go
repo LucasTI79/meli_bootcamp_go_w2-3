@@ -1,16 +1,36 @@
 package product
 
-import "errors"
+import (
+	"context"
+	"errors"
+
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+)
 
 // Errors
 var (
 	ErrNotFound = errors.New("product not found")
 )
 
-type Service interface{}
+type Service interface {
+	Save(ctx context.Context, p domain.Product) (int, error)
+}
 
-type service struct{}
+type productService struct {
+	repository Repository
+}
 
-func NewService() Service {
-	return &service{}
+func NewService(r Repository) Service {
+	return &productService{
+		repository: r,
+	}
+}
+
+func (s *productService) Save(ctx context.Context, p domain.Product) (int, error) {
+	productExists := s.repository.Exists(ctx, p.ProductCode)
+	if productExists {
+		return 0, errors.New("product already exists")
+	}
+	productId, err := s.repository.Save(ctx, p)
+	return productId, err
 }
