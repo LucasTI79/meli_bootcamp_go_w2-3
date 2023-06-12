@@ -15,6 +15,7 @@ var (
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Seller, error)
 	Save(ctx context.Context, d domain.Seller) (int, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type sellerService struct {
@@ -39,4 +40,10 @@ func (s *sellerService) Save(ctx context.Context, d domain.Seller) (int, error) 
 	}
 	sellerId, err := s.repository.Save(ctx, d)
 	return sellerId, err
+}
+
+func (s *sellerService) Delete(ctx context.Context, id int) error {
+	err := s.repository.Delete(ctx, id)
+	return err
+
 }

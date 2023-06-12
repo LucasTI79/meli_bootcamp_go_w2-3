@@ -44,6 +44,7 @@ func (r *router) buildSellerRoutes() {
 	handler := handler.NewSeller(service)
 	r.rg.GET("/seller", handler.GetAll())
 	r.rg.POST("/seller", handler.Create())
+	r.rg.DELETE("/sellers/:id", handler.Delete())
 }
 
 func (r *router) buildProductRoutes() {}

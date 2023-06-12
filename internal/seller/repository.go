@@ -14,7 +14,7 @@ type Repository interface {
 	Exists(ctx context.Context, cid int) bool
 	Save(ctx context.Context, s domain.Seller) (int, error)
 	// Update(ctx context.Context, s domain.Seller) error
-	// Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id int) error
 }
 
 type repository struct {
