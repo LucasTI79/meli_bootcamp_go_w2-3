@@ -56,18 +56,22 @@ func (s *sellerController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
 			return
 		}
+		if (sellerInput.Address == "" || sellerInput.CID == 0 ||sellerInput.CompanyName == "" ||sellerInput.Telephone == "" ){
+			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			return
+		}
 		sellerId, err := s.sellerService.Save(c, domain.Seller{
 
 			CID:         sellerInput.CID,
 			CompanyName: sellerInput.CompanyName,
 			Address:     sellerInput.Address,
-			Telephone:   sellerInput.Address,
+			Telephone:   sellerInput.Telephone,
 		})
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, sellerId)
+		web.Success(c, http.StatusCreated, sellerId)
 	}
 }
 
