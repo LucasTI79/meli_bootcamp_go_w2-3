@@ -22,7 +22,13 @@ func NewSection(s section.Service) *SectionController {
 }
 
 func (s *SectionController) GetAll() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		sections, err := s.sectionService.GetAll(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, "error listing sections")
+		}
+		web.Success(c, http.StatusOK, sections)
+	}
 }
 
 func (s *SectionController) Get() gin.HandlerFunc {
@@ -67,8 +73,8 @@ func (s *SectionController) Delete() gin.HandlerFunc {
 			return
 		}
 		err = s.sectionService.Delete(c, id)
-		if err != nil{
-			if errors.Is(err, section.ErrNotFound){
+		if err != nil {
+			if errors.Is(err, section.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, err.Error())
 				return
 			}
