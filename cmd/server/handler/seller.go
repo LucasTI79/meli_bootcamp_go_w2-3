@@ -36,7 +36,7 @@ func (s *sellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Response(c, http.StatusBadRequest, "Invalid id")
+			web.Response(c, http.StatusBadRequest, "invalid id")
 			return
 		}
 		seller, err := s.sellerService.Get(c, sellerId)
@@ -57,7 +57,6 @@ func (s *sellerController) Create() gin.HandlerFunc {
 			return
 		}
 		sellerId, err := s.sellerService.Save(c, domain.Seller{
-
 			CID:         sellerInput.CID,
 			CompanyName: sellerInput.CompanyName,
 			Address:     sellerInput.Address,

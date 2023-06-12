@@ -7,9 +7,9 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
-// Errors
 var (
-	ErrNotFound = errors.New("seller not found")
+	ErrNotFound     = errors.New("seller not found")
+	ErrAlredyExists = errors.New("user already exists")
 )
 
 type Service interface {
@@ -37,7 +37,7 @@ func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 func (s *sellerService) Save(ctx context.Context, d domain.Seller) (int, error) {
 	userExist := s.repository.Exists(ctx, d.CID)
 	if userExist {
-		return 0, errors.New("user already exists")
+		return 0, ErrAlredyExists
 	}
 	sellerId, err := s.repository.Save(ctx, d)
 	return sellerId, err
@@ -49,7 +49,7 @@ func (s *sellerService) Delete(ctx context.Context, id int) error {
 
 }
 
-func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error){
+func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error) {
 	seller, err := s.repository.Get(ctx, id)
 	return seller, err
 }
