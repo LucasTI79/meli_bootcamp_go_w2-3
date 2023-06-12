@@ -36,4 +36,5 @@ func Error(c *gin.Context, status int, format string, args ...interface{}) {
 	}
 
 	Response(c, status, err)
+
 }
