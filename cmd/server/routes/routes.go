@@ -59,6 +59,7 @@ func (r *router) buildSectionRoutes() {
 	r.rg.POST("/sections", handler.Create())
 	r.rg.DELETE("/sections/:id", handler.Delete())
 	r.rg.GET("/sections", handler.GetAll())
+	r.rg.GET("/sections/:id", handler.Get())
 }
 
 func (r *router) buildWarehouseRoutes() {}

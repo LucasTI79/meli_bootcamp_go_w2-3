@@ -16,6 +16,7 @@ type Service interface {
 	Save(ctx context.Context, s domain.Section) (int, error)
 	Delete(ctx context.Context, id int) error
 	GetAll(ctx context.Context) ([]domain.Section, error)
+	Get(ctx context.Context, id int) (domain.Section, error)
 }
 
 type serviceSection struct {
@@ -39,4 +40,7 @@ func (s *serviceSection) GetAll(ctx context.Context) ([]domain.Section, error){
 	sections, err := s.repository.GetAll(ctx)
 	return sections, err
 }
-
+func (s *serviceSection) Get(ctx context.Context, id int) (domain.Section, error){
+	section, err := s.repository.Get(ctx, id)
+	return section, err
+}

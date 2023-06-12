@@ -26,13 +26,26 @@ func (s *SectionController) GetAll() gin.HandlerFunc {
 		sections, err := s.sectionService.GetAll(c)
 		if err != nil {
 			web.Error(c, http.StatusInternalServerError, "error listing sections")
+			return
 		}
 		web.Success(c, http.StatusOK, sections)
 	}
 }
 
 func (s *SectionController) Get() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "Invalid id")
+			return
+		}
+		section, err := s.sectionService.Get(c, id)
+		if err != nil {
+			web.Error(c, http.StatusNotFound, err.Error())
+			return
+		}
+		web.Success(c, http.StatusOK, section)
+	}
 }
 
 func (s *SectionController) Create() gin.HandlerFunc {
