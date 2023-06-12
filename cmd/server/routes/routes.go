@@ -42,8 +42,9 @@ func (r *router) buildSellerRoutes() {
 	repo := seller.NewRepository(r.db)
 	service := seller.NewService(repo)
 	handler := handler.NewSeller(service)
-	r.rg.GET("/seller", handler.GetAll())
-	r.rg.POST("/seller", handler.Create())
+	r.rg.GET("/sellers", handler.GetAll())
+	r.rg.GET("/sellers/:id", handler.Get())
+	r.rg.POST("/sellers", handler.Create())
 	r.rg.DELETE("/sellers/:id", handler.Delete())
 }
 

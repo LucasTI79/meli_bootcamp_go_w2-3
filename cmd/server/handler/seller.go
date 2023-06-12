@@ -34,7 +34,17 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 
 func (s *sellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
+		sellerId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Response(c, http.StatusBadRequest, "Invalid id")
+			return
+		}
+		seller, err := s.sellerService.Get(c, sellerId)
+		if err != nil {
+			web.Error(c, http.StatusNotFound, "")
+			return
+		}
+		web.Success(c, http.StatusOK, seller)
 	}
 }
 

@@ -14,6 +14,7 @@ var (
 
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Seller, error)
+	Get(ctx context.Context, id int) (domain.Seller, error)
 	Save(ctx context.Context, d domain.Seller) (int, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -46,4 +47,9 @@ func (s *sellerService) Delete(ctx context.Context, id int) error {
 	err := s.repository.Delete(ctx, id)
 	return err
 
+}
+
+func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error){
+	seller, err := s.repository.Get(ctx, id)
+	return seller, err
 }
