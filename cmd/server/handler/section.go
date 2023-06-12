@@ -1,35 +1,80 @@
 package handler
 
 import (
+	"errors"
+	"net/http"
+	"strconv"
+
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
-type Section struct {
-	// sectionService section.Service
+type SectionController struct {
+	sectionService section.Service
 }
 
-func NewSection() *Section {
-	return &Section{
-		// sectionService: s,
+func NewSection(s section.Service) *SectionController {
+	return &SectionController{
+		sectionService: s,
 	}
 }
 
-func (s *Section) GetAll() gin.HandlerFunc {
+func (s *SectionController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {}
 }
 
-func (s *Section) Get() gin.HandlerFunc {
+func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {}
 }
 
-func (s *Section) Create() gin.HandlerFunc {
+func (s *SectionController) Create() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sectionInput := &domain.SectionRequest{}
+		err := c.ShouldBindJSON(sectionInput)
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "error creating session, try again %s", err)
+			return
+		}
+		section, err := s.sectionService.Save(c, domain.Section{
+			SectionNumber:      sectionInput.SectionNumber,
+			CurrentTemperature: sectionInput.CurrentTemperature,
+			MinimumTemperature: sectionInput.MinimumTemperature,
+			CurrentCapacity:    sectionInput.CurrentCapacity,
+			MinimumCapacity:    sectionInput.MinimumCapacity,
+			MaximumCapacity:    sectionInput.MaximumCapacity,
+			WarehouseID:        sectionInput.WarehouseID,
+			ProductTypeID:      sectionInput.ProductTypeID,
+		})
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
+			return
+		}
+		web.Success(c, http.StatusCreated, section)
+	}
+}
+
+func (s *SectionController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {}
 }
 
-func (s *Section) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {}
-}
-
-func (s *Section) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+func (s *SectionController) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "Invalid id")
+			return
+		}
+		err = s.sectionService.Delete(c, id)
+		if err != nil{
+			if errors.Is(err, section.ErrNotFound){
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		web.Response(c, http.StatusNoContent, "")
+	}
 }

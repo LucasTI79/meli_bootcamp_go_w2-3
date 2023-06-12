@@ -67,7 +67,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, sellerId)
+		web.Success(c, http.StatusCreated, sellerId)
 	}
 }
 
