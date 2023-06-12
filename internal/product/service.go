@@ -14,6 +14,7 @@ var (
 
 type Service interface {
 	Save(ctx context.Context, p domain.Product) (int, error)
+	GetAll(ctx context.Context) ([]domain.Product, error)
 }
 
 type productService struct {
@@ -33,4 +34,10 @@ func (s *productService) Save(ctx context.Context, p domain.Product) (int, error
 	}
 	productId, err := s.repository.Save(ctx, p)
 	return productId, err
+}
+
+func (s *productService) GetAll(ctx context.Context) ([]domain.Product, error) {
+	products, err := s.repository.GetAll(ctx)
+	return products, err
+
 }

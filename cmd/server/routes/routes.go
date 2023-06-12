@@ -54,6 +54,7 @@ func (r *router) buildProductRoutes() {
 	service := product.NewService(repo)
 	handler := handler.NewProduct(service)
 	r.rg.POST("/products", handler.Create())
+	r.rg.GET("/products", handler.GetAll())
 }
 
 func (r *router) buildSectionRoutes() {}
