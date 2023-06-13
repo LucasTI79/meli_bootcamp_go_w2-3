@@ -51,6 +51,9 @@ func (r *repository) Get(ctx context.Context, id int) (domain.Employee, error) {
 	e := domain.Employee{}
 	err := row.Scan(&e.ID, &e.CardNumberID, &e.FirstName, &e.LastName, &e.WarehouseID)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return domain.Employee{}, ErrNotFound
+		}
 		return domain.Employee{}, err
 	}
 
