@@ -17,6 +17,7 @@ type Service interface {
 	Get(ctx context.Context, id int) (domain.Seller, error)
 	Save(ctx context.Context, d domain.Seller) (int, error)
 	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, s domain.Seller) error
 }
 
 type sellerService struct {
@@ -52,4 +53,9 @@ func (s *sellerService) Delete(ctx context.Context, id int) error {
 func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error) {
 	seller, err := s.repository.Get(ctx, id)
 	return seller, err
+}
+
+func (s *sellerService) Update(ctx context.Context, d domain.Seller) error {
+	err := s.repository.Update(ctx, d)
+	return err
 }
