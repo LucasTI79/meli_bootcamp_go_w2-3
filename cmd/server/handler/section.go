@@ -88,8 +88,12 @@ func (s *SectionController) Update() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
 			return
 		}
+		if sectionInput.SectionNumber == 0 || sectionInput.CurrentTemperature == 0 || sectionInput.MinimumTemperature == 0 || sectionInput.CurrentCapacity == 0 || sectionInput.MinimumCapacity == 0 || sectionInput.MaximumCapacity == 0 || sectionInput.WarehouseID == 0 || sectionInput.ProductTypeID == 0 {
+			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			return
+		}
 		sectionUpdated := domain.Section{
-			ID: id,
+			ID:                 id,
 			SectionNumber:      sectionInput.SectionNumber,
 			CurrentTemperature: sectionInput.CurrentTemperature,
 			MinimumTemperature: sectionInput.MinimumTemperature,
@@ -101,14 +105,14 @@ func (s *SectionController) Update() gin.HandlerFunc {
 		}
 		err = s.sectionService.Update(c, sectionUpdated)
 		if err != nil {
-			if errors.Is(err, domain.ErrNotFound){
+			if errors.Is(err, domain.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, domain.ErrNotFound.Error())
 				return
 			}
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		web.Success(c, http.StatusOK, sectionUpdated)
 
 	}
