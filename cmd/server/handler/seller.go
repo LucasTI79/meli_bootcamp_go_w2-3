@@ -25,7 +25,7 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellers, err := s.sellerService.GetAll(c)
 		if err != nil {
-			web.Error(c, http.StatusInternalServerError, "error listing sellers")
+			web.Error(c, http.StatusInternalServerError, seller.ErrTryAgain.Error())
 			return
 		}
 		web.Success(c, http.StatusOK, sellers)
@@ -36,47 +36,51 @@ func (s *sellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Response(c, http.StatusBadRequest, "Invalid id")
+			web.Response(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
 			return
 		}
-		seller, err := s.sellerService.Get(c, sellerId)
+		sellerGet, err := s.sellerService.Get(c, sellerId)
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				web.Error(c, http.StatusNotFound, "")
+			if errors.Is(err, seller.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, seller.ErrNotFound.Error())
 				return
 			}
 
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, seller)
+		web.Success(c, http.StatusOK, sellerGet)
 	}
 }
 
 func (s *sellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sellerInput := &domain.SellerRequest{}
+		sellerInput := &domain.Seller{}
 		err := c.ShouldBindJSON(sellerInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusBadRequest, seller.ErrTryAgain.Error(), err)
 			return
 		}
+
 		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
 			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
 			return
 		}
-		sellerId, err := s.sellerService.Save(c, domain.Seller{
 
+		sellerItem := domain.Seller{
 			CID:         sellerInput.CID,
 			CompanyName: sellerInput.CompanyName,
 			Address:     sellerInput.Address,
 			Telephone:   sellerInput.Telephone,
-		})
+		}
+		sellerId, err := s.sellerService.Save(c, sellerItem)
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
-		web.Success(c, http.StatusCreated, sellerId)
+
+		sellerItem.ID = sellerId
+		web.Success(c, http.StatusCreated, sellerItem)
 	}
 }
 
@@ -84,32 +88,35 @@ func (s *sellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, errId := strconv.Atoi(c.Param("id"))
 		if errId != nil {
-			web.Response(c, http.StatusBadRequest, "Invalid id")
+			web.Response(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
 			return
 		}
-		sellerInput := &domain.SellerRequest{}
+
+		sellerInput := &domain.Seller{}
 		err := c.ShouldBindJSON(sellerInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusBadRequest, seller.ErrTryAgain.Error(), err)
 			return
 		}
-		errUpdate := s.sellerService.Update(c, domain.Seller{
+
+		sellerItem := domain.Seller{
 			ID:          sellerId,
 			CID:         sellerInput.CID,
 			CompanyName: sellerInput.CompanyName,
 			Address:     sellerInput.Address,
 			Telephone:   sellerInput.Telephone,
-		})
-		_, errGet := s.sellerService.Get(c, sellerId)
-		if errGet != nil {
-			web.Error(c, http.StatusNotFound, "")
+		}
+		err = s.sellerService.Update(c, sellerItem)
+		if err != nil {
+			if errors.Is(err, seller.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, seller.ErrNotFound.Error())
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		if errUpdate != nil {
-			web.Error(c, http.StatusInternalServerError, errUpdate.Error())
-			return
-		}
-		web.Success(c, http.StatusNoContent, "")
+		web.Success(c, http.StatusOK, sellerItem)
 	}
 }
 
@@ -118,16 +125,15 @@ func (s *sellerController) Delete() gin.HandlerFunc {
 		sellerId, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "Invalid id")
+			web.Error(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
 			return
 		}
 
 		err = s.sellerService.Delete(c, sellerId)
 
 		if err != nil {
-			sellerNotFound := errors.Is(err, seller.ErrNotFound)
-			if sellerNotFound {
-				web.Error(c, http.StatusNotFound, err.Error())
+			if errors.Is(err, seller.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, seller.ErrNotFound.Error())
 				return
 			}
 

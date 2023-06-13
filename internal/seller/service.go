@@ -7,9 +7,11 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
-// Errors
 var (
-	ErrNotFound = errors.New("seller not found")
+	ErrNotFound     = errors.New("seller not found")
+	ErrInvalidId    = errors.New("invalid id")
+	ErrTryAgain     = errors.New("error, try again %s")
+	ErrAlredyExists = errors.New("seller already exists")
 )
 
 type Service interface {
@@ -50,7 +52,7 @@ func (s *sellerService) Delete(ctx context.Context, id int) error {
 
 }
 
-func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error){
+func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error) {
 	seller, err := s.repository.Get(ctx, id)
 	return seller, err
 }
