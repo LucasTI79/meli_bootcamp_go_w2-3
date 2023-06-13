@@ -10,11 +10,13 @@ import (
 // Errors
 var (
 	ErrNotFound = errors.New("buyer not found")
+	ErrExists = errors.New("buyer already exists")
 )
 
 type Service interface{	
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
+	Save(ctx context.Context, b domain.Buyer) (int, error)
 }
 
 type buyerService struct{
@@ -44,4 +46,13 @@ func (b *buyerService) Get(ctx context.Context, id int) (domain.Buyer, error) {
 		return domain.Buyer{}, err
 	}
 	return buyer, err
+}
+
+func (b *buyerService) Save(ctx context.Context, d domain.Buyer) (int, error){
+	userExist := b.repository.Exists(ctx, d.CardNumberID)
+	if userExist{
+		return 0, ErrExists
+	}
+	sellerId, err := b.repository.Save(ctx, d)
+	return sellerId, err
 }

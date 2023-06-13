@@ -64,4 +64,5 @@ func (r *router) buildBuyerRoutes() {
 	handler := handler.NewBuyer(service)
 	r.rg.GET("/buyers", handler.GetAll())
 	r.rg.GET("/buyers/:id", handler.Get())
+	r.rg.POST("/buyers", handler.Create())
 }

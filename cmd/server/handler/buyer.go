@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 )
 
@@ -52,7 +53,29 @@ func (b *buyerController) GetAll() gin.HandlerFunc {
 }
 
 func (b *buyerController) Create() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		buyerInput := &domain.BuyerRequest{}
+		err := c.ShouldBindJSON(buyerInput)
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			return
+		}
+		if buyerInput.CardNumberID == "" || buyerInput.FirstName == "" || buyerInput.LastName == "" {
+			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			return
+		}
+		buyerId, err := b.buyerService.Save(c, domain.Buyer{
+
+			CardNumberID:	buyerInput.CardNumberID,
+			FirstName: 		buyerInput.FirstName,
+			LastName:     	buyerInput.LastName,
+		})
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
+			return
+		}
+		web.Success(c, http.StatusCreated, buyerId)
+	}
 }
 
 func (b *buyerController) Update() gin.HandlerFunc {
