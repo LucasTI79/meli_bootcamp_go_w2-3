@@ -11,6 +11,8 @@ import (
 var (
 	ErrNotFound = errors.New("employee not found")
 	ErrCardNumberAlreadyExists = errors.New("employee already exists")
+	ErrTryAgain     = errors.New("error, try again %s")
+
 )
 
 type Service interface {
@@ -41,9 +43,9 @@ func (s *employeeService) Get(ctx context.Context, id int) (domain.Employee, err
 	panic("unimplemented")
 }
 
-// GetAll implements Service.
 func (s *employeeService) GetAll(ctx context.Context) ([]domain.Employee, error) {
-	panic("unimplemented")
+	employees, err := s.repository.GetAll(ctx)
+	return employees, err
 }
 
 func (s *employeeService) Save(ctx context.Context, e domain.Employee) (int, error) {

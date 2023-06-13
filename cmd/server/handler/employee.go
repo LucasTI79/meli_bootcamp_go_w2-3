@@ -24,7 +24,14 @@ func (e *Employee) Get() gin.HandlerFunc {
 }
 
 func (e *Employee) GetAll() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		employees, err := e.employeeService.GetAll(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, employee.ErrTryAgain.Error())
+			return
+		}
+		web.Success(c, http.StatusOK, employees)
+	}
 }
 
 func (e *Employee) Create() gin.HandlerFunc {

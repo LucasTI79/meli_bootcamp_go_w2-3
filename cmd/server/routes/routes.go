@@ -62,6 +62,7 @@ func (r *router) buildEmployeeRoutes() {
 	handler := handler.NewEmployee(service)
 
 	r.rg.POST("/employees", handler.Create())
+	r.rg.GET("/employees", handler.GetAll())
 }
 
 func (r *router) buildBuyerRoutes() {}
