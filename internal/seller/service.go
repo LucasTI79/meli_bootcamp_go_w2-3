@@ -10,6 +10,7 @@ import (
 var (
 	ErrNotFound     = errors.New("seller not found")
 	ErrInvalidId    = errors.New("invalid id")
+	ErrInvalidBody  = errors.New("invalid body")
 	ErrTryAgain     = errors.New("error, try again %s")
 	ErrAlredyExists = errors.New("seller already exists")
 )
@@ -38,8 +39,7 @@ func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 }
 
 func (s *sellerService) Save(ctx context.Context, d domain.Seller) (int, error) {
-	userExist := s.repository.Exists(ctx, d.CID)
-	if userExist {
+	if s.repository.Exists(ctx, d.CID) {
 		return 0, ErrAlredyExists
 	}
 	sellerId, err := s.repository.Save(ctx, d)
@@ -58,6 +58,9 @@ func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error) 
 }
 
 func (s *sellerService) Update(ctx context.Context, d domain.Seller) error {
+	if !s.repository.Exists(ctx, d.CID) {
+		return errors.New("cannot modify CID")
+	}
 	err := s.repository.Update(ctx, d)
 	return err
 }

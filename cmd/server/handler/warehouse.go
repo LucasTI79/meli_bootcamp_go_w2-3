@@ -64,7 +64,7 @@ func (w *warehouseController) Create() gin.HandlerFunc {
 		}
 
 		if warehouseInput.Address == "" || warehouseInput.MinimumCapacity == 0 || warehouseInput.MinimumTemperature == 0 || warehouseInput.Telephone == "" || warehouseInput.WarehouseCode == "" {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrInvalidBody.Error())
 			return
 		}
 
@@ -118,6 +118,11 @@ func (w *warehouseController) Update() gin.HandlerFunc {
 			return
 		}
 
+		if warehouseInput.Address == "" || warehouseInput.MinimumCapacity == 0 || warehouseInput.MinimumTemperature == 0 || warehouseInput.Telephone == "" || warehouseInput.WarehouseCode == "" {
+			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrInvalidBody.Error())
+			return
+		}
+
 		warehouseItem := domain.Warehouse{
 			ID:                 warehouseId,
 			Address:            warehouseInput.Address,
@@ -126,6 +131,7 @@ func (w *warehouseController) Update() gin.HandlerFunc {
 			MinimumCapacity:    warehouseInput.MinimumCapacity,
 			MinimumTemperature: warehouseInput.MinimumTemperature,
 		}
+
 		err = w.warehouseService.Update(c, warehouseItem)
 		if err != nil {
 			if errors.Is(err, warehouse.ErrNotFound) {
@@ -136,6 +142,7 @@ func (w *warehouseController) Update() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
+
 		web.Success(c, http.StatusOK, warehouseItem)
 	}
 }

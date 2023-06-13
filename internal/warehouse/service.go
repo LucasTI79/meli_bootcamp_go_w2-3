@@ -10,6 +10,7 @@ import (
 var (
 	ErrNotFound     = errors.New("warehouse not found")
 	ErrInvalidId    = errors.New("invalid id")
+	ErrInvalidBody  = errors.New("invalid body")
 	ErrTryAgain     = errors.New("error, try again %s")
 	ErrAlredyExists = errors.New("warehouse already exists")
 )
@@ -33,11 +34,9 @@ func NewService(r Repository) Service {
 }
 
 func (w *warehouseService) Save(ctx context.Context, d domain.Warehouse) (int, error) {
-	userExist := w.repository.Exists(ctx, d.WarehouseCode)
-	if userExist {
+	if w.repository.Exists(ctx, d.WarehouseCode) {
 		return 0, ErrAlredyExists
 	}
-
 	warehouseId, err := w.repository.Save(ctx, d)
 	return warehouseId, err
 }
@@ -58,6 +57,9 @@ func (w *warehouseService) Delete(ctx context.Context, id int) error {
 }
 
 func (w *warehouseService) Update(ctx context.Context, d domain.Warehouse) error {
+	if !w.repository.Exists(ctx, d.WarehouseCode) {
+		return errors.New("cannot modify warehouse code")
+	}
 	err := w.repository.Update(ctx, d)
 	return err
 }
