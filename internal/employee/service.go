@@ -20,28 +20,28 @@ type Service interface {
 	Delete(ctx context.Context, id int) error
 }
 
-type service struct{
+type employeeService struct{
 	repository Repository
 }
 
 func NewService(r Repository) Service {
-	return &service{
+	return &employeeService{
 		repository: r,
 	}
 }
 
 // Delete implements Service.
-func (*service) Delete(ctx context.Context, id int) error {
+func (s *employeeService) Delete(ctx context.Context, id int) error {
 	panic("unimplemented")
 }
 
 // Get implements Service.
-func (*service) Get(ctx context.Context, id int) (domain.Employee, error) {
+func (s *employeeService) Get(ctx context.Context, id int) (domain.Employee, error) {
 	panic("unimplemented")
 }
 
 // GetAll implements Service.
-func (*service) GetAll(ctx context.Context) ([]domain.Employee, error) {
+func (s *employeeService) GetAll(ctx context.Context) ([]domain.Employee, error) {
 	panic("unimplemented")
 }
 
@@ -51,6 +51,6 @@ func (*service) Save(ctx context.Context, e domain.Employee) (int, error) {
 }
 
 // Update implements Service.
-func (*service) Update(ctx context.Context, e domain.Employee) error {
+func (s *employeeService) Update(ctx context.Context, e domain.Employee) error {
 	panic("unimplemented")
 }
