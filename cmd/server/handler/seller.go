@@ -41,7 +41,12 @@ func (s *sellerController) Get() gin.HandlerFunc {
 		}
 		seller, err := s.sellerService.Get(c, sellerId)
 		if err != nil {
-			web.Error(c, http.StatusNotFound, "")
+			if err.Error() == "sql: no rows in result set" {
+				web.Error(c, http.StatusNotFound, "")
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		web.Success(c, http.StatusOK, seller)
@@ -56,7 +61,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
 			return
 		}
-		if (sellerInput.Address == "" || sellerInput.CID == 0 ||sellerInput.CompanyName == "" ||sellerInput.Telephone == "" ){
+		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
 			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
 			return
 		}
@@ -88,7 +93,7 @@ func (s *sellerController) Update() gin.HandlerFunc {
 			return
 		}
 		errUpdate := s.sellerService.Update(c, domain.Seller{
-			ID:			 sellerId,
+			ID:          sellerId,
 			CID:         sellerInput.CID,
 			CompanyName: sellerInput.CompanyName,
 			Address:     sellerInput.Address,
