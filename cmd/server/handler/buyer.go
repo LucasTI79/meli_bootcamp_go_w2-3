@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
+	"errors"
 	"net/http"
 	"strconv"
-	"errors"
+
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
+	"github.com/gin-gonic/gin"
 )
 
 type buyerController struct {
@@ -37,17 +38,19 @@ func (b *buyerController) Get() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, "error listing buyer")
 			return
 		}
-		web.Success(c, http.StatusOK, buyerObj)}
+		web.Success(c, http.StatusOK, buyerObj)
+	}
 }
 
 func (b *buyerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyer, err := b.buyerService.GetAll(c)
-		if err != nil { 
+		if err != nil {
 			web.Error(c, http.StatusInternalServerError, "error listing buyers")
 			return
 		}
-		web.Success(c, http.StatusOK, buyer)}
+		web.Success(c, http.StatusOK, buyer)
+	}
 }
 
 func (b *buyerController) Create() gin.HandlerFunc {
@@ -64,9 +67,9 @@ func (b *buyerController) Create() gin.HandlerFunc {
 		}
 		buyerId, err := b.buyerService.Save(c, domain.Buyer{
 
-			CardNumberID:	buyerInput.CardNumberID,
-			FirstName: 		buyerInput.FirstName,
-			LastName:     	buyerInput.LastName,
+			CardNumberID: buyerInput.CardNumberID,
+			FirstName:    buyerInput.FirstName,
+			LastName:     buyerInput.LastName,
 		})
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
@@ -94,10 +97,10 @@ func (b *buyerController) Update() gin.HandlerFunc {
 			return
 		}
 		err := b.buyerService.Update(c, domain.Buyer{
-			ID:				buyerId,
-			CardNumberID:	buyerInput.CardNumberID,
-			FirstName: 		buyerInput.FirstName,
-			LastName:     	buyerInput.LastName,
+			ID:           buyerId,
+			CardNumberID: buyerInput.CardNumberID,
+			FirstName:    buyerInput.FirstName,
+			LastName:     buyerInput.LastName,
 		})
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
@@ -118,5 +121,22 @@ func (b *buyerController) Update() gin.HandlerFunc {
 }
 
 func (b *buyerController) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		buyerId, errId := strconv.Atoi(c.Param("id"))
+		if errId != nil {
+			web.Response(c, http.StatusBadRequest, "invalid id")
+			return
+		}
+		err := b.buyerService.Delete(c, buyerId)
+		if err != nil {
+			buyerNotFound := errors.Is(err, buyer.ErrNotFound)
+			if buyerNotFound {
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, "error listing buyer")
+			return
+		}
+		web.Success(c, http.StatusNoContent, "")
+	}
 }

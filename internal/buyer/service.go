@@ -10,23 +10,24 @@ import (
 // Errors
 var (
 	ErrNotFound = errors.New("buyer not found")
-	ErrExists = errors.New("buyer already exists")
+	ErrExists   = errors.New("buyer already exists")
 )
 
-type Service interface{	
+type Service interface {
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
 	Save(ctx context.Context, b domain.Buyer) (int, error)
 	Update(ctx context.Context, b domain.Buyer) error
+	Delete(ctx context.Context, id int) error
 }
 
-type buyerService struct{
+type buyerService struct {
 	repository Repository
 }
 
 func NewService(r Repository) Service {
 	return &buyerService{
-		repository : r,
+		repository: r,
 	}
 }
 
@@ -41,7 +42,7 @@ func (b *buyerService) GetAll(ctx context.Context) ([]domain.Buyer, error) {
 func (b *buyerService) Get(ctx context.Context, id int) (domain.Buyer, error) {
 	buyer, err := b.repository.Get(ctx, id)
 	if err != nil {
-		if err.Error()=="sql: no rows in result set"{
+		if err.Error() == "sql: no rows in result set" {
 			return domain.Buyer{}, ErrNotFound
 		}
 		return domain.Buyer{}, err
@@ -49,9 +50,9 @@ func (b *buyerService) Get(ctx context.Context, id int) (domain.Buyer, error) {
 	return buyer, err
 }
 
-func (b *buyerService) Save(ctx context.Context, d domain.Buyer) (int, error){
+func (b *buyerService) Save(ctx context.Context, d domain.Buyer) (int, error) {
 	userExist := b.repository.Exists(ctx, d.CardNumberID)
-	if userExist{
+	if userExist {
 		return 0, ErrExists
 	}
 	sellerId, err := b.repository.Save(ctx, d)
@@ -60,10 +61,15 @@ func (b *buyerService) Save(ctx context.Context, d domain.Buyer) (int, error){
 
 func (b *buyerService) Update(ctx context.Context, d domain.Buyer) error {
 	userExist := b.repository.Exists(ctx, d.CardNumberID)
-	if !userExist{
+	if !userExist {
 		return ErrNotFound
 	}
 	err := b.repository.Update(ctx, d)
 	return err
 
+}
+
+func (b *buyerService) Delete(ctx context.Context, id int) error {
+	err := b.repository.Delete(ctx, id)
+	return err
 }

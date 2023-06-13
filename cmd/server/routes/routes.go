@@ -4,8 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
-	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/gin-gonic/gin"
 )
 
@@ -66,4 +66,5 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.GET("/buyers/:id", handler.Get())
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
+	r.rg.DELETE("/buyers/:id", handler.Delete())
 }
