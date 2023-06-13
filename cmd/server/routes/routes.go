@@ -55,6 +55,7 @@ func (r *router) buildProductRoutes() {
 	handler := handler.NewProduct(service)
 	r.rg.POST("/products", handler.Create())
 	r.rg.GET("/products", handler.GetAll())
+	r.rg.DELETE("/products/:id", handler.Delete())
 }
 
 func (r *router) buildSectionRoutes() {}

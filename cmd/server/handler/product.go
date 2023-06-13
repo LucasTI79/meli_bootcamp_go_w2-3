@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
@@ -75,5 +77,26 @@ func (p *productController) Update() gin.HandlerFunc {
 }
 
 func (p *productController) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		productId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "Invalid Id")
+			return
+		}
+		err = p.productService.Delete(c, productId)
+
+		if err != nil {
+			productNotFound := errors.Is(err, product.ErrNotFound)
+
+			if productNotFound {
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		web.Response(c, http.StatusNoContent, "")
+	}
 }
