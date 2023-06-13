@@ -13,8 +13,6 @@ var (
 	ErrCardNumberAlreadyExists = errors.New("employee already exists")
 	ErrTryAgain     = errors.New("error, try again %s")
 	ErrInvalidId    = errors.New("invalid id")
-
-
 )
 
 type Service interface {
@@ -41,7 +39,6 @@ func (s *employeeService) Delete(ctx context.Context, id int) error {
 	return err
 }
 
-
 func (s *employeeService) Get(ctx context.Context, id int) (domain.Employee, error) {
 	employee, err := s.repository.Get(ctx, id)
 	return employee, err
@@ -61,7 +58,7 @@ func (s *employeeService) Save(ctx context.Context, e domain.Employee) (int, err
 	return employeeId, err
 }
 
-// Update implements Service.
 func (s *employeeService) Update(ctx context.Context, e domain.Employee) error {
-	panic("unimplemented")
+	err := s.repository.Update(ctx, e)
+	return err
 }
