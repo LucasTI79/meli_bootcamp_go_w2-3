@@ -103,7 +103,7 @@ func (b *buyerController) Update() gin.HandlerFunc {
 			LastName:     buyerInput.LastName,
 		})
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			web.Error(c, http.StatusNotFound, err.Error())
 			return
 		}
 		buyerObj, errGet := b.buyerService.Get(c, buyerId)
