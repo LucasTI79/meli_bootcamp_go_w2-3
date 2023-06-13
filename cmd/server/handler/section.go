@@ -41,7 +41,12 @@ func (s *SectionController) Get() gin.HandlerFunc {
 		}
 		section, err := s.sectionService.Get(c, id)
 		if err != nil {
-			web.Error(c, http.StatusNotFound, err.Error())
+			if err.Error() == "sql: no rows in result set" {
+				web.Error(c, http.StatusNotFound, "")
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		web.Success(c, http.StatusOK, section)
@@ -53,10 +58,14 @@ func (s *SectionController) Create() gin.HandlerFunc {
 		sectionInput := &domain.SectionRequest{}
 		err := c.ShouldBindJSON(sectionInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error creating session, try again %s", err)
+			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
 			return
 		}
-		section, err := s.sectionService.Save(c, domain.Section{
+		if sectionInput.SectionNumber == 0 || sectionInput.CurrentTemperature == 0 || sectionInput.MinimumTemperature == 0 || sectionInput.CurrentCapacity == 0 || sectionInput.MinimumCapacity == 0 || sectionInput.MaximumCapacity == 0 || sectionInput.WarehouseID == 0 || sectionInput.ProductTypeID == 0 {
+			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			return
+		}
+		sectionID, err := s.sectionService.Save(c, domain.Section{
 			SectionNumber:      sectionInput.SectionNumber,
 			CurrentTemperature: sectionInput.CurrentTemperature,
 			MinimumTemperature: sectionInput.MinimumTemperature,
@@ -70,7 +79,7 @@ func (s *SectionController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
-		web.Success(c, http.StatusCreated, section)
+		web.Success(c, http.StatusCreated, sectionID)
 	}
 }
 

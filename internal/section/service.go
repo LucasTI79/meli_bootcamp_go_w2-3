@@ -29,8 +29,8 @@ func NewService(r Repository) Service {
 	}
 }
 func (s *serviceSection) Save(ctx context.Context, sect domain.Section) (int, error) {
-	section, err := s.repository.Save(ctx, sect)
-	return section, err
+	sectionID, err := s.repository.Save(ctx, sect)
+	return sectionID, err
 }
 func (s *serviceSection) Delete(ctx context.Context, id int) error {
 	err := s.repository.Delete(ctx, id)
