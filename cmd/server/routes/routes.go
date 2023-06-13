@@ -62,5 +62,6 @@ func (r *router) buildBuyerRoutes() {
 	repo := buyer.NewRepository(r.db)
 	service := buyer.NewService(repo)
 	handler := handler.NewBuyer(service)
-	r.rg.GET("/buyers", handler.Get())
+	r.rg.GET("/buyers", handler.GetAll())
+	r.rg.GET("/buyers/:id", handler.Get())
 }
