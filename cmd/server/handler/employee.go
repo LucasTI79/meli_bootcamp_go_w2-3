@@ -90,6 +90,10 @@ func (e *Employee) Update() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, employee.ErrTryAgain.Error(), err)
 			return
 		}
+		if employeeInput.CardNumberID == "" || employeeInput.FirstName == "" || employeeInput.LastName == "" || employeeInput.WarehouseID == 0 {
+			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			return
+		}
 
 		employeeItem := domain.Employee{
 			ID:          employeeId,
