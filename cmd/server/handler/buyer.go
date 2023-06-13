@@ -2,34 +2,44 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
+
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 )
 
-type Buyer struct {
-	// buyerService buyer.Service
+type buyerController struct {
+	buyerService buyer.Service
 }
 
-func NewBuyer() *Buyer {
-	return &Buyer{
-		// buyerService: b,
+func NewBuyer(b buyer.Service) *buyerController {
+	return &buyerController{
+		buyerService: b,
 	}
 }
 
-func (b *Buyer) Get() gin.HandlerFunc {
+func (b *buyerController) Get() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		buyer, err := b.buyerService.GetAll(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, "error listing buyers")
+			return
+		}
+		web.Success(c, http.StatusOK, buyer)}
+}
+
+func (b *buyerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {}
 }
 
-func (b *Buyer) GetAll() gin.HandlerFunc {
+func (b *buyerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {}
 }
 
-func (b *Buyer) Create() gin.HandlerFunc {
+func (b *buyerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {}
 }
 
-func (b *Buyer) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {}
-}
-
-func (b *Buyer) Delete() gin.HandlerFunc {
+func (b *buyerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {}
 }
