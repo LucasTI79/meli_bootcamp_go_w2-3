@@ -10,6 +10,7 @@ import (
 // Errors
 var (
 	ErrNotFound = errors.New("employee not found")
+	ErrCardNumberAlreadyExists = errors.New("employee already exists")
 )
 
 type Service interface {
@@ -48,7 +49,7 @@ func (s *employeeService) GetAll(ctx context.Context) ([]domain.Employee, error)
 func (s *employeeService) Save(ctx context.Context, e domain.Employee) (int, error) {
 	employeeExists := s.repository.Exists(ctx, e.CardNumberID)
 	if employeeExists {
-		return 0, errors.New("employee already exists")
+		return 0, ErrCardNumberAlreadyExists
 	}
 	employeeId, err := s.repository.Save(ctx, e)
 	return employeeId, err
