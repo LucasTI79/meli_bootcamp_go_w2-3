@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"errors"
-	"fmt"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
@@ -29,7 +28,6 @@ func (b *buyerController) Get() gin.HandlerFunc {
 			return
 		}
 		buyerObj, errGet := b.buyerService.Get(c, buyerId)
-		fmt.Println("teste3")
 		if errGet != nil {
 			buyerNotFound := errors.Is(errGet, buyer.ErrNotFound)
 			if buyerNotFound {
@@ -79,7 +77,44 @@ func (b *buyerController) Create() gin.HandlerFunc {
 }
 
 func (b *buyerController) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		buyerId, errId := strconv.Atoi(c.Param("id"))
+		if errId != nil {
+			web.Response(c, http.StatusBadRequest, "invalid id")
+			return
+		}
+		buyerInput := &domain.BuyerRequest{}
+		errBind := c.ShouldBindJSON(buyerInput)
+		if errBind != nil {
+			web.Error(c, http.StatusBadRequest, "error, try again %s", errBind)
+			return
+		}
+		if buyerInput.CardNumberID == "" || buyerInput.FirstName == "" || buyerInput.LastName == "" {
+			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			return
+		}
+		err := b.buyerService.Update(c, domain.Buyer{
+			ID:				buyerId,
+			CardNumberID:	buyerInput.CardNumberID,
+			FirstName: 		buyerInput.FirstName,
+			LastName:     	buyerInput.LastName,
+		})
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
+			return
+		}
+		buyerObj, errGet := b.buyerService.Get(c, buyerId)
+		if errGet != nil {
+			buyerNotFound := errors.Is(errGet, buyer.ErrNotFound)
+			if buyerNotFound {
+				web.Error(c, http.StatusNotFound, "buyer not found")
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, "error listing buyer")
+			return
+		}
+		web.Success(c, http.StatusOK, buyerObj)
+	}
 }
 
 func (b *buyerController) Delete() gin.HandlerFunc {

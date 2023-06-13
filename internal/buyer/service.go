@@ -17,6 +17,7 @@ type Service interface{
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
 	Save(ctx context.Context, b domain.Buyer) (int, error)
+	Update(ctx context.Context, b domain.Buyer) error
 }
 
 type buyerService struct{
@@ -55,4 +56,14 @@ func (b *buyerService) Save(ctx context.Context, d domain.Buyer) (int, error){
 	}
 	sellerId, err := b.repository.Save(ctx, d)
 	return sellerId, err
+}
+
+func (b *buyerService) Update(ctx context.Context, d domain.Buyer) error {
+	userExist := b.repository.Exists(ctx, d.CardNumberID)
+	if !userExist{
+		return ErrNotFound
+	}
+	err := b.repository.Update(ctx, d)
+	return err
+
 }
