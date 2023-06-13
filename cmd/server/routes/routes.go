@@ -57,10 +57,11 @@ func (r *router) buildSectionRoutes() {
 	service := section.NewService(repo)
 	handler := handler.NewSection(service)
 
-	r.rg.POST("/sections", handler.Create())
-	r.rg.DELETE("/sections/:id", handler.Delete())
 	r.rg.GET("/sections", handler.GetAll())
 	r.rg.GET("/sections/:id", handler.Get())
+	r.rg.POST("/sections", handler.Create())
+	r.rg.DELETE("/sections/:id", handler.Delete())
+	r.rg.PATCH("/sections/:id", handler.Update())
 }
 
 func (r *router) buildWarehouseRoutes() {}

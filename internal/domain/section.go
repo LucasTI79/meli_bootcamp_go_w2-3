@@ -1,5 +1,14 @@
 package domain
 
+import "errors"
+
+var (
+	ErrNotFound     = errors.New("section not found")
+	ErrInvalidId    = errors.New("invalid id")
+	ErrTryAgain     = errors.New("error, try again %s")
+	ErrAlreadyExists = errors.New("section already exists")
+)
+
 type Section struct {
 	ID                 int `json:"id"`
 	SectionNumber      int `json:"section_number"`
@@ -11,7 +20,6 @@ type Section struct {
 	WarehouseID        int `json:"warehouse_id"`
 	ProductTypeID      int `json:"product_type_id"`
 }
-
 type SectionRequest struct {
 	SectionNumber      int `json:"section_number"`
 	CurrentTemperature int `json:"current_temperature"`

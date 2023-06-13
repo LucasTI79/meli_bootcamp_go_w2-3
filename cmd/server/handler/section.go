@@ -36,13 +36,13 @@ func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "Invalid id")
+			web.Error(c, http.StatusBadRequest, domain.ErrAlreadyExists.Error())
 			return
 		}
 		section, err := s.sectionService.Get(c, id)
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				web.Error(c, http.StatusNotFound, "")
+			if errors.Is(err, domain.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, domain.ErrNotFound.Error())
 				return
 			}
 
@@ -55,26 +55,17 @@ func (s *SectionController) Get() gin.HandlerFunc {
 
 func (s *SectionController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sectionInput := &domain.SectionRequest{}
+		sectionInput := &domain.Section{}
 		err := c.ShouldBindJSON(sectionInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
 			return
 		}
 		if sectionInput.SectionNumber == 0 || sectionInput.CurrentTemperature == 0 || sectionInput.MinimumTemperature == 0 || sectionInput.CurrentCapacity == 0 || sectionInput.MinimumCapacity == 0 || sectionInput.MaximumCapacity == 0 || sectionInput.WarehouseID == 0 || sectionInput.ProductTypeID == 0 {
 			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
 			return
 		}
-		sectionID, err := s.sectionService.Save(c, domain.Section{
-			SectionNumber:      sectionInput.SectionNumber,
-			CurrentTemperature: sectionInput.CurrentTemperature,
-			MinimumTemperature: sectionInput.MinimumTemperature,
-			CurrentCapacity:    sectionInput.CurrentCapacity,
-			MinimumCapacity:    sectionInput.MinimumCapacity,
-			MaximumCapacity:    sectionInput.MaximumCapacity,
-			WarehouseID:        sectionInput.WarehouseID,
-			ProductTypeID:      sectionInput.ProductTypeID,
-		})
+		sectionID, err := s.sectionService.Save(c, *sectionInput)
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
@@ -84,20 +75,56 @@ func (s *SectionController) Create() gin.HandlerFunc {
 }
 
 func (s *SectionController) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
+			return
+		}
+
+		sectionInput := &domain.SectionRequest{}
+		err = c.ShouldBindJSON(sectionInput)
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
+			return
+		}
+		sectionUpdated := domain.Section{
+			ID: id,
+			SectionNumber:      sectionInput.SectionNumber,
+			CurrentTemperature: sectionInput.CurrentTemperature,
+			MinimumTemperature: sectionInput.MinimumTemperature,
+			CurrentCapacity:    sectionInput.CurrentCapacity,
+			MinimumCapacity:    sectionInput.MinimumCapacity,
+			MaximumCapacity:    sectionInput.MaximumCapacity,
+			WarehouseID:        sectionInput.WarehouseID,
+			ProductTypeID:      sectionInput.ProductTypeID,
+		}
+		err = s.sectionService.Update(c, sectionUpdated)
+		if err != nil {
+			if errors.Is(err, domain.ErrNotFound){
+				web.Error(c, http.StatusNotFound, domain.ErrNotFound.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		
+		web.Success(c, http.StatusOK, sectionUpdated)
+
+	}
 }
 
 func (s *SectionController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "Invalid id")
+			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
 			return
 		}
 		err = s.sectionService.Delete(c, id)
 		if err != nil {
 			if errors.Is(err, section.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, err.Error())
+				web.Error(c, http.StatusNotFound, domain.ErrNotFound.Error())
 				return
 			}
 			web.Error(c, http.StatusInternalServerError, err.Error())

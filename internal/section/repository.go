@@ -11,7 +11,7 @@ import (
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Section, error)
 	Get(ctx context.Context, id int) (domain.Section, error)
-	Exists(ctx context.Context, cid int) bool
+	Exists(ctx context.Context, id int) bool
 	Save(ctx context.Context, s domain.Section) (int, error)
 	Update(ctx context.Context, s domain.Section) error
 	Delete(ctx context.Context, id int) error
@@ -96,9 +96,12 @@ func (r *repository) Update(ctx context.Context, s domain.Section) error {
 		return err
 	}
 
-	_, err = res.RowsAffected()
+	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
+	}
+	if rowsAffected == 0{
+		return ErrNotFound
 	}
 
 	return nil
