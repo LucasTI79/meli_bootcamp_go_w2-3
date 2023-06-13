@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
@@ -20,7 +22,24 @@ func NewEmployee(e employee.Service) *Employee {
 }
 
 func (e *Employee) Get() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		employeeId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Response(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
+			return
+		}
+		employeeGet, err := e.employeeService.Get(c, employeeId)
+		if err != nil {
+			if errors.Is(err, employee.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, employee.ErrNotFound.Error())
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		web.Success(c, http.StatusOK, employeeGet)
+	}
 }
 
 func (e *Employee) GetAll() gin.HandlerFunc {

@@ -12,6 +12,8 @@ var (
 	ErrNotFound = errors.New("employee not found")
 	ErrCardNumberAlreadyExists = errors.New("employee already exists")
 	ErrTryAgain     = errors.New("error, try again %s")
+	ErrInvalidId    = errors.New("invalid id")
+
 
 )
 
@@ -40,7 +42,8 @@ func (s *employeeService) Delete(ctx context.Context, id int) error {
 
 // Get implements Service.
 func (s *employeeService) Get(ctx context.Context, id int) (domain.Employee, error) {
-	panic("unimplemented")
+	employee, err := s.repository.Get(ctx, id)
+	return employee, err
 }
 
 func (s *employeeService) GetAll(ctx context.Context) ([]domain.Employee, error) {
