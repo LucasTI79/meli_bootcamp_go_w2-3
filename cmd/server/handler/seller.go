@@ -63,7 +63,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 		}
 
 		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			web.Error(c, http.StatusUnprocessableEntity, seller.ErrInvalidBody.Error())
 			return
 		}
 
@@ -99,6 +99,11 @@ func (s *sellerController) Update() gin.HandlerFunc {
 			return
 		}
 
+		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
+			web.Error(c, http.StatusUnprocessableEntity, seller.ErrInvalidBody.Error())
+			return
+		}
+
 		sellerItem := domain.Seller{
 			ID:          sellerId,
 			CID:         sellerInput.CID,
@@ -106,6 +111,7 @@ func (s *sellerController) Update() gin.HandlerFunc {
 			Address:     sellerInput.Address,
 			Telephone:   sellerInput.Telephone,
 		}
+
 		err = s.sellerService.Update(c, sellerItem)
 		if err != nil {
 			if errors.Is(err, seller.ErrNotFound) {
@@ -116,6 +122,7 @@ func (s *sellerController) Update() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
+
 		web.Success(c, http.StatusOK, sellerItem)
 	}
 }
