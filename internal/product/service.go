@@ -9,7 +9,9 @@ import (
 
 // Errors
 var (
-	ErrNotFound = errors.New("product not found")
+	ErrNotFound    = errors.New("product not found")
+	ErrInvalidId   = errors.New("invalid id")
+	ErrInvalidBody = errors.New("invalid body")
 )
 
 type Service interface {
@@ -17,6 +19,7 @@ type Service interface {
 	GetAll(ctx context.Context) ([]domain.Product, error)
 	Delete(ctx context.Context, id int) error
 	Get(ctx context.Context, id int) (domain.Product, error)
+	Update(ctx context.Context, p domain.Product) error
 }
 
 type productService struct {
@@ -52,4 +55,9 @@ func (s *productService) Delete(ctx context.Context, id int) error {
 func (s *productService) Get(ctx context.Context, id int) (domain.Product, error) {
 	product, err := s.repository.Get(ctx, id)
 	return product, err
+}
+
+func (s *productService) Update(ctx context.Context, p domain.Product) error {
+	err := s.repository.Update(ctx, p)
+	return err
 }

@@ -36,7 +36,7 @@ func (p *productController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Response(c, http.StatusBadRequest, "Invalid id")
+			web.Response(c, http.StatusBadRequest, product.ErrInvalidId.Error())
 			return
 		}
 
@@ -65,7 +65,7 @@ func (p *productController) Create() gin.HandlerFunc {
 		}
 
 		if productImput.Description == "" || productImput.ExpirationRate == 0 || productImput.FreezingRate == 0 || productImput.Height == 0 || productImput.Length == 0 || productImput.Netweight == 0 || productImput.ProductCode == "" || productImput.RecomFreezTemp == 0 || productImput.SellerID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			web.Error(c, http.StatusUnprocessableEntity, product.ErrInvalidBody.Error())
 			return
 		}
 
@@ -86,12 +86,59 @@ func (p *productController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, productId)
+		web.Success(c, http.StatusCreated, productId)
 	}
 }
 
 func (p *productController) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		productId, errId := strconv.Atoi(c.Param("id"))
+
+		if errId != nil {
+			web.Response(c, http.StatusBadRequest, product.ErrInvalidId.Error())
+			return
+		}
+
+		productImput := &domain.ProductRequest{}
+		err := c.ShouldBindJSON(productImput)
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			return
+		}
+
+		if productImput.Description == "" || productImput.ExpirationRate == 0 || productImput.FreezingRate == 0 || productImput.Height == 0 || productImput.Length == 0 || productImput.Netweight == 0 || productImput.ProductCode == "" || productImput.RecomFreezTemp == 0 || productImput.SellerID == 0 {
+			web.Error(c, http.StatusNotFound, product.ErrInvalidBody.Error())
+			return
+		}
+
+		productItem := domain.Product{
+			ID:             productId,
+			Description:    productImput.Description,
+			ExpirationRate: productImput.ExpirationRate,
+			FreezingRate:   productImput.FreezingRate,
+			Height:         productImput.Height,
+			Length:         productImput.Length,
+			Netweight:      productImput.Netweight,
+			ProductCode:    productImput.ProductCode,
+			RecomFreezTemp: productImput.RecomFreezTemp,
+			Width:          productImput.Width,
+			ProductTypeID:  productImput.ProductTypeID,
+			SellerID:       productImput.SellerID,
+		}
+
+		err = p.productService.Update(c, productItem)
+
+		if err != nil {
+			if errors.Is(err, product.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, product.ErrNotFound.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		web.Success(c, http.StatusOK, productItem)
+
+	}
 }
 
 func (p *productController) Delete() gin.HandlerFunc {
@@ -99,7 +146,7 @@ func (p *productController) Delete() gin.HandlerFunc {
 		productId, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "Invalid Id")
+			web.Error(c, http.StatusBadRequest, product.ErrInvalidId.Error())
 			return
 		}
 		err = p.productService.Delete(c, productId)
