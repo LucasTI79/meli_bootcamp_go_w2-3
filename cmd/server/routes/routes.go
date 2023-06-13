@@ -4,8 +4,9 @@ import (
 	"database/sql"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
-	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,7 +40,6 @@ func (r *router) setGroup() {
 }
 
 func (r *router) buildSellerRoutes() {
-	// Example
 	repo := seller.NewRepository(r.db)
 	service := seller.NewService(repo)
 	handler := handler.NewSeller(service)
@@ -64,8 +64,26 @@ func (r *router) buildSectionRoutes() {
 	r.rg.PATCH("/sections/:id", handler.Update())
 }
 
-func (r *router) buildWarehouseRoutes() {}
+func (r *router) buildWarehouseRoutes() {
+	repo := warehouse.NewRepository(r.db)
+	service := warehouse.NewService(repo)
+	handler := handler.NewWarehouse(service)
+	r.rg.GET("/warehouses", handler.GetAll())
+	r.rg.GET("/warehouses/:id", handler.Get())
+	r.rg.POST("/warehouses", handler.Create())
+	r.rg.DELETE("/warehouses/:id", handler.Delete())
+	r.rg.PATCH("/warehouses/:id", handler.Update())
+}
 
 func (r *router) buildEmployeeRoutes() {}
 
-func (r *router) buildBuyerRoutes() {}
+func (r *router) buildBuyerRoutes() {
+	repo := buyer.NewRepository(r.db)
+	service := buyer.NewService(repo)
+	handler := handler.NewBuyer(service)
+	r.rg.GET("/buyers", handler.GetAll())
+	r.rg.GET("/buyers/:id", handler.Get())
+	r.rg.POST("/buyers", handler.Create())
+	r.rg.PATCH("/buyers/:id", handler.Update())
+	r.rg.DELETE("/buyers/:id", handler.Delete())
+}
