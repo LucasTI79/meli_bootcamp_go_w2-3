@@ -45,9 +45,13 @@ func (s *employeeService) GetAll(ctx context.Context) ([]domain.Employee, error)
 	panic("unimplemented")
 }
 
-// Save implements Service.
-func (*service) Save(ctx context.Context, e domain.Employee) (int, error) {
-	panic("unimplemented")
+func (s *employeeService) Save(ctx context.Context, e domain.Employee) (int, error) {
+	employeeExists := s.repository.Exists(ctx, e.CardNumberID)
+	if employeeExists {
+		return 0, errors.New("employee already exists")
+	}
+	employeeId, err := s.repository.Save(ctx, e)
+	return employeeId, err
 }
 
 // Update implements Service.

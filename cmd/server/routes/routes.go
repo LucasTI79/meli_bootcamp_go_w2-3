@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/gin-gonic/gin"
 )
@@ -55,6 +56,12 @@ func (r *router) buildSectionRoutes() {}
 
 func (r *router) buildWarehouseRoutes() {}
 
-func (r *router) buildEmployeeRoutes() {}
+func (r *router) buildEmployeeRoutes() {
+	repo := employee.NewRepository(r.db)
+	service := employee.NewService(repo)
+	handler := handler.NewEmployee(service)
+
+	r.rg.POST("/employees", handler.Create())
+}
 
 func (r *router) buildBuyerRoutes() {}

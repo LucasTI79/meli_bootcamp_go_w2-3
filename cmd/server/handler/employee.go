@@ -1,16 +1,21 @@
 package handler
 
 import (
+	"net/http"
+
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
 type Employee struct {
-	// employeeService employee.Service
+	employeeService employee.Service
 }
 
-func NewEmployee() *Employee {
+func NewEmployee(e employee.Service) *Employee {
 	return &Employee{
-		// employeeService: e,
+		employeeService: e,
 	}
 }
 
@@ -23,7 +28,25 @@ func (e *Employee) GetAll() gin.HandlerFunc {
 }
 
 func (e *Employee) Create() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		employeeInput := &domain.Employee{}
+		err := c.ShouldBindJSON(employeeInput)
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			return
+		}
+		if employeeInput.CardNumberID == "" || employeeInput.FirstName == "" || employeeInput.LastName == "" || employeeInput.WarehouseID == 0 {
+			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			return
+		}
+		employeeId, err := e.employeeService.Save(c, *employeeInput)
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
+			return
+		}
+		employeeInput.ID = employeeId
+		web.Success(c, http.StatusCreated, employeeInput)
+	}
 }
 
 func (e *Employee) Update() gin.HandlerFunc {
