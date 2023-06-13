@@ -33,7 +33,18 @@ func (p *productController) GetAll() gin.HandlerFunc {
 }
 
 func (p *productController) Get() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		productId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Response(c, http.StatusBadRequest, "Invalid id")
+			return
+		}
+
+		product, err := p.productService.Get(c, productId)
+		if err != nil {
+
+		}
+	}
 }
 
 func (p *productController) Create() gin.HandlerFunc {
