@@ -42,8 +42,15 @@ func (p *productController) Get() gin.HandlerFunc {
 
 		product, err := p.productService.Get(c, productId)
 		if err != nil {
+			if err.Error() == "sql: no rows in result set" {
+				web.Error(c, http.StatusNotFound, "")
+				return
+			}
 
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
 		}
+		web.Success(c, http.StatusOK, product)
 	}
 }
 
