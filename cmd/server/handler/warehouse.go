@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -24,21 +25,21 @@ func (w *warehouseController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouseId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Response(c, http.StatusBadRequest, "invalid id")
+			web.Response(c, http.StatusBadRequest, warehouse.ErrInvalidId.Error())
 			return
 		}
 
-		warehouse, err := w.warehouseService.Get(c, warehouseId)
+		warehouseGet, err := w.warehouseService.Get(c, warehouseId)
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				web.Error(c, http.StatusNotFound, "")
+			if errors.Is(err, warehouse.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, warehouse.ErrNotFound.Error())
 				return
 			}
 
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, warehouse)
+		web.Success(c, http.StatusOK, warehouseGet)
 	}
 }
 
@@ -46,7 +47,7 @@ func (w *warehouseController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouses, err := w.warehouseService.GetAll(c)
 		if err != nil {
-			web.Error(c, http.StatusInternalServerError, "error listing sellers")
+			web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
 			return
 		}
 		web.Success(c, http.StatusOK, warehouses)
@@ -58,7 +59,7 @@ func (w *warehouseController) Create() gin.HandlerFunc {
 		warehouseInput := &domain.Warehouse{}
 		err := c.ShouldBindJSON(warehouseInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusBadRequest, warehouse.ErrTryAgain.Error(), err)
 			return
 		}
 
@@ -77,10 +78,64 @@ func (w *warehouseController) Create() gin.HandlerFunc {
 	}
 }
 
-func (w *warehouseController) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+func (w *warehouseController) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		warehouseId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, warehouse.ErrInvalidId.Error())
+			return
+		}
+
+		err = w.warehouseService.Delete(c, warehouseId)
+
+		if err != nil {
+			if errors.Is(err, warehouse.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, warehouse.ErrNotFound.Error())
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		web.Response(c, http.StatusNoContent, "")
+	}
 }
 
-func (w *warehouseController) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+func (w *warehouseController) Update() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		warehouseId, errId := strconv.Atoi(c.Param("id"))
+		if errId != nil {
+			web.Response(c, http.StatusBadRequest, warehouse.ErrInvalidId.Error())
+			return
+		}
+
+		warehouseInput := &domain.Warehouse{}
+		err := c.ShouldBindJSON(warehouseInput)
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, warehouse.ErrTryAgain.Error(), err)
+			return
+		}
+
+		warehouseItem := domain.Warehouse{
+			ID:                 warehouseId,
+			Address:            warehouseInput.Address,
+			Telephone:          warehouseInput.Telephone,
+			WarehouseCode:      warehouseInput.WarehouseCode,
+			MinimumCapacity:    warehouseInput.MinimumCapacity,
+			MinimumTemperature: warehouseInput.MinimumTemperature,
+		}
+		err = w.warehouseService.Update(c, warehouseItem)
+		if err != nil {
+			if errors.Is(err, warehouse.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, warehouse.ErrNotFound.Error())
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		web.Success(c, http.StatusOK, warehouseItem)
+	}
 }

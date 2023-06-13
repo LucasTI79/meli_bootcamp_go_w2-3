@@ -60,6 +60,8 @@ func (r *router) buildWarehouseRoutes() {
 	r.rg.GET("/warehouses", handler.GetAll())
 	r.rg.GET("/warehouses/:id", handler.Get())
 	r.rg.POST("/warehouses", handler.Create())
+	r.rg.DELETE("/warehouses/:id", handler.Delete())
+	r.rg.PATCH("/warehouses/:id", handler.Update())
 }
 
 func (r *router) buildEmployeeRoutes() {}

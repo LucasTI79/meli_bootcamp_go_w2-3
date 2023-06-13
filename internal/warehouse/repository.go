@@ -51,6 +51,9 @@ func (r *repository) Get(ctx context.Context, id int) (domain.Warehouse, error) 
 	w := domain.Warehouse{}
 	err := row.Scan(&w.ID, &w.Address, &w.Telephone, &w.WarehouseCode, &w.MinimumCapacity, &w.MinimumTemperature)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return domain.Warehouse{}, ErrNotFound
+		}
 		return domain.Warehouse{}, err
 	}
 
@@ -96,9 +99,12 @@ func (r *repository) Update(ctx context.Context, w domain.Warehouse) error {
 		return err
 	}
 
-	_, err = res.RowsAffected()
+	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
+	}
+	if rowsAffected == 0 {
+		return ErrNotFound
 	}
 
 	return nil
