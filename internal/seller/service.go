@@ -9,7 +9,9 @@ import (
 
 var (
 	ErrNotFound     = errors.New("seller not found")
-	ErrAlredyExists = errors.New("user already exists")
+	ErrInvalidId    = errors.New("invalid id")
+	ErrTryAgain     = errors.New("error, try again %s")
+	ErrAlredyExists = errors.New("seller already exists")
 )
 
 type Service interface {
