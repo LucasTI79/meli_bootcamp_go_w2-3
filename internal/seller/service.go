@@ -7,9 +7,12 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
-// Errors
 var (
-	ErrNotFound = errors.New("seller not found")
+	ErrNotFound     = errors.New("seller not found")
+	ErrInvalidId    = errors.New("invalid id")
+	ErrInvalidBody  = errors.New("invalid body")
+	ErrTryAgain     = errors.New("error, try again %s")
+	ErrAlredyExists = errors.New("seller already exists")
 )
 
 type Service interface {
@@ -36,9 +39,8 @@ func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 }
 
 func (s *sellerService) Save(ctx context.Context, d domain.Seller) (int, error) {
-	userExist := s.repository.Exists(ctx, d.CID)
-	if userExist {
-		return 0, errors.New("user already exists")
+	if s.repository.Exists(ctx, d.CID) {
+		return 0, ErrAlredyExists
 	}
 	sellerId, err := s.repository.Save(ctx, d)
 	return sellerId, err
@@ -50,12 +52,15 @@ func (s *sellerService) Delete(ctx context.Context, id int) error {
 
 }
 
-func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error){
+func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error) {
 	seller, err := s.repository.Get(ctx, id)
 	return seller, err
 }
 
 func (s *sellerService) Update(ctx context.Context, d domain.Seller) error {
+	if !s.repository.Exists(ctx, d.CID) {
+		return errors.New("cannot modify CID")
+	}
 	err := s.repository.Update(ctx, d)
 	return err
 }
