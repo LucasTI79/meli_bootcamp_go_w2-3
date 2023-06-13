@@ -7,13 +7,12 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
-// Repository encapsulates the storage of a Seller.
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Seller, error)
 	Get(ctx context.Context, id int) (domain.Seller, error)
 	Exists(ctx context.Context, cid int) bool
 	Save(ctx context.Context, s domain.Seller) (int, error)
-	//Update(ctx context.Context, s domain.Seller) error
+	Update(ctx context.Context, s domain.Seller) error
 	Delete(ctx context.Context, id int) error
 }
 
@@ -51,6 +50,9 @@ func (r *repository) Get(ctx context.Context, id int) (domain.Seller, error) {
 	s := domain.Seller{}
 	err := row.Scan(&s.ID, &s.CID, &s.CompanyName, &s.Address, &s.Telephone)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return domain.Seller{}, ErrNotFound
+		}
 		return domain.Seller{}, err
 	}
 
@@ -96,9 +98,12 @@ func (r *repository) Update(ctx context.Context, s domain.Seller) error {
 		return err
 	}
 
-	_, err = res.RowsAffected()
+	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
+	}
+	if rowsAffected == 0 {
+		return ErrNotFound
 	}
 
 	return nil
