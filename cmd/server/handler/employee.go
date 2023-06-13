@@ -80,5 +80,26 @@ func (e *Employee) Update() gin.HandlerFunc {
 }
 
 func (e *Employee) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {}
+	return func(c *gin.Context) {
+		employeeId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
+			return
+		}
+
+		err = e.employeeService.Delete(c, employeeId)
+
+		if err != nil {
+			if errors.Is(err, employee.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, employee.ErrNotFound.Error())
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		web.Response(c, http.StatusNoContent, "")
+	}
 }

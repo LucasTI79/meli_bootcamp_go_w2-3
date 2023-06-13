@@ -35,12 +35,13 @@ func NewService(r Repository) Service {
 	}
 }
 
-// Delete implements Service.
+
 func (s *employeeService) Delete(ctx context.Context, id int) error {
-	panic("unimplemented")
+	err := s.repository.Delete(ctx, id)
+	return err
 }
 
-// Get implements Service.
+
 func (s *employeeService) Get(ctx context.Context, id int) (domain.Employee, error) {
 	employee, err := s.repository.Get(ctx, id)
 	return employee, err

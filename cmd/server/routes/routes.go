@@ -64,6 +64,7 @@ func (r *router) buildEmployeeRoutes() {
 	r.rg.POST("/employees", handler.Create())
 	r.rg.GET("/employees", handler.GetAll())
 	r.rg.GET("/employees/:id", handler.Get())
+	r.rg.DELETE("/employees/:id", handler.Delete())
 }
 
 func (r *router) buildBuyerRoutes() {}
