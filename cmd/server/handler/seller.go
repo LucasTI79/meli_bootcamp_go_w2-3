@@ -38,6 +38,13 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 	}
 }
 
+// @Produce json
+// GET /seller/:id @Summary Returns a seller per Id
+// @Router /api/v1/seller/:id [get]
+// @Param   id     path    int     true        "Seller ID"
+// @Tags Sellers
+// @Accept json
+// @Success 200 {object}  domain.Seller
 func (s *sellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
