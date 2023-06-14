@@ -21,6 +21,7 @@ func NewSeller(s seller.Service) *sellerController {
 	}
 }
 
+// @Summary Get All Sellers
 // @Produce json
 // GET /sellers @Summary Returns a list of sellers
 // @Router /api/v1/sellers [get]
@@ -39,6 +40,7 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 	}
 }
 
+// @Summary Get Seller by ID
 // @Produce json
 // GET /seller/:id @Summary Returns a seller per Id
 // @Router /api/v1/sellers/{id} [get]
@@ -68,6 +70,7 @@ func (s *sellerController) Get() gin.HandlerFunc {
 	}
 }
 
+// @Summary Create Seller
 // @Produce json
 // POST /seller/:id @Summary Create a seller
 // @Router /api/v1/sellers/ [post]
@@ -107,6 +110,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 	}
 }
 
+// @Summary Update Seller
 // @Produce json
 // PATCH /sellers/:id @Summary Modifies an existing seller
 // @Router /api/v1/sellers/{id} [patch]
@@ -159,6 +163,7 @@ func (s *sellerController) Update() gin.HandlerFunc {
 	}
 }
 
+// @Summary Delete Seller
 // @Produce json
 // DELETE /sellers/:id @Summary Delete a specific seller
 // @Router /api/v1/sellers/{id} [delete]
