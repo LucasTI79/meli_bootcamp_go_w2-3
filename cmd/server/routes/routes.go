@@ -83,7 +83,7 @@ func (r *router) buildBuyerRoutes() {
 }
 
 func (r *router) buildSwagger() {
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/"
 	r.rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	repo := buyer.NewRepository(r.db)
 	service := buyer.NewService(repo)
