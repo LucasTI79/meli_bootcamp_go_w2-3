@@ -72,7 +72,7 @@ func (s *sellerController) Get() gin.HandlerFunc {
 // @Tags Sellers
 // @Produce json
 // @Success 201 {object} domain.Seller
-// @Router /api/v1/sellers/{id} [post]
+// @Router /api/v1/sellers/ [post]
 // @Description Create Sellers
 func (s *sellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
