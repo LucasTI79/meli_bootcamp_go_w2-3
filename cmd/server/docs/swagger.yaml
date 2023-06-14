@@ -10,6 +10,15 @@ definitions:
       last_name:
         type: string
     type: object
+  domain.BuyerRequest:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -17,6 +26,75 @@ paths:
     get:
       consumes:
       - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Buyer'
+            type: array
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Buyer Data
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/domain.BuyerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: int
+  /api/v1/buyers/:id:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' '
+          schema:
+            type: string
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Buyer'
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Buyer Data
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/domain.BuyerRequest'
       produces:
       - application/json
       responses:
