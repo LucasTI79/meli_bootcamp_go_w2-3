@@ -42,6 +42,11 @@ func (b *buyerController) Get() gin.HandlerFunc {
 	}
 }
 
+// @Produce json
+// GET /buyers @Summary Returns a list of buyers
+// @Router /api/v1/buyers [get]
+// @Accept json
+// @Success 200 {object}  []domain.Buyer
 func (b *buyerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyer, err := b.buyerService.GetAll(c)

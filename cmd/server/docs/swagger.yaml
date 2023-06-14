@@ -1,0 +1,29 @@
+definitions:
+  domain.Buyer:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/buyers:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Buyer'
+            type: array
+swagger: "2.0"
