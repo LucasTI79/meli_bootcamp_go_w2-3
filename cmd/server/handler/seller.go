@@ -21,6 +21,12 @@ func NewSeller(s seller.Service) *sellerController {
 	}
 }
 
+// @Produce json
+// GET /sellers @Summary Returns a list of sellers
+// @Router /api/v1/sellers [get]
+// @Tags Sellers
+// @Accept json
+// @Success 200 {object}  []domain.Seller
 func (s *sellerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellers, err := s.sellerService.GetAll(c)
