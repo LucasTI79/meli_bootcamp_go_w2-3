@@ -147,6 +147,13 @@ func (s *sellerController) Update() gin.HandlerFunc {
 	}
 }
 
+// @Produce json
+// DELETE /sellers/:id @Summary Delete a specific seller
+// @Router /api/v1/sellers/{id} [delete]
+// @Param   id     path    int     true        "Seller ID"
+// @Tags Sellers
+// @Accept json
+// @Success 204
 func (s *sellerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
