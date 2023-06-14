@@ -1,0 +1,3 @@
+cmd/server/docs/docs.go
+cmd/server/docs/swagger.json
+cmd/server/docs/swagger.yaml
