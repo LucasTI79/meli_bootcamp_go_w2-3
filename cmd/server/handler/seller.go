@@ -113,6 +113,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 // @Accept json
 // @Tags Sellers
 // @Success 200 {object}  domain.Seller
+// @Param id path int true "Seller ID"
 // @Param seller body domain.Seller true "Seller Data"
 // @Description Update Seller
 func (s *sellerController) Update() gin.HandlerFunc {
