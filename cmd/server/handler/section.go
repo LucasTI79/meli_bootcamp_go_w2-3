@@ -23,7 +23,7 @@ func NewSection(s section.Service) *SectionController {
 
 // @Summary Get All sections
 // @Description List all sections availables
-// @Tags GetAllSections
+// @Tags Sections
 // @Produce json
 // @Success 200 array []domain.Section
 // @Router /api/v1/sections [get]
@@ -40,7 +40,7 @@ func (s *SectionController) GetAll() gin.HandlerFunc {
 
 // @Summary Get By ID Sections
 // @Description Describe sections by id
-// @Tags GetByIDSections
+// @Tags Sections
 // @Produce json
 // @Success 200 {object} domain.Section
 // @Router /api/v1/sections/{id} [get]
@@ -67,7 +67,7 @@ func (s *SectionController) Get() gin.HandlerFunc {
 
 // @Summary Create Sections
 // @Description Create Sections
-// @Tags CreateSections
+// @Tags Sections
 // @Produce json
 // @Success 201 {object} domain.Section
 // @Router /api/v1/sections/{id} [post]
@@ -94,7 +94,7 @@ func (s *SectionController) Create() gin.HandlerFunc {
 
 // @Summary Updated Sections
 // @Description Updated Sections
-// @Tags Updated Sections
+// @Tags Sections
 // @Produce json
 // @Success 200 {object} domain.Section
 // @Router /api/v1/sections/:id [patch]
@@ -144,7 +144,7 @@ func (s *SectionController) Update() gin.HandlerFunc {
 
 // @Summary Delete Sections
 // @Description Delete Sections
-// @Tags Delete Sections
+// @Tags Sections
 // @Produce json
 // @Success 204
 // @Router /api/v1/sections/:id [delete]

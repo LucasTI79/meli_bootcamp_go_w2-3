@@ -27,6 +27,7 @@ func NewBuyer(b buyer.Service) *buyerController {
 // @Param   id     path    int     true        "Buyer ID"
 // @Accept json
 // @Success 200 {object}  domain.Buyer
+// @Tags Buyers
 func (b *buyerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerId, errId := strconv.Atoi(c.Param("id"))
@@ -53,6 +54,7 @@ func (b *buyerController) Get() gin.HandlerFunc {
 // @Router /api/v1/buyers [get]
 // @Accept json
 // @Success 200 {object}  []domain.Buyer
+// @Tags Buyers
 func (b *buyerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyer, err := b.buyerService.GetAll(c)
@@ -70,6 +72,7 @@ func (b *buyerController) GetAll() gin.HandlerFunc {
 // @Accept json
 // @Success 201 {int}  0
 // @Param buyer body domain.BuyerRequest true "Buyer Data"
+// @Tags Buyers
 func (b *buyerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerInput := &domain.BuyerRequest{}
@@ -102,6 +105,7 @@ func (b *buyerController) Create() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {object}  domain.Buyer
 // @Param buyer body domain.BuyerRequest true "Buyer Data"
+// @Tags Buyers
 func (b *buyerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerId, errId := strconv.Atoi(c.Param("id"))
@@ -149,6 +153,7 @@ func (b *buyerController) Update() gin.HandlerFunc {
 // @Param   id     path    int     true        "Buyer ID"
 // @Accept json
 // @Success 200 {string}  " "
+// @Tags Buyers
 func (b *buyerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerId, errId := strconv.Atoi(c.Param("id"))
