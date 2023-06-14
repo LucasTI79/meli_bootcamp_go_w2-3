@@ -74,7 +74,7 @@ func (w *warehouseController) GetAll() gin.HandlerFunc {
 // @Summary Create Warehouse
 // @Produce json
 // POST /warehouse/:id @Summary Create a warehouse
-// @Router /api/v1/warehouses/ [post]
+// @Router /api/v1/warehouses [post]
 // @Tags Warehouses
 // @Accept json
 // @Param warehouse body domain.Warehouse true "Warehouse Data"

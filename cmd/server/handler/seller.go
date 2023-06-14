@@ -73,7 +73,7 @@ func (s *sellerController) Get() gin.HandlerFunc {
 // @Summary Create Seller
 // @Produce json
 // POST /seller/:id @Summary Create a seller
-// @Router /api/v1/sellers/ [post]
+// @Router /api/v1/sellers [post]
 // @Tags Sellers
 // @Accept json
 // @Param seller body domain.Seller true "Seller Data"
