@@ -84,6 +84,13 @@ func (s *sellerController) Create() gin.HandlerFunc {
 	}
 }
 
+// @Produce json
+// PATCH /sellers/:id @Summary Modifies an existing seller
+// @Router /api/v1/sellers/:id [patch]
+// @Accept json
+// @Tags Sellers
+// @Success 200 {object}  domain.Seller
+// @Param buyer body domain.Seller true "Seller Data"
 func (s *sellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, errId := strconv.Atoi(c.Param("id"))
