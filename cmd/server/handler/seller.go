@@ -40,7 +40,7 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 
 // @Produce json
 // GET /seller/:id @Summary Returns a seller per Id
-// @Router /api/v1/seller/:id [get]
+// @Router /api/v1/sellers/{id} [get]
 // @Param   id     path    int     true        "Seller ID"
 // @Tags Sellers
 // @Accept json
