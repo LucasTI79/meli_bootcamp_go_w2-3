@@ -27,6 +27,7 @@ func NewSeller(s seller.Service) *sellerController {
 // @Tags Sellers
 // @Accept json
 // @Success 200 {object}  []domain.Seller
+// @Description List all Sellers
 func (s *sellerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellers, err := s.sellerService.GetAll(c)
@@ -45,6 +46,7 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 // @Tags Sellers
 // @Accept json
 // @Success 200 {object}  domain.Seller
+// @Description List one by Seller id
 func (s *sellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
@@ -66,6 +68,12 @@ func (s *sellerController) Get() gin.HandlerFunc {
 	}
 }
 
+// @Summary Create Sellers
+// @Tags Sellers
+// @Produce json
+// @Success 201 {object} domain.Seller
+// @Router /api/v1/sellers/{id} [post]
+// @Description Create Sellers
 func (s *sellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerInput := &domain.Seller{}
@@ -104,6 +112,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 // @Tags Sellers
 // @Success 200 {object}  domain.Seller
 // @Param buyer body domain.Seller true "Seller Data"
+// @Description Update Seller
 func (s *sellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, errId := strconv.Atoi(c.Param("id"))
@@ -154,6 +163,7 @@ func (s *sellerController) Update() gin.HandlerFunc {
 // @Tags Sellers
 // @Accept json
 // @Success 204
+// @Description Delete Seller
 func (s *sellerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
