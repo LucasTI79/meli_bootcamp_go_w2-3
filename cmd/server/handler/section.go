@@ -21,6 +21,13 @@ func NewSection(s section.Service) *SectionController {
 	}
 }
 
+// @Summary List all sections
+// @Description List all sections availables
+// @Tags ListAllSections
+// @Produce json
+// @Success 200 array []domain.Section
+// @Failure 500 {object} web.Error()
+// @Router /api/v1/sections [get]
 func (s *SectionController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sections, err := s.sectionService.GetAll(c)
