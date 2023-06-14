@@ -95,6 +95,13 @@ func (s *SectionController) Create() gin.HandlerFunc {
 	}
 }
 
+// @Summary Updated Sections
+// @Description Updated Sections
+// @Tags Updated Sections
+// @Produce json
+// @Success 200 {object} domain.Section
+// @Failure 400, 404, 422, 500 {object} web.Error()
+// @Router /api/v1/sections/:id [patch]
 func (s *SectionController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -139,6 +146,13 @@ func (s *SectionController) Update() gin.HandlerFunc {
 	}
 }
 
+// @Summary Delete Sections
+// @Description Delete Sections
+// @Tags Delete Sections
+// @Produce json
+// @Success 204 
+// @Failure 400, 404, 500 {object} web.Error()
+// @Router /api/v1/sections/:id [delete]
 func (s *SectionController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
