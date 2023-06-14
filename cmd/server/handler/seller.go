@@ -68,11 +68,13 @@ func (s *sellerController) Get() gin.HandlerFunc {
 	}
 }
 
-// @Summary Create Sellers
-// @Tags Sellers
 // @Produce json
-// @Success 201 {object} domain.Seller
+// POST /seller/:id @Summary Create a seller
 // @Router /api/v1/sellers/ [post]
+// @Tags Sellers
+// @Accept json
+// @Param seller body domain.Seller true "Seller Data"
+// @Success 201 {object} domain.Seller
 // @Description Create Sellers
 func (s *sellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -111,7 +113,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 // @Accept json
 // @Tags Sellers
 // @Success 200 {object}  domain.Seller
-// @Param buyer body domain.Seller true "Seller Data"
+// @Param seller body domain.Seller true "Seller Data"
 // @Description Update Seller
 func (s *sellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
