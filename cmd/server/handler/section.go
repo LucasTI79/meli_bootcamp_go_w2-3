@@ -21,9 +21,9 @@ func NewSection(s section.Service) *SectionController {
 	}
 }
 
-// @Summary List all sections
+// @Summary Get All sections
 // @Description List all sections availables
-// @Tags ListAllSections
+// @Tags GetAllSections
 // @Produce json
 // @Success 200 array []domain.Section
 // @Failure 500 {object} web.Error()
@@ -39,6 +39,13 @@ func (s *SectionController) GetAll() gin.HandlerFunc {
 	}
 }
 
+// @Summary Get By ID Sections
+// @Description Describe sections by id
+// @Tags GetByIDSections
+// @Produce json
+// @Success 200 {object} domain.Section
+// @Failure 400, 404, 500 {object} web.Error()
+// @Router /api/v1/sections/{id} [get]
 func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -60,6 +67,13 @@ func (s *SectionController) Get() gin.HandlerFunc {
 	}
 }
 
+// @Summary Create Sections
+// @Description Create Sections
+// @Tags CreateSections
+// @Produce json
+// @Success 201 {object} domain.Section
+// @Failure 400, 409, 422 {object} web.Error()
+// @Router /api/v1/sections/{id} [post]
 func (s *SectionController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sectionInput := &domain.Section{}
