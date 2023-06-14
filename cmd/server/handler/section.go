@@ -26,7 +26,6 @@ func NewSection(s section.Service) *SectionController {
 // @Tags GetAllSections
 // @Produce json
 // @Success 200 array []domain.Section
-// @Failure 500 {object} web.Error()
 // @Router /api/v1/sections [get]
 func (s *SectionController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -44,7 +43,6 @@ func (s *SectionController) GetAll() gin.HandlerFunc {
 // @Tags GetByIDSections
 // @Produce json
 // @Success 200 {object} domain.Section
-// @Failure 400, 404, 500 {object} web.Error()
 // @Router /api/v1/sections/{id} [get]
 func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -72,7 +70,6 @@ func (s *SectionController) Get() gin.HandlerFunc {
 // @Tags CreateSections
 // @Produce json
 // @Success 201 {object} domain.Section
-// @Failure 400, 409, 422 {object} web.Error()
 // @Router /api/v1/sections/{id} [post]
 func (s *SectionController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -100,7 +97,6 @@ func (s *SectionController) Create() gin.HandlerFunc {
 // @Tags Updated Sections
 // @Produce json
 // @Success 200 {object} domain.Section
-// @Failure 400, 404, 422, 500 {object} web.Error()
 // @Router /api/v1/sections/:id [patch]
 func (s *SectionController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -150,8 +146,7 @@ func (s *SectionController) Update() gin.HandlerFunc {
 // @Description Delete Sections
 // @Tags Delete Sections
 // @Produce json
-// @Success 204 
-// @Failure 400, 404, 500 {object} web.Error()
+// @Success 204
 // @Router /api/v1/sections/:id [delete]
 func (s *SectionController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
