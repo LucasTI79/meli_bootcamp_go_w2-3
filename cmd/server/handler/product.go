@@ -69,7 +69,7 @@ func (p *productController) Create() gin.HandlerFunc {
 			return
 		}
 
-		productId, err := p.productService.Save(c, domain.Product{
+		productItem := domain.Product{
 			Description:    productImput.Description,
 			ExpirationRate: productImput.ExpirationRate,
 			FreezingRate:   productImput.FreezingRate,
@@ -81,12 +81,15 @@ func (p *productController) Create() gin.HandlerFunc {
 			Width:          productImput.Width,
 			ProductTypeID:  productImput.ProductTypeID,
 			SellerID:       productImput.SellerID,
-		})
+		}
+
+		productId, err := p.productService.Save(c, productItem)
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
-		web.Success(c, http.StatusCreated, productId)
+		productItem.ID = productId
+		web.Success(c, http.StatusCreated, productItem)
 	}
 }
 
