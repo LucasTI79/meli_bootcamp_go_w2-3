@@ -21,12 +21,14 @@ func NewSection(s section.Service) *SectionController {
 	}
 }
 
-// @Summary Get All sections
-// @Description List all sections availables
-// @Tags Sections
+// @Summary Get All Sections
 // @Produce json
-// @Success 200 array []domain.Section
+// GET /sections @Summary Returns a list of Sections
 // @Router /api/v1/sections [get]
+// @Tags Section
+// @Accept json
+// @Success 200 {object} []domain.Section
+// @Description List All Sections
 func (s *SectionController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sections, err := s.sectionService.GetAll(c)
@@ -38,12 +40,15 @@ func (s *SectionController) GetAll() gin.HandlerFunc {
 	}
 }
 
-// @Summary Get By ID Sections
-// @Description Describe sections by id
-// @Tags Sections
+// @Summary Get Section by ID
 // @Produce json
-// @Success 200 {object} domain.Section
+// GET /section/:id @Summary Returns a section per Id
 // @Router /api/v1/sections/{id} [get]
+// @Param id path int true "Section ID"
+// @Tags Section
+// @Accept json
+// @Success 200 {object} domain.Section
+// @Description Describe by Section id
 func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -65,12 +70,15 @@ func (s *SectionController) Get() gin.HandlerFunc {
 	}
 }
 
-// @Summary Create Sections
-// @Description Create Sections
-// @Tags Sections
+// @Summary Create Section
 // @Produce json
+// POST /section/:id @Summary Create a Section
+// @Router /api/v1/sections [post]
+// @Tags Section
+// @Accept json
+// @Param section body domain.Section true "Section Data"
 // @Success 201 {object} domain.Section
-// @Router /api/v1/sections/{id} [post]
+// @Description Create Section
 func (s *SectionController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sectionInput := &domain.Section{}
@@ -92,12 +100,16 @@ func (s *SectionController) Create() gin.HandlerFunc {
 	}
 }
 
-// @Summary Updated Sections
-// @Description Updated Sections
-// @Tags Sections
+// @Summary Update Section
 // @Produce json
+// PATCH /sections/:id @Summary Update an existing Section
+// @Router /api/v1/sections/{id} [patch]
+// @Accept json
+// @Tags Section
 // @Success 200 {object} domain.Section
-// @Router /api/v1/sections/:id [patch]
+// @Param id path int true "Section ID"
+// @Param section body domain.Section true "Section Data"
+// @Description Update Section
 func (s *SectionController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -142,12 +154,15 @@ func (s *SectionController) Update() gin.HandlerFunc {
 	}
 }
 
-// @Summary Delete Sections
-// @Description Delete Sections
-// @Tags Sections
+// @Summary Delete Section
 // @Produce json
+// DELETE /sections/:id @Summary Delete a specific Section
+// @Router /api/v1/sections/{id} [delete]
+// @Param   id     path    int     true        "Section ID"
+// @Tags Section
+// @Accept json
 // @Success 204
-// @Router /api/v1/sections/:id [delete]
+// @Description Delete Section
 func (s *SectionController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
