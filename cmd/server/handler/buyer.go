@@ -22,8 +22,8 @@ func NewBuyer(b buyer.Service) *buyerController {
 }
 
 // @Produce json
-// GET /buyers/:id @Summary Returns a buyers per Id
-// @Router /api/v1/buyers/:id [get]
+// GET /buyers/{id} @Summary Returns a buyers per Id
+// @Router /api/v1/buyers/{id} [get]
 // @Param   id     path    int     true        "Buyer ID"
 // @Accept json
 // @Success 200 {object}  domain.Buyer
@@ -70,7 +70,7 @@ func (b *buyerController) GetAll() gin.HandlerFunc {
 // POST /buyers @Summary Create a buyer
 // @Router /api/v1/buyers [post]
 // @Accept json
-// @Success 201 {int}  0
+// @Success 201 {int} 0
 // @Param buyer body domain.BuyerRequest true "Buyer Data"
 // @Tags Buyers
 func (b *buyerController) Create() gin.HandlerFunc {
@@ -100,8 +100,9 @@ func (b *buyerController) Create() gin.HandlerFunc {
 }
 
 // @Produce json
-// PATCH /buyers/:id @Summary Modifies an existing buyer
-// @Router /api/v1/buyers/:id [patch]
+// PATCH /buyers/{id} @Summary Modifies an existing buyer
+// @Router /api/v1/buyers/{id} [patch]
+// @Param   id     path    int     true        "Buyer ID"
 // @Accept json
 // @Success 200 {object}  domain.Buyer
 // @Param buyer body domain.BuyerRequest true "Buyer Data"
@@ -148,8 +149,8 @@ func (b *buyerController) Update() gin.HandlerFunc {
 }
 
 // @Produce json
-// DELETE /buyers/:id @Summary Delete a specific buyer
-// @Router /api/v1/buyers/:id [delete]
+// DELETE /buyers/{id} @Summary Delete a specific buyer
+// @Router /api/v1/buyers/{id} [delete]
 // @Param   id     path    int     true        "Buyer ID"
 // @Accept json
 // @Success 200 {string}  " "
