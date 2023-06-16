@@ -61,6 +61,14 @@ func (p *productController) Get() gin.HandlerFunc {
 	}
 }
 
+// @Summary Create Product
+// @Produce json
+// @Router /api/v1/products [post]
+// @Tags Products
+// @Accept json
+// @Param product body domain.Product true "Product Data"
+// @Success 201 {object} domain.Product
+// @Description Create Product
 func (p *productController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productImput := &domain.ProductRequest{}
