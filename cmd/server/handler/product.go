@@ -39,6 +39,14 @@ func (p *productController) GetAll() gin.HandlerFunc {
 	}
 }
 
+// @Summary Get Product by ID
+// @Produce json
+// @Router /api/v1/products/{id} [get]
+// @Param   id     path    int     true        "Product ID"
+// @Tags Products
+// @Accept json
+// @Success 200 {object}  domain.Product
+// @Description List one product by it's Product id
 func (p *productController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))
@@ -108,6 +116,15 @@ func (p *productController) Create() gin.HandlerFunc {
 	}
 }
 
+// @Summary Update Product
+// @Produce json
+// @Router /api/v1/products/{id} [patch]
+// @Accept json
+// @Tags Products
+// @Success 200 {object}  domain.Product
+// @Param id path int true "Product ID"
+// @Param product body domain.Product true "Product Data"
+// @Description Update Product
 func (p *productController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, errId := strconv.Atoi(c.Param("id"))
@@ -159,6 +176,14 @@ func (p *productController) Update() gin.HandlerFunc {
 	}
 }
 
+// @Summary Delete Product
+// @Produce json
+// @Router /api/v1/products/{id} [delete]
+// @Param   id     path    int     true        "Product ID"
+// @Tags Products
+// @Accept json
+// @Success 204
+// @Description Delete Product
 func (p *productController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))
