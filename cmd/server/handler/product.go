@@ -21,6 +21,13 @@ func NewProduct(s product.Service) *productController {
 	}
 }
 
+// @Summary Get All Products
+// @Produce json
+// @Router /api/v1/products [get]
+// @Tags Products
+// @Accept json
+// @Success 200 {object}  []domain.Product
+// @Description List all Products
 func (p *productController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		products, err := p.productService.GetAll(c)
