@@ -24,6 +24,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Buyers"
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -42,6 +45,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Buyers"
                 ],
                 "parameters": [
                     {
@@ -64,13 +70,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/buyers/:id": {
+        "/api/v1/buyers/{id}": {
             "get": {
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Buyers"
                 ],
                 "parameters": [
                     {
@@ -97,6 +106,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Buyers"
+                ],
                 "parameters": [
                     {
                         "type": "integer",
@@ -122,7 +134,17 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Buyers"
+                ],
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Buyer Data",
                         "name": "buyer",
@@ -137,10 +159,787 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/domain.Buyer"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/employees": {
+            "get": {
+                "description": "List all Employees",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Get all Employees",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Buyer"
+                                "$ref": "#/definitions/domain.Employee"
                             }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create Employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Create Employee",
+                "parameters": [
+                    {
+                        "description": "Employee Data",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Employee"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Employee"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/employees/{id}": {
+            "get": {
+                "description": "List one by Employee id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Get Employee by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Employee"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Delete Employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Update Employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Employee Data",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Employee"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Employee"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products": {
+            "get": {
+                "description": "List all Products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get All Products",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Product"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create Product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Create Product",
+                "parameters": [
+                    {
+                        "description": "Product Data",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products/{id}": {
+            "get": {
+                "description": "List one product by it's Product id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get Product by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Delete Product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Update Product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Product Data",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sections": {
+            "get": {
+                "description": "List All Sections",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Section"
+                ],
+                "summary": "Get All Sections",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Section"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create Section",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Section"
+                ],
+                "summary": "Create Section",
+                "parameters": [
+                    {
+                        "description": "Section Data",
+                        "name": "section",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Section"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Section"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sections/{id}": {
+            "get": {
+                "description": "Describe by Section id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Section"
+                ],
+                "summary": "Get Section by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Section ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Section"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Section",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Section"
+                ],
+                "summary": "Delete Section",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Section ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Section",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Section"
+                ],
+                "summary": "Update Section",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Section ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Section Data",
+                        "name": "section",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Section"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Section"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sellers": {
+            "get": {
+                "description": "List all Sellers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sellers"
+                ],
+                "summary": "Get All Sellers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Seller"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create Sellers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sellers"
+                ],
+                "summary": "Create Seller",
+                "parameters": [
+                    {
+                        "description": "Seller Data",
+                        "name": "seller",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Seller"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Seller"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sellers/{id}": {
+            "get": {
+                "description": "List one by Seller id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sellers"
+                ],
+                "summary": "Get Seller by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Seller"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Seller",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sellers"
+                ],
+                "summary": "Delete Seller",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Seller",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sellers"
+                ],
+                "summary": "Update Seller",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Seller Data",
+                        "name": "seller",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Seller"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Seller"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/warehouses": {
+            "get": {
+                "description": "List all Warehouses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Get all Warehouses",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Warehouse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create Warehouses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Create Warehouse",
+                "parameters": [
+                    {
+                        "description": "Warehouse Data",
+                        "name": "warehouse",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Warehouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Warehouse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/warehouses/{id}": {
+            "get": {
+                "description": "List one by Warehouse id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Get Warehouse by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Warehouse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Warehouse",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Delete Warehouse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Warehouse",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Update Warehouse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Warehouse Data",
+                        "name": "warehouse",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Warehouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Warehouse"
                         }
                     }
                 }
@@ -175,6 +974,142 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "last_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Employee": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "warehouse_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.Product": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expiration_rate": {
+                    "type": "integer"
+                },
+                "freezing_rate": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "length": {
+                    "type": "number"
+                },
+                "netweight": {
+                    "type": "number"
+                },
+                "product_code": {
+                    "type": "string"
+                },
+                "product_type_id": {
+                    "type": "integer"
+                },
+                "recommended_freezing_temperature": {
+                    "type": "number"
+                },
+                "seller_id": {
+                    "type": "integer"
+                },
+                "width": {
+                    "type": "number"
+                }
+            }
+        },
+        "domain.Section": {
+            "type": "object",
+            "properties": {
+                "current_capacity": {
+                    "type": "integer"
+                },
+                "current_temperature": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "maximum_capacity": {
+                    "type": "integer"
+                },
+                "minimum_capacity": {
+                    "type": "integer"
+                },
+                "minimum_temperature": {
+                    "type": "integer"
+                },
+                "product_type_id": {
+                    "type": "integer"
+                },
+                "section_number": {
+                    "type": "integer"
+                },
+                "warehouse_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.Seller": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cid": {
+                    "type": "integer"
+                },
+                "company_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Warehouse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "minimum_capacity": {
+                    "type": "integer"
+                },
+                "minimum_temperature": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                },
+                "warehouse_code": {
                     "type": "string"
                 }
             }

@@ -22,6 +22,15 @@ func NewEmployee(e employee.Service) *Employee {
 	}
 }
 
+// @Summary Get Employee by ID
+// @Produce json
+// GET /employee/:id @Summary Returns a employee per Id
+// @Router /api/v1/employees/{id} [get]
+// @Param id path int true "Employee ID"
+// @Tags Employees
+// @Accept json
+// @Success 200 {object} domain.Employee
+// @Description List one by Employee id
 func (e *Employee) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employeeId, err := strconv.Atoi(c.Param("id"))
@@ -43,6 +52,14 @@ func (e *Employee) Get() gin.HandlerFunc {
 	}
 }
 
+// @Summary Get all Employees
+// @Produce json
+// GET /employees @Summary Returns a list of employees
+// @Router /api/v1/employees [get]
+// @Tags Employees
+// @Accept json
+// @Success 200 {object} []domain.Employee
+// @Description List all Employees
 func (e *Employee) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employees, err := e.employeeService.GetAll(c)
@@ -54,6 +71,15 @@ func (e *Employee) GetAll() gin.HandlerFunc {
 	}
 }
 
+// @Summary Create Employee
+// @Produce json
+// POST /employees/:id @Summary Create a employee
+// @Router /api/v1/employees [post]
+// @Tags Employees
+// @Accept json
+// @Param employee body domain.Employee true "Employee Data"
+// @Success 201 {object} domain.Employee
+// @Description Create Employee
 func (e *Employee) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employeeInput := &domain.Employee{}
@@ -76,6 +102,16 @@ func (e *Employee) Create() gin.HandlerFunc {
 	}
 }
 
+// @Summary Update Employee
+// @Produce json
+// PATCH /employees/:id @Summary Modifies an existing employee
+// @Router /api/v1/employees/{id} [patch]
+// @Accept json
+// @Tags Employees
+// @Success 200 {object} domain.Employee
+// @Param id path int true "Employee ID"
+// @Param employee body domain.Employee true "Employee Data"
+// @Description Update Employee
 func (e *Employee) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employeeId, errId := strconv.Atoi(c.Param("id"))
@@ -96,11 +132,11 @@ func (e *Employee) Update() gin.HandlerFunc {
 		}
 
 		employeeItem := domain.Employee{
-			ID:          employeeId,
+			ID:           employeeId,
 			CardNumberID: employeeInput.CardNumberID,
-			FirstName:  employeeInput.FirstName,
-			LastName:   employeeInput.LastName,
-			WarehouseID: employeeInput.WarehouseID,
+			FirstName:    employeeInput.FirstName,
+			LastName:     employeeInput.LastName,
+			WarehouseID:  employeeInput.WarehouseID,
 		}
 		err = e.employeeService.Update(c, employeeItem)
 		if err != nil {
@@ -116,6 +152,15 @@ func (e *Employee) Update() gin.HandlerFunc {
 	}
 }
 
+// @Summary Delete Employee
+// @Produce json
+// DELETE /employees/:id @Summary Delete a specific employee
+// @Router /api/v1/employees/{id} [delete]
+// @Param  id path  int true  "Employee ID"
+// @Tags Employees
+// @Accept json
+// @Success 204
+// @Description Delete Employee
 func (e *Employee) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employeeId, err := strconv.Atoi(c.Param("id"))
