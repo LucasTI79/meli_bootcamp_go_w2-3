@@ -87,13 +87,44 @@ func (s *SectionController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
 			return
 		}
-		if sectionInput.SectionNumber == 0 || sectionInput.CurrentTemperature == 0 || sectionInput.MinimumTemperature == 0 || sectionInput.CurrentCapacity == 0 || sectionInput.MinimumCapacity == 0 || sectionInput.MaximumCapacity == 0 || sectionInput.WarehouseID == 0 || sectionInput.ProductTypeID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+
+		switch {
+		case sectionInput.SectionNumber == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid section_number field")
+			return
+		case sectionInput.CurrentTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_temperature field")
+			return
+		case sectionInput.MinimumTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
+			return
+		case sectionInput.CurrentCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_capacity field")
+			return
+		case sectionInput.MinimumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
+			return
+		case sectionInput.MaximumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid maximum_capacity field")
+			return
+		case sectionInput.WarehouseID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_id field")
+			return
+		case sectionInput.ProductTypeID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid product_type_id field")
+			return
+		default:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid fields")
 			return
 		}
+
 		sectionID, err := s.sectionService.Save(c, *sectionInput)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			if errors.Is(err, domain.ErrAlreadyExists) {
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		web.Success(c, http.StatusCreated, sectionID)
