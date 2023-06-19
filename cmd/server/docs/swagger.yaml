@@ -19,6 +19,55 @@ definitions:
       last_name:
         type: string
     type: object
+  domain.Section:
+    properties:
+      current_capacity:
+        type: integer
+      current_temperature:
+        type: integer
+      id:
+        type: integer
+      maximum_capacity:
+        type: integer
+      minimum_capacity:
+        type: integer
+      minimum_temperature:
+        type: integer
+      product_type_id:
+        type: integer
+      section_number:
+        type: integer
+      warehouse_id:
+        type: integer
+    type: object
+  domain.Seller:
+    properties:
+      address:
+        type: string
+      cid:
+        type: integer
+      company_name:
+        type: string
+      id:
+        type: integer
+      telephone:
+        type: string
+    type: object
+  domain.Warehouse:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      minimum_capacity:
+        type: integer
+      minimum_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -35,6 +84,8 @@ paths:
             items:
               $ref: '#/definitions/domain.Buyer'
             type: array
+      tags:
+      - Buyers
     post:
       consumes:
       - application/json
@@ -52,6 +103,8 @@ paths:
           description: Created
           schema:
             type: int
+      tags:
+      - Buyers
   /api/v1/buyers/:id:
     delete:
       consumes:
@@ -69,6 +122,8 @@ paths:
           description: ' '
           schema:
             type: string
+      tags:
+      - Buyers
     get:
       consumes:
       - application/json
@@ -85,6 +140,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Buyer'
+      tags:
+      - Buyers
     patch:
       consumes:
       - application/json
@@ -101,7 +158,316 @@ paths:
         "200":
           description: OK
           schema:
+            $ref: '#/definitions/domain.Buyer'
+      tags:
+      - Buyers
+  /api/v1/sections:
+    get:
+      consumes:
+      - application/json
+      description: List All Sections
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
             items:
-              $ref: '#/definitions/domain.Buyer'
+              $ref: '#/definitions/domain.Section'
             type: array
+      summary: Get All Sections
+      tags:
+      - Section
+    post:
+      consumes:
+      - application/json
+      description: Create Section
+      parameters:
+      - description: Section Data
+        in: body
+        name: section
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Section'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Section'
+      summary: Create Section
+      tags:
+      - Section
+  /api/v1/sections/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Section
+      parameters:
+      - description: Section ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete Section
+      tags:
+      - Section
+    get:
+      consumes:
+      - application/json
+      description: Describe by Section id
+      parameters:
+      - description: Section ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Section'
+      summary: Get Section by ID
+      tags:
+      - Section
+    patch:
+      consumes:
+      - application/json
+      description: Update Section
+      parameters:
+      - description: Section ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Section Data
+        in: body
+        name: section
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Section'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Section'
+      summary: Update Section
+      tags:
+      - Section
+  /api/v1/sellers:
+    get:
+      consumes:
+      - application/json
+      description: List all Sellers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Seller'
+            type: array
+      summary: Get All Sellers
+      tags:
+      - Sellers
+    post:
+      consumes:
+      - application/json
+      description: Create Sellers
+      parameters:
+      - description: Seller Data
+        in: body
+        name: seller
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Seller'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Seller'
+      summary: Create Seller
+      tags:
+      - Sellers
+  /api/v1/sellers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Seller
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete Seller
+      tags:
+      - Sellers
+    get:
+      consumes:
+      - application/json
+      description: List one by Seller id
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Seller'
+      summary: Get Seller by ID
+      tags:
+      - Sellers
+    patch:
+      consumes:
+      - application/json
+      description: Update Seller
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Seller Data
+        in: body
+        name: seller
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Seller'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Seller'
+      summary: Update Seller
+      tags:
+      - Sellers
+  /api/v1/warehouses:
+    get:
+      consumes:
+      - application/json
+      description: List all Warehouses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Warehouse'
+            type: array
+      summary: Get all Warehouses
+      tags:
+      - Warehouses
+    post:
+      consumes:
+      - application/json
+      description: Create Warehouses
+      parameters:
+      - description: Warehouse Data
+        in: body
+        name: warehouse
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Warehouse'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Warehouse'
+      summary: Create Warehouse
+      tags:
+      - Warehouses
+  /api/v1/warehouses/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Warehouse
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete Warehouse
+      tags:
+      - Warehouses
+    get:
+      consumes:
+      - application/json
+      description: List one by Warehouse id
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Warehouse'
+      summary: Get Warehouse by ID
+      tags:
+      - Warehouses
+    patch:
+      consumes:
+      - application/json
+      description: Update Warehouse
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Warehouse Data
+        in: body
+        name: warehouse
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Warehouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Warehouse'
+      summary: Update Warehouse
+      tags:
+      - Warehouses
 swagger: "2.0"
