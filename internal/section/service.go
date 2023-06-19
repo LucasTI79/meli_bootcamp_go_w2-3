@@ -51,7 +51,7 @@ func (s *serviceSection) Delete(ctx context.Context, sectionNumber int) error {
 }
 func (s *serviceSection) Update(ctx context.Context, sect domain.Section) error {
 	if !s.repository.Exists(ctx, sect.SectionNumber) {
-		return domain.ErrNotFound
+		return domain.ErrModifySection
 	}
 	err := s.repository.Update(ctx, sect)
 	return err

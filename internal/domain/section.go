@@ -7,6 +7,7 @@ var (
 	ErrInvalidId    = errors.New("invalid id")
 	ErrTryAgain     = errors.New("error, try again %s")
 	ErrAlreadyExists = errors.New("section already exists")
+	ErrModifySection = errors.New("cannot modify Section")
 )
 
 type Section struct {

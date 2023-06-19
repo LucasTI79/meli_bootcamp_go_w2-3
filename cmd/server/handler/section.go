@@ -113,9 +113,6 @@ func (s *SectionController) Create() gin.HandlerFunc {
 		case sectionInput.ProductTypeID == 0:
 			web.Error(c, http.StatusUnprocessableEntity, "invalid product_type_id field")
 			return
-		default:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid fields")
-			return
 		}
 
 		sectionID, err := s.sectionService.Save(c, *sectionInput)
@@ -155,10 +152,6 @@ func (s *SectionController) Update() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
 			return
 		}
-		if sectionInput.SectionNumber == 0 || sectionInput.CurrentTemperature == 0 || sectionInput.MinimumTemperature == 0 || sectionInput.CurrentCapacity == 0 || sectionInput.MinimumCapacity == 0 || sectionInput.MaximumCapacity == 0 || sectionInput.WarehouseID == 0 || sectionInput.ProductTypeID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
-			return
-		}
 		sectionUpdated := domain.Section{
 			ID:                 id,
 			SectionNumber:      sectionInput.SectionNumber,
@@ -170,10 +163,37 @@ func (s *SectionController) Update() gin.HandlerFunc {
 			WarehouseID:        sectionInput.WarehouseID,
 			ProductTypeID:      sectionInput.ProductTypeID,
 		}
+		switch {
+		case sectionInput.SectionNumber == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid section_number field")
+			return
+		case sectionInput.CurrentTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_temperature field")
+			return
+		case sectionInput.MinimumTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
+			return
+		case sectionInput.CurrentCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_capacity field")
+			return
+		case sectionInput.MinimumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
+			return
+		case sectionInput.MaximumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid maximum_capacity field")
+			return
+		case sectionInput.WarehouseID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_id field")
+			return
+		case sectionInput.ProductTypeID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid product_type_id field")
+			return
+		}
+
 		err = s.sectionService.Update(c, sectionUpdated)
 		if err != nil {
-			if errors.Is(err, domain.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, domain.ErrNotFound.Error())
+			if errors.Is(err, domain.ErrModifySection) {
+				web.Error(c, http.StatusConflict, domain.ErrModifySection.Error())
 				return
 			}
 			web.Error(c, http.StatusInternalServerError, err.Error())
