@@ -21,13 +21,14 @@ func NewSection(s section.Service) *SectionController {
 	}
 }
 
-// @Summary Get All sections
-// @Description List all sections availables
-// @Tags GetAllSections
+// @Summary Get All Sections
 // @Produce json
-// @Success 200 array []domain.Section
-// @Failure 500 {object} web.Error()
+// GET /sections @Summary Returns a list of Sections
 // @Router /api/v1/sections [get]
+// @Tags Section
+// @Accept json
+// @Success 200 {object} []domain.Section
+// @Description List All Sections
 func (s *SectionController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sections, err := s.sectionService.GetAll(c)
@@ -39,13 +40,15 @@ func (s *SectionController) GetAll() gin.HandlerFunc {
 	}
 }
 
-// @Summary Get By ID Sections
-// @Description Describe sections by id
-// @Tags GetByIDSections
+// @Summary Get Section by ID
 // @Produce json
-// @Success 200 {object} domain.Section
-// @Failure 400, 404, 500 {object} web.Error()
+// GET /section/:id @Summary Returns a section per Id
 // @Router /api/v1/sections/{id} [get]
+// @Param id path int true "Section ID"
+// @Tags Section
+// @Accept json
+// @Success 200 {object} domain.Section
+// @Description Describe by Section id
 func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -67,13 +70,15 @@ func (s *SectionController) Get() gin.HandlerFunc {
 	}
 }
 
-// @Summary Create Sections
-// @Description Create Sections
-// @Tags CreateSections
+// @Summary Create Section
 // @Produce json
+// POST /section/:id @Summary Create a Section
+// @Router /api/v1/sections [post]
+// @Tags Section
+// @Accept json
+// @Param section body domain.Section true "Section Data"
 // @Success 201 {object} domain.Section
-// @Failure 400, 409, 422 {object} web.Error()
-// @Router /api/v1/sections/{id} [post]
+// @Description Create Section
 func (s *SectionController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sectionInput := &domain.Section{}
@@ -82,26 +87,57 @@ func (s *SectionController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
 			return
 		}
-		if sectionInput.SectionNumber == 0 || sectionInput.CurrentTemperature == 0 || sectionInput.MinimumTemperature == 0 || sectionInput.CurrentCapacity == 0 || sectionInput.MinimumCapacity == 0 || sectionInput.MaximumCapacity == 0 || sectionInput.WarehouseID == 0 || sectionInput.ProductTypeID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+
+		switch {
+		case sectionInput.SectionNumber == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid section_number field")
+			return
+		case sectionInput.CurrentTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_temperature field")
+			return
+		case sectionInput.MinimumTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
+			return
+		case sectionInput.CurrentCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_capacity field")
+			return
+		case sectionInput.MinimumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
+			return
+		case sectionInput.MaximumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid maximum_capacity field")
+			return
+		case sectionInput.WarehouseID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_id field")
+			return
+		case sectionInput.ProductTypeID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid product_type_id field")
 			return
 		}
+
 		sectionID, err := s.sectionService.Save(c, *sectionInput)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			if errors.Is(err, domain.ErrAlreadyExists) {
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		web.Success(c, http.StatusCreated, sectionID)
 	}
 }
 
-// @Summary Updated Sections
-// @Description Updated Sections
-// @Tags Updated Sections
+// @Summary Update Section
 // @Produce json
+// PATCH /sections/:id @Summary Update an existing Section
+// @Router /api/v1/sections/{id} [patch]
+// @Accept json
+// @Tags Section
 // @Success 200 {object} domain.Section
-// @Failure 400, 404, 422, 500 {object} web.Error()
-// @Router /api/v1/sections/:id [patch]
+// @Param id path int true "Section ID"
+// @Param section body domain.Section true "Section Data"
+// @Description Update Section
 func (s *SectionController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -116,10 +152,6 @@ func (s *SectionController) Update() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
 			return
 		}
-		if sectionInput.SectionNumber == 0 || sectionInput.CurrentTemperature == 0 || sectionInput.MinimumTemperature == 0 || sectionInput.CurrentCapacity == 0 || sectionInput.MinimumCapacity == 0 || sectionInput.MaximumCapacity == 0 || sectionInput.WarehouseID == 0 || sectionInput.ProductTypeID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
-			return
-		}
 		sectionUpdated := domain.Section{
 			ID:                 id,
 			SectionNumber:      sectionInput.SectionNumber,
@@ -131,10 +163,37 @@ func (s *SectionController) Update() gin.HandlerFunc {
 			WarehouseID:        sectionInput.WarehouseID,
 			ProductTypeID:      sectionInput.ProductTypeID,
 		}
+		switch {
+		case sectionInput.SectionNumber == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid section_number field")
+			return
+		case sectionInput.CurrentTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_temperature field")
+			return
+		case sectionInput.MinimumTemperature == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
+			return
+		case sectionInput.CurrentCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid current_capacity field")
+			return
+		case sectionInput.MinimumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
+			return
+		case sectionInput.MaximumCapacity == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid maximum_capacity field")
+			return
+		case sectionInput.WarehouseID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_id field")
+			return
+		case sectionInput.ProductTypeID == 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid product_type_id field")
+			return
+		}
+
 		err = s.sectionService.Update(c, sectionUpdated)
 		if err != nil {
-			if errors.Is(err, domain.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, domain.ErrNotFound.Error())
+			if errors.Is(err, domain.ErrModifySection) {
+				web.Error(c, http.StatusConflict, domain.ErrModifySection.Error())
 				return
 			}
 			web.Error(c, http.StatusInternalServerError, err.Error())
@@ -146,13 +205,15 @@ func (s *SectionController) Update() gin.HandlerFunc {
 	}
 }
 
-// @Summary Delete Sections
-// @Description Delete Sections
-// @Tags Delete Sections
+// @Summary Delete Section
 // @Produce json
-// @Success 204 
-// @Failure 400, 404, 500 {object} web.Error()
-// @Router /api/v1/sections/:id [delete]
+// DELETE /sections/:id @Summary Delete a specific Section
+// @Router /api/v1/sections/{id} [delete]
+// @Param   id     path    int     true        "Section ID"
+// @Tags Section
+// @Accept json
+// @Success 204
+// @Description Delete Section
 func (s *SectionController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))

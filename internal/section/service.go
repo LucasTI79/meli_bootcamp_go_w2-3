@@ -39,7 +39,7 @@ func (s *serviceSection) Get(ctx context.Context, id int) (domain.Section, error
 }
 func (s *serviceSection) Save(ctx context.Context, sect domain.Section) (int, error) {
 	sectionExist := s.repository.Exists(ctx, sect.ID)
-	if sectionExist {
+	if !sectionExist {
 		return 0, domain.ErrAlreadyExists
 	}
 	sectionID, err := s.repository.Save(ctx, sect)
@@ -51,7 +51,7 @@ func (s *serviceSection) Delete(ctx context.Context, sectionNumber int) error {
 }
 func (s *serviceSection) Update(ctx context.Context, sect domain.Section) error {
 	if !s.repository.Exists(ctx, sect.SectionNumber) {
-		return domain.ErrNotFound
+		return domain.ErrModifySection
 	}
 	err := s.repository.Update(ctx, sect)
 	return err
