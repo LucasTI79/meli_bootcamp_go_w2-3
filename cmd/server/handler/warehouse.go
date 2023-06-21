@@ -89,14 +89,31 @@ func (w *warehouseController) Create() gin.HandlerFunc {
 			return
 		}
 
-		if warehouseInput.Address == "" || warehouseInput.MinimumCapacity == 0 || warehouseInput.MinimumTemperature == 0 || warehouseInput.Telephone == "" || warehouseInput.WarehouseCode == "" {
-			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrInvalidBody.Error())
+		switch {
+		case warehouseInput.Address == "":
+			web.Error(c, http.StatusUnprocessableEntity, "invalid address field")
+			return
+		case warehouseInput.MinimumCapacity < 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
+			return
+		case warehouseInput.MinimumTemperature < 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
+			return
+		case warehouseInput.Telephone == "":
+			web.Error(c, http.StatusUnprocessableEntity, "invalid telephone field")
+			return
+		case warehouseInput.WarehouseCode == "":
+			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_code field")
 			return
 		}
 
 		warehouseId, err := w.warehouseService.Save(c, *warehouseInput)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			if errors.Is(err, domain.ErrAlreadyExists) {
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -163,8 +180,21 @@ func (w *warehouseController) Update() gin.HandlerFunc {
 			return
 		}
 
-		if warehouseInput.Address == "" || warehouseInput.MinimumCapacity == 0 || warehouseInput.MinimumTemperature == 0 || warehouseInput.Telephone == "" || warehouseInput.WarehouseCode == "" {
-			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrInvalidBody.Error())
+		switch {
+		case warehouseInput.Address == "":
+			web.Error(c, http.StatusUnprocessableEntity, "invalid address field")
+			return
+		case warehouseInput.MinimumCapacity < 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
+			return
+		case warehouseInput.MinimumTemperature < 0:
+			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
+			return
+		case warehouseInput.Telephone == "":
+			web.Error(c, http.StatusUnprocessableEntity, "invalid telephone field")
+			return
+		case warehouseInput.WarehouseCode == "":
+			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_code field")
 			return
 		}
 
