@@ -11,12 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type productController struct {
+type ProductController struct {
 	productService product.Service
 }
 
-func NewProduct(s product.Service) *productController {
-	return &productController{
+func NewProduct(s product.Service) *ProductController {
+	return &ProductController{
 		productService: s,
 	}
 }
@@ -28,7 +28,7 @@ func NewProduct(s product.Service) *productController {
 // @Accept json
 // @Success 200 {object}  []domain.Product
 // @Description List all Products
-func (p *productController) GetAll() gin.HandlerFunc {
+func (p *ProductController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		products, err := p.productService.GetAll(c)
 		if err != nil {
@@ -47,7 +47,7 @@ func (p *productController) GetAll() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {object}  domain.Product
 // @Description List one product by it's Product id
-func (p *productController) Get() gin.HandlerFunc {
+func (p *ProductController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -77,7 +77,7 @@ func (p *productController) Get() gin.HandlerFunc {
 // @Param product body domain.Product true "Product Data"
 // @Success 201 {object} domain.Product
 // @Description Create Product
-func (p *productController) Create() gin.HandlerFunc {
+func (p *ProductController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productImput := &domain.ProductRequest{}
 
@@ -125,7 +125,7 @@ func (p *productController) Create() gin.HandlerFunc {
 // @Param id path int true "Product ID"
 // @Param product body domain.Product true "Product Data"
 // @Description Update Product
-func (p *productController) Update() gin.HandlerFunc {
+func (p *ProductController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, errId := strconv.Atoi(c.Param("id"))
 
@@ -184,7 +184,7 @@ func (p *productController) Update() gin.HandlerFunc {
 // @Accept json
 // @Success 204
 // @Description Delete Product
-func (p *productController) Delete() gin.HandlerFunc {
+func (p *ProductController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))
 
