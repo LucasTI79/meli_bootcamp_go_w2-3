@@ -29,3 +29,7 @@ type ProductRequest struct {
 	ProductTypeID  int     `json:"product_type_id"`
 	SellerID       int     `json:"seller_id"`
 }
+
+type ProductResponse struct {
+	Data []Product `json:"data"`
+}
