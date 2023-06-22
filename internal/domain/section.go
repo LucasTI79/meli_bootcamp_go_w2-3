@@ -21,6 +21,11 @@ type Section struct {
 	WarehouseID        int `json:"warehouse_id"`
 	ProductTypeID      int `json:"product_type_id"`
 }
+
+type SectionResponse struct {
+	Data []Section `json:"data"`
+}
+
 type SectionRequest struct {
 	SectionNumber      int `json:"section_number"`
 	CurrentTemperature int `json:"current_temperature"`
