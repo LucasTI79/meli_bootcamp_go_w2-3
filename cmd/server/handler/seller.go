@@ -11,30 +11,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type sellerController struct {
+type SellerController struct {
 	sellerService seller.Service
 }
 
-func NewSeller(s seller.Service) *sellerController {
-	return &sellerController{
+func NewSeller(s seller.Service) *SellerController {
+	return &SellerController{
 		sellerService: s,
 	}
 }
 
-// @Summary Get All Sellers
+// @Summary	Get All Sellers
 // @Produce json
 // GET /sellers @Summary Returns a list of sellers
 // @Router /api/v1/sellers [get]
 // @Tags Sellers
 // @Accept json
 // @Success 200 {object}  []domain.Seller
+// @Success 204 "No Content"
+// @Failure 500	{object} web.errorResponse	"Internal Server Error"
 // @Description List all Sellers
-func (s *sellerController) GetAll() gin.HandlerFunc {
+func (s *SellerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellers, err := s.sellerService.GetAll(c)
 		if err != nil {
 			web.Error(c, http.StatusInternalServerError, seller.ErrTryAgain.Error())
 			return
+		}
+		if len(sellers) == 0 {
+			web.Success(c, http.StatusNoContent, sellers)
 		}
 		web.Success(c, http.StatusOK, sellers)
 	}
@@ -49,7 +54,7 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {object}  domain.Seller
 // @Description List one by Seller id
-func (s *sellerController) Get() gin.HandlerFunc {
+func (s *SellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -79,7 +84,7 @@ func (s *sellerController) Get() gin.HandlerFunc {
 // @Param seller body domain.Seller true "Seller Data"
 // @Success 201 {object} domain.Seller
 // @Description Create Sellers
-func (s *sellerController) Create() gin.HandlerFunc {
+func (s *SellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerInput := &domain.Seller{}
 		err := c.ShouldBindJSON(sellerInput)
@@ -120,7 +125,7 @@ func (s *sellerController) Create() gin.HandlerFunc {
 // @Param id path int true "Seller ID"
 // @Param seller body domain.Seller true "Seller Data"
 // @Description Update Seller
-func (s *sellerController) Update() gin.HandlerFunc {
+func (s *SellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, errId := strconv.Atoi(c.Param("id"))
 		if errId != nil {
@@ -172,7 +177,7 @@ func (s *sellerController) Update() gin.HandlerFunc {
 // @Accept json
 // @Success 204
 // @Description Delete Seller
-func (s *sellerController) Delete() gin.HandlerFunc {
+func (s *SellerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
 

@@ -35,7 +35,10 @@ func NewService(r Repository) Service {
 
 func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 	sellers, err := s.repository.GetAll(ctx)
-	return sellers, err
+	if err != nil {
+		return []domain.Seller{}, err
+	}
+	return sellers, nil
 }
 
 func (s *sellerService) Save(ctx context.Context, d domain.Seller) (int, error) {

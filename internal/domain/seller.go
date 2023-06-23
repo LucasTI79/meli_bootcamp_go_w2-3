@@ -7,3 +7,7 @@ type Seller struct {
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
 }
+
+type SellerResponse struct {
+	Data []Seller `json:"data"`
+}
