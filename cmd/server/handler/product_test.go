@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var ExpectedEmpityProducts = []domain.Product{}
+
 const (
 	GetAllProducts = "/products"
 )
@@ -63,8 +65,38 @@ func TestGetAllProducts(t *testing.T) {
 
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		assert.Equal(t, expectedProducts, responseResult.Data)
-		assert.Equal(t, response.Code, http.StatusOK)
+		assert.Equal(t, http.StatusOK, response.Code)
 		assert.True(t, len(responseResult.Data) == 2)
+
+	})
+
+	t.Run("Should return status 204 with no content", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.GET(GetAllProducts, handler.GetAll())
+		request, response := testutil.MakeRequest(http.MethodGet, GetAllProducts, "")
+
+		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmpityProducts, nil)
+		server.ServeHTTP(response, request)
+
+		// responseResult := &domain.ProductResponse{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), &ExpectedEmpityProducts)
+		assert.Equal(t, ExpectedEmpityProducts, ExpectedEmpityProducts)
+		assert.Equal(t, http.StatusNoContent, response.Code)
+		assert.True(t, len(ExpectedEmpityProducts) == 0)
+
+	})
+
+	t.Run("Should return status 500 with all products", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.GET(GetAllProducts, handler.GetAll())
+		request, response := testutil.MakeRequest(http.MethodGet, GetAllProducts, "")
+
+		mockService.On("GetAll", mock.AnythingOfType("string")).Return(nil, "error listing products")
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
 	})
 
