@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	GetAllWarehouses    = "/warehouses"
-	GetByIdWarehouses   = "/warehouses/4"
-	GetCreateWarehouses = "/warehouses"
+	GetAllWarehouses  = "/warehouses"
+	GetByIdWarehouses = "/warehouses/4"
+	CreateWarehouses  = "/warehouses"
+	DeleteWarehouses  = "/warehouses/1"
 )
 
 func TestGetAllWarehouses(t *testing.T) {
@@ -88,7 +89,7 @@ func TestGetAllWarehouses(t *testing.T) {
 
 func TestGetByIdWarehouses(t *testing.T) {
 	// emptyWarehouse := domain.Warehouse{}
-	t.Run("Should return a warehouse with id with status 200", func(t *testing.T) {
+	t.Run("Should return status 200 and warehouse with id", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 		expectedWarehouse := domain.Warehouse{
 			ID:                 4,
@@ -138,7 +139,7 @@ func TestGetByIdWarehouses(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
-	t.Run("Should return status 500 when the warehouse id does not exist", func(t *testing.T) {
+	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithWarehouses(t)
 
@@ -155,7 +156,7 @@ func TestGetByIdWarehouses(t *testing.T) {
 }
 
 func TestCreateWarehouses(t *testing.T) {
-	t.Run("Should return status 200 with the warehouse created", func(t *testing.T) {
+	t.Run("Should return status 200 and the warehouse created", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 		expectedWarehouse := domain.Warehouse{
 			ID:                 1,
@@ -170,7 +171,7 @@ func TestCreateWarehouses(t *testing.T) {
 
 		server.POST("/warehouses", handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 		server.ServeHTTP(response, request)
 
 		responseResult := domain.WarehouseResponseId{}
@@ -185,7 +186,7 @@ func TestCreateWarehouses(t *testing.T) {
 
 		server.POST("/warehouses", handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":}`)
 
 		server.ServeHTTP(response, request)
 
@@ -196,7 +197,7 @@ func TestCreateWarehouses(t *testing.T) {
 
 		server.POST("/warehouses", handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":"","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
 		server.ServeHTTP(response, request)
 
@@ -207,7 +208,7 @@ func TestCreateWarehouses(t *testing.T) {
 
 		server.POST("/warehouses", handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":0,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":0,"minimum_temperature":10}`)
 
 		server.ServeHTTP(response, request)
 
@@ -218,7 +219,7 @@ func TestCreateWarehouses(t *testing.T) {
 
 		server.POST("/warehouses", handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
 		server.ServeHTTP(response, request)
 
@@ -229,16 +230,16 @@ func TestCreateWarehouses(t *testing.T) {
 
 		server.POST("/warehouses", handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"","minimum_capacity":0,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"","minimum_capacity":0,"minimum_temperature":10}`)
 
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
-	t.Run("Should return status 409 when warehouse already exists", func(t *testing.T) {
+	t.Run("Should return status 409 when Warehouse already exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
 		mockService.On("Save", mock.Anything, mock.AnythingOfType("domain.Warehouse")).Return(domain.Warehouse{}, warehouse.ErrAlredyExists)
 
@@ -250,11 +251,64 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, GetCreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
 		mockService.On("Save", mock.Anything, mock.AnythingOfType("domain.Warehouse")).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
 
 		server.POST("/warehouses", handler.Create())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+}
+
+func TestDeleteWarehouses(t *testing.T) {
+	// emptyWarehouse := domain.Warehouse{}
+	t.Run("Should return status 204 and delete a warehouse with id", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+
+		mockService.On("Delete", mock.Anything, 1).Return(nil)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, DeleteWarehouses, "")
+
+		server.DELETE("/warehouses/:id", handler.Delete())
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNoContent, response.Code)
+	})
+	t.Run("Should return status 404 when warehouse is not found", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, DeleteWarehouses, "")
+
+		mockService.On("Delete", mock.Anything, 1).Return(warehouse.ErrNotFound)
+
+		server.DELETE("/warehouses/:id", handler.Delete())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+	t.Run("Should return status 400 when the warehouse id is invalid", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/warehouses/invalid", "")
+
+		mockService.On("Delete", mock.Anything, "invalid").Return(warehouse.ErrInvalidId)
+
+		server.DELETE("/warehouses/:id", handler.Delete())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, DeleteWarehouses, "")
+
+		mockService.On("Delete", mock.Anything, 1).Return(warehouse.ErrTryAgain)
+
+		server.DELETE("/warehouses/:id", handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)

@@ -117,7 +117,7 @@ func (w *WarehouseController) Create() gin.HandlerFunc {
 				web.Error(c, http.StatusConflict, err.Error())
 				return
 			default:
-				web.Error(c, http.StatusInternalServerError, "Error to save request: %s", err.Error())
+				web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
 				return
 			}
 		}
@@ -150,7 +150,7 @@ func (w *WarehouseController) Delete() gin.HandlerFunc {
 				web.Error(c, http.StatusNotFound, err.Error())
 				return
 			default:
-				web.Error(c, http.StatusInternalServerError, "Error to delete: %s", err.Error())
+				web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
 				return
 			}
 		}
@@ -180,7 +180,7 @@ func (w *WarehouseController) Update() gin.HandlerFunc {
 		warehouseInput := &domain.Warehouse{}
 		err := c.ShouldBindJSON(warehouseInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, warehouse.ErrTryAgain.Error(), err)
+			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrTryAgain.Error(), err)
 			return
 		}
 
@@ -218,7 +218,7 @@ func (w *WarehouseController) Update() gin.HandlerFunc {
 				return
 			}
 
-			web.Error(c, http.StatusInternalServerError, err.Error())
+			web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
 			return
 		}
 

@@ -36,7 +36,13 @@ func (m *WarehouseRepositoryMock) Save(ctx context.Context, s domain.Warehouse) 
 }
 
 func (m *WarehouseServiceMock) Delete(ctx context.Context, id int) error {
-	return nil
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *WarehouseRepositoryMock) Delete(ctx context.Context, id int) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
 }
 
 func (m *WarehouseServiceMock) Get(ctx context.Context, id int) (domain.Warehouse, error) {
