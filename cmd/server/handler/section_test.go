@@ -54,7 +54,7 @@ func TestGetAll(t *testing.T) {
 		mockService.On("GetAll", mock.AnythingOfType("string")).Return(expectedSections, nil)
 		server.ServeHTTP(response, request)
 
-		responseResult := &domain.SectionResponse{}
+		responseResult := &domain.SectionsResponse{}
 
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		assert.Equal(t, http.StatusOK, response.Code)
