@@ -37,7 +37,13 @@ func (m *SectionServiceMock) Delete(ctx context.Context, id int) error {
 }
 
 func (m *SectionServiceMock) 	Get(ctx context.Context, id int) (domain.Section, error) {
-	return domain.Section{}, nil
+	args := m.Called(id)
+	return args.Get(0).(domain.Section), args.Error(1)
+}
+
+func (m *SectionRepositoryMock) Get(ctx context.Context, id int) (domain.Section, error) {
+	args := m.Called(id)
+	return args.Get(0).(domain.Section), args.Error(1)
 }
 
 func (m *SectionServiceMock) Update(ctx context.Context, s domain.Section) error {

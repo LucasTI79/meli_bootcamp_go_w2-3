@@ -67,6 +67,36 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
+func TestGetById(t *testing.T) {
+
+	t.Run("Should return status 200 with a section", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		expectedSection := domain.Section{
+				ID: 2,
+				SectionNumber: 2,
+				CurrentTemperature: 2,
+				MinimumTemperature: 2,
+				CurrentCapacity: 2,
+				MinimumCapacity: 2,
+				MaximumCapacity: 2,
+				WarehouseID: 2,
+				ProductTypeID: 2,
+		}
+
+		server.GET("/sections/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/2", "")
+		mockService.On("Get", 2).Return(expectedSection, nil)
+		
+		server.ServeHTTP(response, request)
+		responseResult := &domain.SectionResponse{}
+		fmt.Println(response.Body)
+		err := json.Unmarshal(response.Body.Bytes(), responseResult)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.EqualValues(t, expectedSection, responseResult.Data)
+	})
+}
+
 func InitServerWithGetSections(t *testing.T) (*gin.Engine, *mocks.SectionServiceMock, *handler.SectionController) {
 	t.Helper()
 	server := testutil.CreateServer()
