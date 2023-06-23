@@ -11,3 +11,6 @@ type Seller struct {
 type SellerResponse struct {
 	Data []Seller `json:"data"`
 }
+type SellerResponseId struct {
+	Data Seller `json:"data"`
+}

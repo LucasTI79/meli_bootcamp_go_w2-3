@@ -31,11 +31,11 @@ func (s *SellerServiceMock) Save(ctx context.Context, d domain.Seller) (int, err
 
 func (s *SellerServiceMock) Delete(ctx context.Context, id int) error {
 	return nil
-
 }
 
 func (s *SellerServiceMock) Get(ctx context.Context, id int) (domain.Seller, error) {
-	return domain.Seller{}, nil
+	args := s.Called(ctx, id)
+	return args.Get(0).(domain.Seller), args.Error(1)
 }
 
 func (s *SellerServiceMock) Update(ctx context.Context, d domain.Seller) error {

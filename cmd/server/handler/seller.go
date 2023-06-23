@@ -53,6 +53,9 @@ func (s *SellerController) GetAll() gin.HandlerFunc {
 // @Tags Sellers
 // @Accept json
 // @Success 200 {object}  domain.Seller
+// @Failure 400 {object} web.errorResponse "Bad Request"
+// @Failure 404 {object} web.errorResponse "Not Found"
+// @Failure 500 {object} web.errorResponse "Internal Server Error"
 // @Description List one by Seller id
 func (s *SellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -17,7 +17,7 @@ import (
 
 const (
 	GetAllSellers = "/sellers"
-	GetByIdSellers = "/sellers"
+	GetByIdSellers = "/sellers/1"
 )
 
 func TestGetAllSeller(t *testing.T) {
@@ -61,7 +61,7 @@ func TestGetAllSeller(t *testing.T) {
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllSellers, "")
 
 		server.ServeHTTP(response, request)
-		assert.Equal(t, response.Code, http.StatusNoContent)
+		assert.Equal(t, http.StatusNoContent, response.Code)
 	})
 
 	t.Run("Should return 500", func(t *testing.T) {
@@ -72,9 +72,66 @@ func TestGetAllSeller(t *testing.T) {
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllSellers, "")
 
 		server.ServeHTTP(response, request)
-		assert.Equal(t, response.Code, http.StatusInternalServerError)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
 }	
+
+func TestGetSeller(t *testing.T) {
+	server, mockService, handler := InitServer(t)
+	t.Run("Should return status 200 with all seller data request by id", func(t *testing.T){
+		expectedSeller := domain.Seller{
+			ID:          1,
+			CID:         1,
+			CompanyName: "Company Name",
+			Address:     "Address",
+			Telephone:   "88748585",
+		}
+		mockService.On("Get", mock.Anything, 1).Return(expectedSeller, nil)
+		server.GET("/sellers/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, GetByIdSellers, "")
+	
+		server.ServeHTTP(response, request)
+		responseResult := &domain.SellerResponseId{}
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, expectedSeller, responseResult.Data)
+	})
+
+	t.Run("Should return status 400", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+		mockService.On("Get", mock.Anything, "invalid").Return(domain.Seller{}, seller.ErrInvalidId)
+
+		server.GET("/sellers/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sellers/invalid", "")
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+	t.Run("Should return status 404", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)   
+
+		mockService.On("Get", mock.Anything, 1).Return(domain.Seller{}, seller.ErrNotFound)
+		server.GET("/sellers/:id", handler.Get())
+
+		request, response := testutil.MakeRequest(http.MethodGet, GetByIdSellers, "")
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+	t.Run("Should return status 500", func(t *testing.T) {
+
+		server, mockService, handler := InitServer(t)
+
+		mockService.On("Get", mock.Anything, 1).Return(domain.Seller{}, seller.ErrTryAgain)
+		server.GET("/sellers/:id", handler.Get())
+
+		request, response := testutil.MakeRequest(http.MethodGet, GetByIdSellers, "")
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+}
 
 func InitServer(t *testing.T) (*gin.Engine, *mocks.SellerServiceMock, *handler.SellerController) {
 	t.Helper()
