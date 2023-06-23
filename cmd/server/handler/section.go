@@ -124,7 +124,8 @@ func (s *SectionController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		web.Success(c, http.StatusCreated, sectionID)
+		sectionInput.ID = sectionID
+		web.Success(c, http.StatusCreated, sectionInput)
 	}
 }
 
