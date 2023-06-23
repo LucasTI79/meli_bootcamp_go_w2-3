@@ -55,6 +55,12 @@ func (m *WarehouseRepositoryMock) Get(ctx context.Context, id int) (domain.Wareh
 	return args.Get(0).(domain.Warehouse), args.Error(1)
 }
 
-func (m *WarehouseServiceMock) Update(ctx context.Context, s domain.Warehouse) error {
-	return nil
+func (m *WarehouseServiceMock) Update(ctx context.Context, d domain.Warehouse, id int) (domain.Warehouse, error) {
+	args := m.Called(ctx, d, id)
+	return args.Get(0).(domain.Warehouse), args.Error(1)
+}
+
+func (m *WarehouseRepositoryMock) Update(ctx context.Context, d domain.Warehouse, id int) (domain.Warehouse, error) {
+	args := m.Called(ctx, d, id)
+	return args.Get(0).(domain.Warehouse), args.Error(1)
 }

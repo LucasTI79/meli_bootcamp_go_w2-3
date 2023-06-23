@@ -20,6 +20,7 @@ const (
 	GetByIdWarehouses = "/warehouses/4"
 	CreateWarehouses  = "/warehouses"
 	DeleteWarehouses  = "/warehouses/1"
+	UpdateWarehouses  = "/warehouses/1"
 )
 
 func TestGetAllWarehouses(t *testing.T) {
@@ -225,12 +226,13 @@ func TestCreateWarehouses(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
+
 	t.Run("Should return status 400 when WarehouseCode is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithWarehouses(t)
 
 		server.POST("/warehouses", handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"","minimum_capacity":0,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateWarehouses, `{"address":"Rua Pedro Dias","telephone":"37111029","warehouse_code":"","minimum_capacity":10,"minimum_temperature":10}`)
 
 		server.ServeHTTP(response, request)
 
@@ -309,6 +311,83 @@ func TestDeleteWarehouses(t *testing.T) {
 		mockService.On("Delete", mock.Anything, 1).Return(warehouse.ErrTryAgain)
 
 		server.DELETE("/warehouses/:id", handler.Delete())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+}
+
+func TestUpdateWarehouse(t *testing.T) {
+	t.Run("Should return status 200 and updated warehouse", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+		updatedWarehouse := domain.Warehouse{
+			ID:                 1,
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "DAE",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10,
+		}
+
+		// jsonWarehouse, _ := json.Marshal(updatedWarehouse)
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(updatedWarehouse, nil)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdateWarehouses, `{"address":"Rua Pedro Dias","telephone":"371928"}`)
+
+		server.PATCH("/warehouses/:id", handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		responseResult := domain.WarehouseResponseId{}
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+
+		assert.Equal(t, updatedWarehouse, responseResult.Data)
+	})
+	t.Run("Should return status 400 when the warehouse id is invalid", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+
+		mockService.On("Update", mock.Anything, mock.Anything, "invalid").Return(domain.Warehouse{}, warehouse.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/warehouses/invalid", `{"address":"Rua Pedro Dias","telephone":"371928"}`)
+
+		server.PATCH("/warehouses/:id", handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+		
+		mockService.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(domain.Warehouse{}, warehouse.ErrInvalidBody)
+		
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdateWarehouses, "")
+
+		server.PATCH("/warehouses/:id", handler.Update())
+		server.ServeHTTP(response, request)
+		
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+	t.Run("Should return status 404 when warehouse is not found", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdateWarehouses, `{"address":"Rua Pedro Dias","telephone":"371928"}`)
+
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrNotFound)
+
+		server.PATCH("/warehouses/:id", handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
+		server, mockService, handler := InitServerWithWarehouses(t)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdateWarehouses, `{"telephone":"371928"}`)
+
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
+
+		server.PATCH("/warehouses/:id", handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)

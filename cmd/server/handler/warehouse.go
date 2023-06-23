@@ -91,7 +91,7 @@ func (w *WarehouseController) Create() gin.HandlerFunc {
 		warehouseInput := &domain.Warehouse{}
 		err := c.ShouldBindJSON(warehouseInput)
 		if err != nil {
-			web.Error(c, http.StatusUnprocessableEntity, "Error to read request: %s", err.Error())
+			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrInvalidJSON.Error())
 			return
 		}
 
@@ -177,51 +177,24 @@ func (w *WarehouseController) Update() gin.HandlerFunc {
 			return
 		}
 
-		warehouseInput := &domain.Warehouse{}
-		err := c.ShouldBindJSON(warehouseInput)
+		domain := new(domain.Warehouse)
+		if err := c.ShouldBindJSON(domain); err != nil {
+			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrInvalidBody.Error())
+			return
+		}
+
+		result, err := w.warehouseService.Update(c, *domain, warehouseId)
 		if err != nil {
-			web.Error(c, http.StatusUnprocessableEntity, warehouse.ErrTryAgain.Error(), err)
-			return
-		}
-
-		switch {
-		case warehouseInput.Address == "":
-			web.Error(c, http.StatusUnprocessableEntity, "invalid address field")
-			return
-		case warehouseInput.MinimumCapacity < 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
-			return
-		case warehouseInput.MinimumTemperature < 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
-			return
-		case warehouseInput.Telephone == "":
-			web.Error(c, http.StatusUnprocessableEntity, "invalid telephone field")
-			return
-		case warehouseInput.WarehouseCode == "":
-			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_code field")
-			return
-		}
-
-		warehouseItem := domain.Warehouse{
-			ID:                 warehouseId,
-			Address:            warehouseInput.Address,
-			Telephone:          warehouseInput.Telephone,
-			WarehouseCode:      warehouseInput.WarehouseCode,
-			MinimumCapacity:    warehouseInput.MinimumCapacity,
-			MinimumTemperature: warehouseInput.MinimumTemperature,
-		}
-
-		err = w.warehouseService.Update(c, warehouseItem)
-		if err != nil {
-			if errors.Is(err, warehouse.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, warehouse.ErrNotFound.Error())
+			switch err {
+			case warehouse.ErrNotFound:
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			default:
+				web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
 				return
 			}
-
-			web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
-			return
 		}
 
-		web.Success(c, http.StatusOK, warehouseItem)
+		web.Success(c, http.StatusOK, result)
 	}
 }

@@ -13,6 +13,7 @@ var (
 	ErrInvalidBody  = errors.New("invalid body")
 	ErrTryAgain     = errors.New("error, try again %s")
 	ErrAlredyExists = errors.New("warehouse already exists")
+	ErrInvalidJSON  = errors.New("invalid json")
 )
 
 type Service interface {
@@ -20,7 +21,7 @@ type Service interface {
 	GetAll(ctx context.Context) ([]domain.Warehouse, error)
 	Get(ctx context.Context, id int) (domain.Warehouse, error)
 	Delete(ctx context.Context, id int) error
-	Update(ctx context.Context, d domain.Warehouse) error
+	Update(ctx context.Context, d domain.Warehouse, id int) (domain.Warehouse, error)
 }
 
 type warehouseService struct {
@@ -60,10 +61,36 @@ func (w *warehouseService) Delete(ctx context.Context, id int) error {
 	return err
 }
 
-func (w *warehouseService) Update(ctx context.Context, d domain.Warehouse) error {
-	if !w.repository.Exists(ctx, d.WarehouseCode) {
-		return errors.New("cannot modify warehouse code")
+func (w *warehouseService) Update(ctx context.Context, d domain.Warehouse, id int) (domain.Warehouse, error) {
+	warehouseDomain, err := w.Get(ctx, id)
+	if err != nil {
+		return domain.Warehouse{}, ErrNotFound
 	}
-	err := w.repository.Update(ctx, d)
-	return err
+
+	if d.Address != "" {
+		warehouseDomain.Address = d.Address
+	}
+	if d.Telephone != "" {
+		warehouseDomain.Telephone = d.Telephone
+	}
+	if d.WarehouseCode != "" {
+		exists := w.repository.Exists(ctx, d.WarehouseCode)
+		if exists && warehouseDomain.WarehouseCode != d.WarehouseCode {
+			return domain.Warehouse{}, ErrAlredyExists
+		}
+		warehouseDomain.WarehouseCode = d.WarehouseCode
+	}
+	if d.MinimumCapacity != 0 {
+		warehouseDomain.MinimumCapacity = d.MinimumCapacity
+	}
+	if d.MinimumTemperature != 0 {
+		warehouseDomain.MinimumTemperature = d.MinimumTemperature
+	}
+	
+	err2 := w.repository.Update(ctx, warehouseDomain)
+	if err2 != nil {
+		return domain.Warehouse{}, err2
+	}
+
+	return warehouseDomain, nil
 }
