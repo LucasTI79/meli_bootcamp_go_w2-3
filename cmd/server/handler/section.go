@@ -53,7 +53,7 @@ func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, domain.ErrAlreadyExists.Error())
+			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
 			return
 		}
 		section, err := s.sectionService.Get(c, id)
