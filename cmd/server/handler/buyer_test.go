@@ -64,7 +64,7 @@ const (
 
 func TestGetAll(t *testing.T) {
 	t.Run("Should return status 200 with all buyers", func(t *testing.T) {
-		server, mockBuyer, handler := InitServerWithGetSections(t)
+		server, mockBuyer, handler := InitServerWithGetBuyers(t)
 		expectedBuyers := []domain.Buyer{
 			{
 				ID:           1,
@@ -96,9 +96,23 @@ func TestGetAll(t *testing.T) {
 		assert.True(t, len(responseResult.Data) == 2)
 
 	})
+
+	t.Run("Should return status 204 with no content", func(t *testing.T) {
+		emptyBuyers := make([]domain.Buyer, 0)
+		server, mockService, handler := InitServerWithGetBuyers(t)
+		server.GET(GetAll, handler.GetAll())
+
+		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptyBuyers, nil)
+
+		request, response := testutil.MakeRequest(http.MethodGet, GetAll, "")
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNoContent, response.Code)
+	})
 }
 
-func InitServerWithGetSections(t *testing.T) (*gin.Engine, *mocks.BuyerServiceMock, *handler.BuyerController) {
+func InitServerWithGetBuyers(t *testing.T) (*gin.Engine, *mocks.BuyerServiceMock, *handler.BuyerController) {
 	t.Helper()
 	server := testutil.CreateServer()
 	mockService := new(mocks.BuyerServiceMock)

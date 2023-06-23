@@ -62,6 +62,10 @@ func (b *BuyerController) GetAll() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, "error listing buyers")
 			return
 		}
+		if len(buyer) == 0 {
+			web.Success(c, http.StatusNoContent, buyer)
+			return
+		}
 		web.Success(c, http.StatusOK, buyer)
 	}
 }
