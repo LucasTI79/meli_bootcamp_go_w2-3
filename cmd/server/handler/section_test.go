@@ -95,6 +95,23 @@ func TestGetById(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.EqualValues(t, expectedSection, responseResult.Data)
 	})
+
+	t.Run("Should return 404 when id not exists ", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.GET("/sections/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/2", "")
+		mockService.On("Get", 2).Return(domain.Section{}, domain.ErrNotFound)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("Should return 400 when id is invalid ", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.GET("/sections/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/invalid", "")
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
 }
 
 func InitServerWithGetSections(t *testing.T) (*gin.Engine, *mocks.SectionServiceMock, *handler.SectionController) {
