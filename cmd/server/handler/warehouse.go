@@ -91,40 +91,38 @@ func (w *WarehouseController) Create() gin.HandlerFunc {
 		warehouseInput := &domain.Warehouse{}
 		err := c.ShouldBindJSON(warehouseInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, warehouse.ErrTryAgain.Error(), err)
+			web.Error(c, http.StatusUnprocessableEntity, "Error to read request: %s", err.Error())
 			return
 		}
 
 		switch {
 		case warehouseInput.Address == "":
-			web.Error(c, http.StatusUnprocessableEntity, "invalid address field")
+			web.Error(c, http.StatusBadRequest, "invalid address field")
 			return
-		case warehouseInput.MinimumCapacity < 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
-			return
-		case warehouseInput.MinimumTemperature < 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
+		case warehouseInput.MinimumCapacity <= 0:
+			web.Error(c, http.StatusBadRequest, "invalid minimum_capacity field")
 			return
 		case warehouseInput.Telephone == "":
-			web.Error(c, http.StatusUnprocessableEntity, "invalid telephone field")
+			web.Error(c, http.StatusBadRequest, "invalid telephone field")
 			return
 		case warehouseInput.WarehouseCode == "":
-			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_code field")
+			web.Error(c, http.StatusBadRequest, "invalid warehouse_code field")
 			return
 		}
 
-		warehouseId, err := w.warehouseService.Save(c, *warehouseInput)
+		warehouseDomain, err := w.warehouseService.Save(c, *warehouseInput)
 		if err != nil {
-			if errors.Is(err, domain.ErrAlreadyExists) {
+			switch err {
+			case warehouse.ErrAlredyExists:
 				web.Error(c, http.StatusConflict, err.Error())
 				return
+			default:
+				web.Error(c, http.StatusInternalServerError, "Error to save request: %s", err.Error())
+				return
 			}
-			web.Error(c, http.StatusInternalServerError, err.Error())
-			return
 		}
 
-		warehouseInput.ID = warehouseId
-		web.Success(c, http.StatusCreated, warehouseInput)
+		web.Success(c, http.StatusCreated, warehouseDomain)
 	}
 }
 
@@ -140,22 +138,21 @@ func (w *WarehouseController) Create() gin.HandlerFunc {
 func (w *WarehouseController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouseId, err := strconv.Atoi(c.Param("id"))
-
 		if err != nil {
 			web.Error(c, http.StatusBadRequest, warehouse.ErrInvalidId.Error())
 			return
 		}
 
 		err = w.warehouseService.Delete(c, warehouseId)
-
 		if err != nil {
-			if errors.Is(err, warehouse.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, warehouse.ErrNotFound.Error())
+			switch err {
+			case warehouse.ErrNotFound:
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			default:
+				web.Error(c, http.StatusInternalServerError, "Error to delete: %s", err.Error())
 				return
 			}
-
-			web.Error(c, http.StatusInternalServerError, err.Error())
-			return
 		}
 
 		web.Response(c, http.StatusNoContent, "")

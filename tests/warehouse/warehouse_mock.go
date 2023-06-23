@@ -17,19 +17,22 @@ type WarehouseRepositoryMock struct {
 
 func (m *WarehouseServiceMock) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 	args := m.Called()
-
 	return args.Get(0).([]domain.Warehouse), args.Error(1)
 }
 
 func (m *WarehouseRepositoryMock) GetAll() ([]domain.Warehouse, error) {
-
 	args := m.Called()
-
 	return args.Get(0).([]domain.Warehouse), args.Error(1)
 }
 
-func (m *WarehouseServiceMock) Save(ctx context.Context, s domain.Warehouse) (int, error) {
-	return 0, nil
+func (m *WarehouseServiceMock) Save(ctx context.Context, s domain.Warehouse) (domain.Warehouse, error) {
+	args := m.Called(ctx, s)
+	return args.Get(0).(domain.Warehouse), args.Error(1)
+}
+
+func (m *WarehouseRepositoryMock) Save(ctx context.Context, s domain.Warehouse) (domain.Warehouse, error) {
+	args := m.Called(ctx, s)
+	return args.Get(0).(domain.Warehouse), args.Error(1)
 }
 
 func (m *WarehouseServiceMock) Delete(ctx context.Context, id int) error {

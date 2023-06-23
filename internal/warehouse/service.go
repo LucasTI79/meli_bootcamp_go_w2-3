@@ -16,7 +16,7 @@ var (
 )
 
 type Service interface {
-	Save(ctx context.Context, d domain.Warehouse) (int, error)
+	Save(ctx context.Context, d domain.Warehouse) (domain.Warehouse, error)
 	GetAll(ctx context.Context) ([]domain.Warehouse, error)
 	Get(ctx context.Context, id int) (domain.Warehouse, error)
 	Delete(ctx context.Context, id int) error
@@ -33,12 +33,16 @@ func NewService(r Repository) Service {
 	}
 }
 
-func (w *warehouseService) Save(ctx context.Context, d domain.Warehouse) (int, error) {
+func (w *warehouseService) Save(ctx context.Context, d domain.Warehouse) (domain.Warehouse, error) {
 	if w.repository.Exists(ctx, d.WarehouseCode) {
-		return 0, ErrAlredyExists
+		return domain.Warehouse{}, ErrAlredyExists
 	}
 	warehouseId, err := w.repository.Save(ctx, d)
-	return warehouseId, err
+	if err != nil {
+		return domain.Warehouse{}, err
+	}
+	d.ID = warehouseId
+	return d, nil
 }
 
 func (w *warehouseService) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
