@@ -35,6 +35,12 @@ func (p *ProductController) GetAll() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, "error listing products")
 			return
 		}
+
+		if len(products) == 0 {
+			web.Error(c, http.StatusNoContent, domain.ErrNotFound.Error())
+			return
+		}
+
 		web.Success(c, http.StatusOK, products)
 	}
 }
