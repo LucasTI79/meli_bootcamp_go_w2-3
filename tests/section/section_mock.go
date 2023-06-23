@@ -29,7 +29,13 @@ func (m *SectionRepositoryMock) GetAll() ([]domain.Section, error){
 }
 
 func (m *SectionServiceMock) Save(ctx context.Context, s domain.Section) (int, error) {
-	return 0, nil
+	args := m.Called(s)
+	return args.Int(0), args.Error(1)
+}
+
+func (m *SectionRepositoryMock) Save(ctx context.Context, s domain.Section) (int, error) {
+	args := m.Called(s)
+	return args.Int(0), args.Error(1)
 }
 
 func (m *SectionServiceMock) Delete(ctx context.Context, id int) error {

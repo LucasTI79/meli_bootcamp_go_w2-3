@@ -144,6 +144,54 @@ func TestDelete(t *testing.T) {
 
 }
 
+func TestCreate(t *testing.T) {
+	newSection := domain.Section{
+		SectionNumber: 2,
+		CurrentTemperature: 2,
+		MinimumTemperature: 2,
+		CurrentCapacity: 2,
+		MinimumCapacity: 2,
+		MaximumCapacity: 2,
+		WarehouseID: 2,
+		ProductTypeID: 2,
+}
+var responseResult domain.SectionResponse
+	t.Run("Should return 201 when section is created", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.POST("/sections", handler.Create())
+		jsonSection, _ := json.Marshal(newSection)
+		request, response := testutil.MakeRequest(http.MethodPost, "/sections", string(jsonSection))
+		
+		mockService.On("Save", mock.AnythingOfType("domain.Section")).Return(1, nil)
+		mockService.On("Save", mock.AnythingOfType("domain.Section")).Return(1, nil)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusCreated, response.Code)
+
+		json.Unmarshal(response.Body.Bytes(), &responseResult)
+		newSection.ID = 1
+		assert.EqualValues(t, newSection, responseResult.Data)
+	})
+	t.Run("Should return 409 when section already exists", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.POST("/sections", handler.Create())
+		jsonSection, _ := json.Marshal(newSection)
+		request, response := testutil.MakeRequest(http.MethodPost, "/sections", string(jsonSection))
+		mockService.On("Save", mock.AnythingOfType("domain.Section")).Return(0, domain.ErrAlreadyExists)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusConflict, response.Code)
+	})
+	t.Run("Should return 422 when any of fields is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.POST("/sections", handler.Create())
+		jsonSection, _ := json.Marshal(domain.Section{})
+		request, response := testutil.MakeRequest(http.MethodPost, "/sections", string(jsonSection))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+
+}
+
 func InitServerWithGetSections(t *testing.T) (*gin.Engine, *mocks.SectionServiceMock, *handler.SectionController) {
 	t.Helper()
 	server := testutil.CreateServer()
