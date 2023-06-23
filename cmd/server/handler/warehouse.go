@@ -11,26 +11,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type warehouseController struct {
+type WarehouseController struct {
 	warehouseService warehouse.Service
 }
 
-func NewWarehouse(w warehouse.Service) *warehouseController {
-	return &warehouseController{
+func NewWarehouse(w warehouse.Service) *WarehouseController {
+	return &WarehouseController{
 		warehouseService: w,
 	}
 }
 
 // @Summary Get Warehouse by ID
 // @Produce json
-// GET /warehouse/:id @Summary Returns a warehouse per Id
+// GET /warehouses/:id @Summary Returns a warehouse per Id
 // @Router /api/v1/warehouses/{id} [get]
 // @Param id path int true "Warehouse ID"
 // @Tags Warehouses
 // @Accept json
 // @Success 200 {object} domain.Warehouse
 // @Description List one by Warehouse id
-func (w *warehouseController) Get() gin.HandlerFunc {
+func (w *WarehouseController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouseId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -45,7 +45,7 @@ func (w *warehouseController) Get() gin.HandlerFunc {
 				return
 			}
 
-			web.Error(c, http.StatusInternalServerError, err.Error())
+			web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
 			return
 		}
 		web.Success(c, http.StatusOK, warehouseGet)
@@ -60,27 +60,33 @@ func (w *warehouseController) Get() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {object} []domain.Warehouse
 // @Description List all Warehouses
-func (w *warehouseController) GetAll() gin.HandlerFunc {
+func (w *WarehouseController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouses, err := w.warehouseService.GetAll(c)
 		if err != nil {
 			web.Error(c, http.StatusInternalServerError, warehouse.ErrTryAgain.Error(), err)
 			return
 		}
+
+		if len(warehouses) == 0 {
+			web.Error(c, http.StatusNoContent, "There are no warehouses stored")
+			return
+		}
+
 		web.Success(c, http.StatusOK, warehouses)
 	}
 }
 
 // @Summary Create Warehouse
 // @Produce json
-// POST /warehouse/:id @Summary Create a warehouse
+// POST /warehouses/:id @Summary Create a warehouse
 // @Router /api/v1/warehouses [post]
 // @Tags Warehouses
 // @Accept json
 // @Param warehouse body domain.Warehouse true "Warehouse Data"
 // @Success 201 {object} domain.Warehouse
 // @Description Create Warehouses
-func (w *warehouseController) Create() gin.HandlerFunc {
+func (w *WarehouseController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouseInput := &domain.Warehouse{}
 		err := c.ShouldBindJSON(warehouseInput)
@@ -117,7 +123,8 @@ func (w *warehouseController) Create() gin.HandlerFunc {
 			return
 		}
 
-		web.Success(c, http.StatusCreated, warehouseId)
+		warehouseInput.ID = warehouseId
+		web.Success(c, http.StatusCreated, warehouseInput)
 	}
 }
 
@@ -130,7 +137,7 @@ func (w *warehouseController) Create() gin.HandlerFunc {
 // @Accept json
 // @Success 204
 // @Description Delete Warehouse
-func (w *warehouseController) Delete() gin.HandlerFunc {
+func (w *WarehouseController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouseId, err := strconv.Atoi(c.Param("id"))
 
@@ -165,7 +172,7 @@ func (w *warehouseController) Delete() gin.HandlerFunc {
 // @Param id path int true "Warehouse ID"
 // @Param warehouse body domain.Warehouse true "Warehouse Data"
 // @Description Update Warehouse
-func (w *warehouseController) Update() gin.HandlerFunc {
+func (w *WarehouseController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		warehouseId, errId := strconv.Atoi(c.Param("id"))
 		if errId != nil {

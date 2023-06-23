@@ -8,3 +8,11 @@ type Warehouse struct {
 	MinimumCapacity    int    `json:"minimum_capacity"`
 	MinimumTemperature int    `json:"minimum_temperature"`
 }
+
+type WarehouseResponse struct {
+	Data []Warehouse `json:"data"`
+}
+
+type WarehouseResponseId struct {
+	Data Warehouse `json:"data"`
+}
