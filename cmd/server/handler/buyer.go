@@ -11,12 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type buyerController struct {
+type BuyerController struct {
 	buyerService buyer.Service
 }
 
-func NewBuyer(b buyer.Service) *buyerController {
-	return &buyerController{
+func NewBuyer(b buyer.Service) *BuyerController {
+	return &BuyerController{
 		buyerService: b,
 	}
 }
@@ -28,7 +28,7 @@ func NewBuyer(b buyer.Service) *buyerController {
 // @Accept json
 // @Success 200 {object}  domain.Buyer
 // @Tags Buyers
-func (b *buyerController) Get() gin.HandlerFunc {
+func (b *BuyerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerId, errId := strconv.Atoi(c.Param("id"))
 		if errId != nil {
@@ -55,7 +55,7 @@ func (b *buyerController) Get() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {object}  []domain.Buyer
 // @Tags Buyers
-func (b *buyerController) GetAll() gin.HandlerFunc {
+func (b *BuyerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyer, err := b.buyerService.GetAll(c)
 		if err != nil {
@@ -73,7 +73,7 @@ func (b *buyerController) GetAll() gin.HandlerFunc {
 // @Success 201 {int} 0
 // @Param buyer body domain.BuyerRequest true "Buyer Data"
 // @Tags Buyers
-func (b *buyerController) Create() gin.HandlerFunc {
+func (b *BuyerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerInput := &domain.BuyerRequest{}
 		err := c.ShouldBindJSON(buyerInput)
@@ -85,7 +85,7 @@ func (b *buyerController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
 			return
 		}
-		buyerId, err := b.buyerService.Save(c, domain.Buyer{
+		buyerId, err := b.buyerService.Create(c, domain.Buyer{
 
 			CardNumberID: buyerInput.CardNumberID,
 			FirstName:    buyerInput.FirstName,
@@ -107,7 +107,7 @@ func (b *buyerController) Create() gin.HandlerFunc {
 // @Success 200 {object}  domain.Buyer
 // @Param buyer body domain.BuyerRequest true "Buyer Data"
 // @Tags Buyers
-func (b *buyerController) Update() gin.HandlerFunc {
+func (b *BuyerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerId, errId := strconv.Atoi(c.Param("id"))
 		if errId != nil {
@@ -155,7 +155,7 @@ func (b *buyerController) Update() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {string}  " "
 // @Tags Buyers
-func (b *buyerController) Delete() gin.HandlerFunc {
+func (b *BuyerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerId, errId := strconv.Atoi(c.Param("id"))
 		if errId != nil {
