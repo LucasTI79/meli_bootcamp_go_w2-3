@@ -59,5 +59,10 @@ func (m *SectionRepositoryMock) Get(ctx context.Context, id int) (domain.Section
 }
 
 func (m *SectionServiceMock) Update(ctx context.Context, s domain.Section) error {
-	return nil
+	args := m.Called(ctx, s)
+	return  args.Error(0)
+}
+func (m *SectionRepositoryMock) Update(ctx context.Context, s domain.Section) error {
+	args := m.Called(ctx, s)
+	return  args.Error(0)
 }

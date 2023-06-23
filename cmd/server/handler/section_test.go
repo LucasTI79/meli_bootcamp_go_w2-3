@@ -16,37 +16,35 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-
 const (
 	GetAll = "/sections"
 )
-
 
 func TestGetAll(t *testing.T) {
 	t.Run("Should return status 200 with all sections", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		expectedSections := []domain.Section{
 			{
-				ID: 1,
-				SectionNumber: 1,
+				ID:                 1,
+				SectionNumber:      1,
 				CurrentTemperature: 1,
 				MinimumTemperature: 1,
-				CurrentCapacity: 1,
-				MinimumCapacity: 1,
-				MaximumCapacity: 1,
-				WarehouseID: 1,
-				ProductTypeID: 1,
+				CurrentCapacity:    1,
+				MinimumCapacity:    1,
+				MaximumCapacity:    1,
+				WarehouseID:        1,
+				ProductTypeID:      1,
 			},
 			{
-				ID: 2,
-				SectionNumber: 2,
+				ID:                 2,
+				SectionNumber:      2,
 				CurrentTemperature: 2,
 				MinimumTemperature: 2,
-				CurrentCapacity: 2,
-				MinimumCapacity: 2,
-				MaximumCapacity: 2,
-				WarehouseID: 2,
-				ProductTypeID: 2,
+				CurrentCapacity:    2,
+				MinimumCapacity:    2,
+				MaximumCapacity:    2,
+				WarehouseID:        2,
+				ProductTypeID:      2,
 			},
 		}
 		server.GET(GetAll, handler.GetAll())
@@ -64,7 +62,7 @@ func TestGetAll(t *testing.T) {
 		assert.Equal(t, expectedSections, responseResult.Data)
 
 		assert.True(t, len(responseResult.Data) == 2)
-		
+
 	})
 }
 
@@ -73,21 +71,21 @@ func TestGetById(t *testing.T) {
 	t.Run("Should return status 200 with a section", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		expectedSection := domain.Section{
-				ID: 2,
-				SectionNumber: 2,
-				CurrentTemperature: 2,
-				MinimumTemperature: 2,
-				CurrentCapacity: 2,
-				MinimumCapacity: 2,
-				MaximumCapacity: 2,
-				WarehouseID: 2,
-				ProductTypeID: 2,
+			ID:                 2,
+			SectionNumber:      2,
+			CurrentTemperature: 2,
+			MinimumTemperature: 2,
+			CurrentCapacity:    2,
+			MinimumCapacity:    2,
+			MaximumCapacity:    2,
+			WarehouseID:        2,
+			ProductTypeID:      2,
 		}
 
 		server.GET("/sections/:id", handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sections/2", "")
 		mockService.On("Get", 2).Return(expectedSection, nil)
-		
+
 		server.ServeHTTP(response, request)
 		responseResult := &domain.SectionResponse{}
 		fmt.Println(response.Body)
@@ -146,28 +144,27 @@ func TestDelete(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	newSection := domain.Section{
-		SectionNumber: 2,
+		SectionNumber:      2,
 		CurrentTemperature: 2,
 		MinimumTemperature: 2,
-		CurrentCapacity: 2,
-		MinimumCapacity: 2,
-		MaximumCapacity: 2,
-		WarehouseID: 2,
-		ProductTypeID: 2,
-}
-var responseResult domain.SectionResponse
+		CurrentCapacity:    2,
+		MinimumCapacity:    2,
+		MaximumCapacity:    2,
+		WarehouseID:        2,
+		ProductTypeID:      2,
+	}
+	var responseResult domain.SectionResponse
 	t.Run("Should return 201 when section is created", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		server.POST("/sections", handler.Create())
 		jsonSection, _ := json.Marshal(newSection)
 		request, response := testutil.MakeRequest(http.MethodPost, "/sections", string(jsonSection))
-		
-		mockService.On("Save", mock.AnythingOfType("domain.Section")).Return(1, nil)
+
 		mockService.On("Save", mock.AnythingOfType("domain.Section")).Return(1, nil)
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusCreated, response.Code)
 
-		json.Unmarshal(response.Body.Bytes(), &responseResult)
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		newSection.ID = 1
 		assert.EqualValues(t, newSection, responseResult.Data)
 	})
@@ -189,7 +186,58 @@ var responseResult domain.SectionResponse
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 
+}
 
+func TestUpdate(t *testing.T) {
+	newSection := domain.Section{
+		SectionNumber:      2,
+		CurrentTemperature: 2,
+		MinimumTemperature: 2,
+		CurrentCapacity:    2,
+		MinimumCapacity:    2,
+		MaximumCapacity:    2,
+		WarehouseID:        2,
+		ProductTypeID:      2,
+	}
+	var responseResult domain.SectionResponse
+	t.Run("Should return 200 when section is updated", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.PATCH("/sections/:id", handler.Update())
+		jsonSection, _ := json.Marshal(newSection)
+		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
+		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusOK, response.Code)
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+		newSection.ID = 1
+		assert.EqualValues(t, newSection, responseResult.Data)
+	})
+	t.Run("Should return 404 when section not exists", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.PATCH("/sections/:id", handler.Update())
+		jsonSection, _ := json.Marshal(newSection)
+		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
+		mockService.On("Update", mock.Anything, mock.Anything).Return(section.ErrNotFound)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		fmt.Println(response.Code, "CODEEE")
+	})
+	t.Run("Should return 422 when any of fields is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.PATCH("/sections/:id", handler.Update())
+		jsonSection, _ := json.Marshal(domain.Section{})
+		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+	t.Run("Should return 400 when id is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.PATCH("/sections/:id", handler.Update())
+		jsonSection, _ := json.Marshal(newSection)
+		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/invalid", string(jsonSection))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
 }
 
 func InitServerWithGetSections(t *testing.T) (*gin.Engine, *mocks.SectionServiceMock, *handler.SectionController) {
