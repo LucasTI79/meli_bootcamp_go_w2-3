@@ -63,7 +63,7 @@ func TestGetAllProducts(t *testing.T) {
 
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		assert.Equal(t, expectedProducts, responseResult.Data)
-
+		assert.Equal(t, response.Code, http.StatusOK)
 		assert.True(t, len(responseResult.Data) == 2)
 
 	})
