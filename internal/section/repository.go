@@ -100,7 +100,7 @@ func (r *repository) Update(ctx context.Context, s domain.Section) error {
 	if err != nil {
 		return err
 	}
-	if rowsAffected == 0{
+	if rowsAffected == 0 {
 		return ErrNotFound
 	}
 

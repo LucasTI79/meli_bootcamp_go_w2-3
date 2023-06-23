@@ -193,8 +193,8 @@ func (s *SectionController) Update() gin.HandlerFunc {
 
 		err = s.sectionService.Update(c, sectionUpdated)
 		if err != nil {
-			if errors.Is(err, domain.ErrModifySection) {
-				web.Error(c, http.StatusConflict, domain.ErrModifySection.Error())
+			if errors.Is(err, section.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, section.ErrNotFound.Error())
 				return
 			}
 			web.Error(c, http.StatusInternalServerError, err.Error())
