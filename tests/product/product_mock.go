@@ -43,5 +43,11 @@ func (p *ProductServiceMock) Delete(ctx context.Context, id int) error {
 }
 
 func (p *ProductServiceMock) Get(ctx context.Context, id int) (domain.Product, error) {
-	return domain.Product{}, nil
+	args := p.Called(id)
+	return args.Get(0).(domain.Product), args.Error(1)
+}
+
+func (p *ProductRepositoryMock) Get(ctx context.Context, id int) (domain.Product, error) {
+	args := p.Called(id)
+	return args.Get(0).(domain.Product), args.Error(1)
 }

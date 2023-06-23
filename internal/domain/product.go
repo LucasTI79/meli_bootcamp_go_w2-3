@@ -33,3 +33,7 @@ type ProductRequest struct {
 type ProductResponse struct {
 	Data []Product `json:"data"`
 }
+
+type ProductResponseById struct {
+	Data Product
+}

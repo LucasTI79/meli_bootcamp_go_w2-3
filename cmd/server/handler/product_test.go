@@ -8,6 +8,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
+
 	mocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/product"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -79,8 +80,6 @@ func TestGetAllProducts(t *testing.T) {
 		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmpityProducts, nil)
 		server.ServeHTTP(response, request)
 
-		// responseResult := &domain.ProductResponse{}
-
 		_ = json.Unmarshal(response.Body.Bytes(), &ExpectedEmpityProducts)
 		assert.Equal(t, ExpectedEmpityProducts, ExpectedEmpityProducts)
 		assert.Equal(t, http.StatusNoContent, response.Code)
@@ -102,11 +101,44 @@ func TestGetAllProducts(t *testing.T) {
 
 }
 
-// case find_by_id_non_existent
-// t.Run( "", func(t *testing.T) {},
+func TestGetProductById(t *testing.T) {
+	//case find_by_id_existent
+	t.Run("Should return status 200 with the requested product", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+		expectedProducts := domain.Product{
 
-// case find_by_id_existent
-// t.Run( "", func(t *testing.T) {},
+			ID:             2,
+			Description:    "milk",
+			ExpirationRate: 1,
+			FreezingRate:   2,
+			Height:         6.4,
+			Length:         4.5,
+			Netweight:      3.4,
+			ProductCode:    "PROD02",
+			RecomFreezTemp: 1.3,
+			Width:          1.2,
+			ProductTypeID:  1,
+			SellerID:       1,
+		}
+		server.GET("/products/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/2", "")
+
+		mockService.On("Get", mock.AnythingOfType("int")).Return(expectedProducts, nil)
+
+		server.ServeHTTP(response, request)
+
+		responseResult := &domain.ProductResponseById{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), responseResult)
+
+		assert.Equal(t, expectedProducts, responseResult.Data)
+		assert.Equal(t, http.StatusOK, response.Code)
+
+	})
+
+	// case find_by_id_non_existent
+	// t.Run( "", func(t *testing.T) {},
+}
 
 // iniciar o servidor de testes
 func InitServerWithProducts(t *testing.T) (*gin.Engine, *mocks.ProductServiceMock, *handler.ProductController) {
