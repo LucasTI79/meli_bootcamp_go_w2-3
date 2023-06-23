@@ -8,6 +8,7 @@ import (
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
 	mocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/section"
 	"github.com/gin-gonic/gin"
@@ -112,6 +113,35 @@ func TestGetById(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
+}
+
+func TestDelete(t *testing.T) {
+	t.Run("Should return 204 when id exists", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.DELETE("/sections/:id", handler.Delete())
+		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/1", "")
+		mockService.On("Delete", 1).Return(nil)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNoContent, response.Code)
+	})
+
+	t.Run("Should return 404 when id not exists", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.DELETE("/sections/:id", handler.Delete())
+		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/1", "")
+		mockService.On("Delete", 1).Return(section.ErrNotFound)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("Should return 400 when id is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.DELETE("/sections/:id", handler.Delete())
+		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/invalid", "")
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
 }
 
 func InitServerWithGetSections(t *testing.T) (*gin.Engine, *mocks.SectionServiceMock, *handler.SectionController) {
