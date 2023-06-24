@@ -35,12 +35,6 @@ func (p *ProductController) GetAll() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, "error listing products")
 			return
 		}
-
-		if len(products) == 0 {
-			web.Error(c, http.StatusNoContent, domain.ErrNotFound.Error())
-			return
-		}
-
 		web.Success(c, http.StatusOK, products)
 	}
 }
@@ -61,17 +55,18 @@ func (p *ProductController) Get() gin.HandlerFunc {
 			return
 		}
 
-		product, err := p.productService.Get(c, productId)
+		newProduct, err := p.productService.Get(c, productId)
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				web.Error(c, http.StatusNotFound, "")
+			if errors.Is(err, product.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, product.ErrNotFound.Error())
+
 				return
 			}
 
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, product)
+		web.Success(c, http.StatusOK, newProduct)
 	}
 }
 
