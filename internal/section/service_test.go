@@ -52,6 +52,35 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
+func TestGetById(t *testing.T) {
+	t.Run("should return a section", func(t *testing.T) {
+		expectedSection := domain.Section{
+			ID:                 1,
+			SectionNumber:      1,
+			CurrentTemperature: 10,
+			MinimumTemperature: 5,
+			CurrentCapacity:    10,
+			MinimumCapacity:    5,
+			MaximumCapacity:    20,
+			WarehouseID:        1,
+			ProductTypeID:      1,
+		}
+		mockRepository, service := InitServerWithWarehousesRepository(t)
+		mockRepository.On("Get", 1).Return(expectedSection, nil)
+		section, err := service.Get(context.Background(), 1)
+		assert.Equal(t, expectedSection, section)
+		assert.NoError(t, err)
+	})
+
+	t.Run("should not return a section", func(t *testing.T) {
+		mockRepository, service := InitServerWithWarehousesRepository(t)
+		mockRepository.On("Get", 1).Return(domain.Section{}, errors.New("error"))
+		section, err := service.Get(context.Background(), 1)
+		assert.Equal(t, domain.Section{}, section)
+		assert.Error(t, err)
+	})
+}
+
 func InitServerWithWarehousesRepository(t *testing.T) (*mocks.SectionRepositoryMock, section.Service) {
 	t.Helper()
 	mockRepository := &mocks.SectionRepositoryMock{}
