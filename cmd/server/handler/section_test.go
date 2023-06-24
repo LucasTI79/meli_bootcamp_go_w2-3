@@ -21,6 +21,145 @@ const (
 	GetAll = "/sections"
 )
 
+var BodyTestCases = []struct {
+	name         string
+	sectionInput domain.Section
+	expectedCode int
+	expectedBody gin.H
+}{
+	{
+		name: "invalid section_number field",
+		sectionInput: domain.Section{
+			SectionNumber: 0,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid section_number field",
+		},
+	},
+	{
+		name: "invalid current_temperature field",
+		sectionInput: domain.Section{
+			SectionNumber:      1,
+			CurrentTemperature: 0,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid current_temperature field",
+		},
+	},
+	{
+		name: "invalid minimum_temperature field",
+		sectionInput: domain.Section{
+			SectionNumber:      1,
+			CurrentTemperature: 10,
+			MinimumTemperature: 0,
+			CurrentCapacity:    100,
+			MinimumCapacity:    50,
+			MaximumCapacity:    200,
+			WarehouseID:        1,
+			ProductTypeID:      1,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid minimum_temperature field",
+		},
+	},
+	{
+		name: "invalid current_capacity field",
+		sectionInput: domain.Section{
+			SectionNumber:      1,
+			CurrentTemperature: 10,
+			MinimumTemperature: 5,
+			CurrentCapacity:    0,
+			MinimumCapacity:    50,
+			MaximumCapacity:    200,
+			WarehouseID:        1,
+			ProductTypeID:      1,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid current_capacity field",
+		},
+	},
+	{
+		name: "invalid minimum_capacity field",
+		sectionInput: domain.Section{
+			SectionNumber:      1,
+			CurrentTemperature: 10,
+			MinimumTemperature: 5,
+			CurrentCapacity:    100,
+			MinimumCapacity:    0,
+			MaximumCapacity:    200,
+			WarehouseID:        1,
+			ProductTypeID:      1,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid minimum_capacity field",
+		},
+	},
+	{
+		name: "invalid maximum_capacity field",
+		sectionInput: domain.Section{
+			SectionNumber:      1,
+			CurrentTemperature: 10,
+			MinimumTemperature: 5,
+			CurrentCapacity:    100,
+			MinimumCapacity:    50,
+			MaximumCapacity:    0,
+			WarehouseID:        1,
+			ProductTypeID:      1,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid maximum_capacity field",
+		},
+	},
+	{
+		name: "invalid warehouse_id field",
+		sectionInput: domain.Section{
+			SectionNumber:      1,
+			CurrentTemperature: 10,
+			MinimumTemperature: 5,
+			CurrentCapacity:    100,
+			MinimumCapacity:    50,
+			MaximumCapacity:    200,
+			WarehouseID:        0,
+			ProductTypeID:      1,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid warehouse_id field",
+		},
+	},
+	{
+		name: "invalid product_type_id field",
+		sectionInput: domain.Section{
+			SectionNumber:      1,
+			CurrentTemperature: 10,
+			MinimumTemperature: 5,
+			CurrentCapacity:    100,
+			MinimumCapacity:    50,
+			MaximumCapacity:    200,
+			WarehouseID:        1,
+			ProductTypeID:      0,
+		},
+		expectedCode: http.StatusUnprocessableEntity,
+		expectedBody: gin.H{
+			"code":    "unprocessable_entity",
+			"message": "invalid product_type_id field",
+		},
+	},
+}
+
 func TestGetAll(t *testing.T) {
 	t.Run("Should return status 200 with all sections", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
@@ -121,7 +260,6 @@ func TestGetById(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
-	//Should return status 500 when any error occour
 
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
@@ -159,7 +297,6 @@ func TestDelete(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
-	//Should return status 500 when any error occour
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		server.DELETE("/sections/:id", handler.Delete())
@@ -213,7 +350,6 @@ func TestCreate(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
-	//Should return status 500 when any error occour
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		server.POST("/sections", handler.Create())
@@ -222,6 +358,25 @@ func TestCreate(t *testing.T) {
 		mockService.On("Save", mock.AnythingOfType("domain.Section")).Return(0, errors.New("error"))
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+
+	t.Run("Should return 400 when body is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.POST("/sections", handler.Create())
+		request, response := testutil.MakeRequest(http.MethodPost, "/sections", "")
+		for _, tc := range BodyTestCases {
+			jsonSection, _ := json.Marshal(tc.sectionInput)
+			request, response := testutil.MakeRequest(http.MethodPost, "/sections", string(jsonSection))
+			server.ServeHTTP(response, request)
+			var body gin.H
+			err := json.Unmarshal(response.Body.Bytes(), &body)
+			assert.NoError(t, err)
+			code := response.Code
+			assert.Equal(t, tc.expectedCode, code)
+			assert.Equal(t, tc.expectedBody, body)
+		}
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 }
 
@@ -275,7 +430,6 @@ func TestUpdate(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
-	//Should return status 500 when any error occour
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		server.PATCH("/sections/:id", handler.Update())
@@ -284,6 +438,26 @@ func TestUpdate(t *testing.T) {
 		mockService.On("Update", mock.Anything, mock.Anything).Return(errors.New("error"))
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+	t.Run("Should return 400 when body is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.PATCH("/sections/:id", handler.Update())
+
+		for _, tc := range BodyTestCases {
+			jsonSection, _ := json.Marshal(tc.sectionInput)
+			request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
+			server.ServeHTTP(response, request)
+			var body gin.H
+			err := json.Unmarshal(response.Body.Bytes(), &body)
+			assert.NoError(t, err)
+			code := response.Code
+			assert.Equal(t, tc.expectedCode, code)
+			assert.Equal(t, tc.expectedBody, body)
+		}
+		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", "")
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 }
 
