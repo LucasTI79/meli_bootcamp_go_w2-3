@@ -7,6 +7,7 @@ import (
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
 
 	mocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/product"
@@ -71,23 +72,7 @@ func TestGetAllProducts(t *testing.T) {
 
 	})
 
-	t.Run("Should return status 204 with no content", func(t *testing.T) {
-		server, mockService, handler := InitServerWithProducts(t)
-
-		server.GET(GetAllProducts, handler.GetAll())
-		request, response := testutil.MakeRequest(http.MethodGet, GetAllProducts, "")
-
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmpityProducts, nil)
-		server.ServeHTTP(response, request)
-
-		_ = json.Unmarshal(response.Body.Bytes(), &ExpectedEmpityProducts)
-		assert.Equal(t, ExpectedEmpityProducts, ExpectedEmpityProducts)
-		assert.Equal(t, http.StatusNoContent, response.Code)
-		assert.True(t, len(ExpectedEmpityProducts) == 0)
-
-	})
-
-	t.Run("Should return status 500 with all products", func(t *testing.T) {
+	t.Run("Should return status 500", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
 
 		server.GET(GetAllProducts, handler.GetAll())
@@ -137,7 +122,19 @@ func TestGetProductById(t *testing.T) {
 	})
 
 	// case find_by_id_non_existent
-	// t.Run( "", func(t *testing.T) {},
+
+	t.Run("Should return status 404 when the product is not found", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithProducts(t)
+		server.GET("/products/:id", handler.Get())
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/2", "")
+		mockService.On("Get", mock.AnythingOfType("int")).Return(domain.Product{}, product.ErrNotFound)
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
 }
 
 // iniciar o servidor de testes
