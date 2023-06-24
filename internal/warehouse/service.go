@@ -24,17 +24,17 @@ type Service interface {
 	Update(ctx context.Context, d domain.Warehouse, id int) (domain.Warehouse, error)
 }
 
-type warehouseService struct {
+type WarehouseService struct {
 	repository Repository
 }
 
 func NewService(r Repository) Service {
-	return &warehouseService{
+	return &WarehouseService{
 		repository: r,
 	}
 }
 
-func (w *warehouseService) Save(ctx context.Context, d domain.Warehouse) (domain.Warehouse, error) {
+func (w *WarehouseService) Save(ctx context.Context, d domain.Warehouse) (domain.Warehouse, error) {
 	if w.repository.Exists(ctx, d.WarehouseCode) {
 		return domain.Warehouse{}, ErrAlredyExists
 	}
@@ -46,22 +46,22 @@ func (w *warehouseService) Save(ctx context.Context, d domain.Warehouse) (domain
 	return d, nil
 }
 
-func (w *warehouseService) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
+func (w *WarehouseService) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 	warehouses, err := w.repository.GetAll(ctx)
 	return warehouses, err
 }
 
-func (w *warehouseService) Get(ctx context.Context, id int) (domain.Warehouse, error) {
+func (w *WarehouseService) Get(ctx context.Context, id int) (domain.Warehouse, error) {
 	warehouse, err := w.repository.Get(ctx, id)
 	return warehouse, err
 }
 
-func (w *warehouseService) Delete(ctx context.Context, id int) error {
+func (w *WarehouseService) Delete(ctx context.Context, id int) error {
 	err := w.repository.Delete(ctx, id)
 	return err
 }
 
-func (w *warehouseService) Update(ctx context.Context, d domain.Warehouse, id int) (domain.Warehouse, error) {
+func (w *WarehouseService) Update(ctx context.Context, d domain.Warehouse, id int) (domain.Warehouse, error) {
 	warehouseDomain, err := w.Get(ctx, id)
 	if err != nil {
 		return domain.Warehouse{}, ErrNotFound

@@ -48,7 +48,7 @@ func TestGetAllWarehouses(t *testing.T) {
 		server.GET("/warehouses", handler.GetAll())
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllWarehouses, "")
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(expectedWarehouses, nil)
+		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(expectedWarehouses, nil)
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.WarehouseResponse{}
@@ -65,7 +65,7 @@ func TestGetAllWarehouses(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 		server.GET("/warehouses", handler.GetAll())
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptyWarehouses, nil)
+		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(emptyWarehouses, nil)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllWarehouses, "")
 
@@ -78,7 +78,7 @@ func TestGetAllWarehouses(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 		server.GET("/warehouses", handler.GetAll())
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptyWarehouses, warehouse.ErrTryAgain)
+		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(emptyWarehouses, warehouse.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllWarehouses, "")
 
