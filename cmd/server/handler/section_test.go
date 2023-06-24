@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"testing"
@@ -64,6 +65,15 @@ func TestGetAll(t *testing.T) {
 		assert.True(t, len(responseResult.Data) == 2)
 
 	})
+
+	t.Run("Should return status 500 when any error occour", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.GET(GetAll, handler.GetAll())
+		request, response := testutil.MakeRequest(http.MethodGet, GetAll, "")
+		mockService.On("GetAll", mock.AnythingOfType("string")).Return([]domain.Section{}, domain.ErrNotFound)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
 }
 
 func TestGetById(t *testing.T) {
@@ -111,6 +121,16 @@ func TestGetById(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
+	//Should return status 500 when any error occour
+
+	t.Run("Should return 500 when any error occour", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.GET("/sections/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/2", "")
+		mockService.On("Get", 2).Return(domain.Section{}, errors.New("error"))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
 }
 
 func TestDelete(t *testing.T) {
@@ -139,7 +159,15 @@ func TestDelete(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
-
+	//Should return status 500 when any error occour
+	t.Run("Should return 500 when any error occour", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.DELETE("/sections/:id", handler.Delete())
+		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/1", "")
+		mockService.On("Delete", 1).Return(errors.New("error"))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
 }
 
 func TestCreate(t *testing.T) {
@@ -185,7 +213,16 @@ func TestCreate(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
-
+	//Should return status 500 when any error occour
+	t.Run("Should return 500 when any error occour", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.POST("/sections", handler.Create())
+		jsonSection, _ := json.Marshal(newSection)
+		request, response := testutil.MakeRequest(http.MethodPost, "/sections", string(jsonSection))
+		mockService.On("Save", mock.AnythingOfType("domain.Section")).Return(0, errors.New("error"))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
 }
 
 func TestUpdate(t *testing.T) {
@@ -237,6 +274,16 @@ func TestUpdate(t *testing.T) {
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/invalid", string(jsonSection))
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+	//Should return status 500 when any error occour
+	t.Run("Should return 500 when any error occour", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.PATCH("/sections/:id", handler.Update())
+		jsonSection, _ := json.Marshal(newSection)
+		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
+		mockService.On("Update", mock.Anything, mock.Anything).Return(errors.New("error"))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
 }
 
