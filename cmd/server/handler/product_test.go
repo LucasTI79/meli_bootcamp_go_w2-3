@@ -137,6 +137,30 @@ func TestGetProductById(t *testing.T) {
 
 }
 
+func TestDeleteProduct(t *testing.T) {
+
+	t.Run("Should return 204 when product exists", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+		server.DELETE("/products/:id", handler.Delete())
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/products/1", "")
+		mockService.On("Delete", mock.AnythingOfType("int")).Return(nil)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNoContent, response.Code)
+	})
+
+	t.Run("Should return 404 when product does not exist", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+		server.DELETE("/products/:id", handler.Delete())
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/products/1", "")
+		mockService.On("Delete", mock.AnythingOfType("int")).Return(nil)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNoContent, response.Code)
+	})
+
+}
+
 // iniciar o servidor de testes
 func InitServerWithProducts(t *testing.T) (*gin.Engine, *mocks.ProductServiceMock, *handler.ProductController) {
 	t.Helper()

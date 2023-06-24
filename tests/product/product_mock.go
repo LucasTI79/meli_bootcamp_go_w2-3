@@ -38,8 +38,8 @@ func (p *ProductServiceMock) Save(ctx context.Context, d domain.Product) (int, e
 }
 
 func (p *ProductServiceMock) Delete(ctx context.Context, id int) error {
-
-	return nil
+	args := p.Called(id)
+	return args.Error(0)
 }
 
 func (p *ProductServiceMock) Get(ctx context.Context, id int) (domain.Product, error) {
