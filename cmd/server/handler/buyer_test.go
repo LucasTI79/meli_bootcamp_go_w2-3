@@ -14,11 +14,6 @@ retornado.
 CREATE create_conflict Se o card_number_id já existir, ele retornará um erro 409 Conflict.
 409
 
-READ find_all Quando a solicitação for bem-sucedida, o
-back-end retornará uma lista de todos os
-compradores existentes.
-200
-
 READ find_by_id_non_existent Quando o funcionário não existir, um código 404 será retornado
 404
 
@@ -60,6 +55,7 @@ import (
 
 const (
 	GetAll = "/buyers"
+	Get    = "/buyers/:id"
 )
 
 func TestGetAll(t *testing.T) {
@@ -109,6 +105,36 @@ func TestGetAll(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNoContent, response.Code)
+	})
+}
+
+func TestGet(t *testing.T) {
+	t.Run("Find by ID status 200 with buyer content", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		expectedBuyers := domain.Buyer{
+
+			ID:           7,
+			CardNumberID: "1234",
+			FirstName:    "Giu",
+			LastName:     "Oli",
+		}
+
+		server.GET(Get, handler.Get())
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/buyers/7", "")
+
+		mockService.On("Get", mock.Anything, 7).Return(expectedBuyers, nil)
+
+		server.ServeHTTP(response, request)
+
+		responseResult := &domain.BuyerResponseID{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.EqualValues(t, expectedBuyers, responseResult.Data)
+
 	})
 }
 

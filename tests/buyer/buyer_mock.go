@@ -21,8 +21,8 @@ func (m *BuyerServiceMock) GetAll(ctx context.Context) ([]domain.Buyer, error) {
 }
 
 func (m *BuyerServiceMock) Get(ctx context.Context, id int) (domain.Buyer, error) {
-	args := m.Called()
-	return domain.Buyer{}, args.Error(1)
+	args := m.Called(ctx, id)
+	return args.Get(0).(domain.Buyer), args.Error(1)
 }
 
 func (m *BuyerServiceMock) Update(ctx context.Context, b domain.Buyer) error {
