@@ -13,12 +13,14 @@ var (
 	ErrInvalidBody  = errors.New("invalid body")
 	ErrTryAgain     = errors.New("error, try again %s")
 	ErrAlredyExists = errors.New("seller already exists")
+	ErrCidAlreadyExists = errors.New("cid already registered")
+	ErrSaveSeller       = errors.New("error saving seller")
 )
 
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Seller, error)
 	Get(ctx context.Context, id int) (domain.Seller, error)
-	Save(ctx context.Context, d domain.Seller) (int, error)
+	Save(ctx context.Context, d domain.Seller) (domain.Seller, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, s domain.Seller) error
 }
@@ -41,18 +43,21 @@ func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 	return sellers, nil
 }
 
-func (s *sellerService) Save(ctx context.Context, d domain.Seller) (int, error) {
-	if s.repository.Exists(ctx, d.CID) {
-		return 0, ErrAlredyExists
+func (s *sellerService) Save(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
+	if s.repository.Exists(ctx, seller.CID) {
+		return domain.Seller{}, ErrCidAlreadyExists
 	}
-	sellerId, err := s.repository.Save(ctx, d)
-	return sellerId, err
+	sellerId, err := s.repository.Save(ctx, seller)
+	if err != nil {
+		return domain.Seller{}, ErrSaveSeller
+	}
+	seller.ID = sellerId
+	return seller, nil
 }
 
 func (s *sellerService) Delete(ctx context.Context, id int) error {
 	err := s.repository.Delete(ctx, id)
 	return err
-
 }
 
 func (s *sellerService) Get(ctx context.Context, id int) (domain.Seller, error) {

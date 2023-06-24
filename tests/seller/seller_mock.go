@@ -25,8 +25,9 @@ func (s *SellerServiceMock) GetAll(ctx context.Context) ([]domain.Seller, error)
 //     return args.Get(0).([]domain.Seller), args.Error(1)
 // }
 
-func (s *SellerServiceMock) Save(ctx context.Context, d domain.Seller) (int, error) {
-	return 0, nil
+func (s *SellerServiceMock) Save(ctx context.Context, d domain.Seller) (domain.Seller, error) {
+	args := s.Called(ctx, s)
+	return args.Get(0).(domain.Seller), args.Error(1)
 }
 
 func (s *SellerServiceMock) Delete(ctx context.Context, id int) error {

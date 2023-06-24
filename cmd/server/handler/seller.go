@@ -92,29 +92,34 @@ func (s *SellerController) Create() gin.HandlerFunc {
 		sellerInput := &domain.Seller{}
 		err := c.ShouldBindJSON(sellerInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, seller.ErrTryAgain.Error(), err)
+			web.Error(c, http.StatusUnprocessableEntity, seller.ErrTryAgain.Error())
 			return
 		}
 
-		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
-			web.Error(c, http.StatusUnprocessableEntity, seller.ErrInvalidBody.Error())
+		switch {
+		case sellerInput.CID == 0:
+			web.Error(c, http.StatusBadRequest, "cid is required")
+			return
+		case sellerInput.CompanyName == "":
+			web.Error(c, http.StatusBadRequest, "company name is required")
+			return
+		case sellerInput.Address == "":
+			web.Error(c, http.StatusBadRequest, "address is required")
+			return
+		case sellerInput.Telephone == "":
+			web.Error(c, http.StatusBadRequest, "phone is required")
 			return
 		}
 
-		sellerItem := domain.Seller{
-			CID:         sellerInput.CID,
-			CompanyName: sellerInput.CompanyName,
-			Address:     sellerInput.Address,
-			Telephone:   sellerInput.Telephone,
-		}
-		sellerId, err := s.sellerService.Save(c, sellerItem)
+		sellerSaved, err := s.sellerService.Save(c, *sellerInput)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
-			return
+			if err == seller.ErrCidAlreadyExists {
+				web.Error(c, http.StatusConflict, err.Error())
+			}else{
+				web.Error(c, http.StatusInternalServerError, err.Error())
+			}
 		}
-
-		sellerItem.ID = sellerId
-		web.Success(c, http.StatusCreated, sellerItem)
+		web.Success(c, http.StatusCreated, sellerSaved)
 	}
 }
 
