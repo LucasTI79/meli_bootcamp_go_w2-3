@@ -96,6 +96,39 @@ func TestCreateWarehouses(t *testing.T) {
 	})
 }
 
+func TestGetByIdWarehouses(t *testing.T){
+	t.Run("Should get the warehouse if it exists in database", func(t *testing.T) {
+		expectedWarehouse := domain.Warehouse{
+			ID:					4,
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "AEX",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10,
+		}
+
+		repository, service := InitServerWithWarehousesRepository(t)
+		repository.On("Get", mock.Anything, expectedWarehouse.ID).Return(expectedWarehouse, nil)
+
+		warehouse, err := service.Get(context.TODO(), 4)
+
+		assert.Equal(t, expectedWarehouse, warehouse)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Should return error when there is an get repository error", func(t *testing.T) {
+		repository, service := InitServerWithWarehousesRepository(t)
+
+		expectedError := errors.New("some error")
+		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Warehouse{}, expectedError)
+
+		_, err := service.Get(context.TODO(), 1)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+}
+
 func InitServerWithWarehousesRepository(t *testing.T) (*mocks.WarehouseRepositoryMock, warehouse.Service) {
 	t.Helper()
 	mockRepository := &mocks.WarehouseRepositoryMock{}
