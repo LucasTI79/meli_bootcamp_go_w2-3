@@ -96,10 +96,10 @@ func TestCreateWarehouses(t *testing.T) {
 	})
 }
 
-func TestGetByIdWarehouses(t *testing.T){
-	t.Run("Should get the warehouse if it exists in database", func(t *testing.T) {
+func TestGetByIdWarehouses(t *testing.T) {
+	t.Run("Should get the warehouse when it exists in database", func(t *testing.T) {
 		expectedWarehouse := domain.Warehouse{
-			ID:					4,
+			ID:                 4,
 			Address:            "Rua Pedro Dias",
 			Telephone:          "3712291281",
 			WarehouseCode:      "AEX",
@@ -115,7 +115,17 @@ func TestGetByIdWarehouses(t *testing.T){
 		assert.Equal(t, expectedWarehouse, warehouse)
 		assert.NoError(t, err)
 	})
+	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
+		repository, service := InitServerWithWarehousesRepository(t)
 
+		expectedError := errors.New("warehouse not found")
+		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Warehouse{}, warehouse.ErrNotFound)
+
+		_, err := service.Get(context.TODO(), 1)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
 	t.Run("Should return error when there is an get repository error", func(t *testing.T) {
 		repository, service := InitServerWithWarehousesRepository(t)
 
@@ -123,6 +133,140 @@ func TestGetByIdWarehouses(t *testing.T){
 		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Warehouse{}, expectedError)
 
 		_, err := service.Get(context.TODO(), 1)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+}
+
+func TestDeleteWarehouses(t *testing.T) {
+	t.Run("Should delete the warehouse when it exists in database", func(t *testing.T) {
+		expectedWarehouse := domain.Warehouse{
+			ID:                 4,
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "AEX",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10,
+		}
+
+		repository, service := InitServerWithWarehousesRepository(t)
+		repository.On("Delete", mock.Anything, expectedWarehouse.ID).Return(nil)
+
+		err := service.Delete(context.TODO(), 4)
+
+		assert.NoError(t, err)
+	})
+	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
+		repository, service := InitServerWithWarehousesRepository(t)
+
+		expectedError := errors.New("warehouse not found")
+		repository.On("Delete", mock.Anything, mock.Anything).Return(warehouse.ErrNotFound)
+
+		err := service.Delete(context.TODO(), 1)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+	t.Run("Should return error when there is an delete repository error", func(t *testing.T) {
+		repository, service := InitServerWithWarehousesRepository(t)
+
+		expectedError := errors.New("some error")
+		repository.On("Delete", mock.Anything, mock.Anything).Return(expectedError)
+
+		err := service.Delete(context.TODO(), 1)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+}
+
+func TestUpdateWarehouses(t *testing.T) {
+	t.Run("Should update the warehouse when it exists in database", func(t *testing.T) {
+		expectedWarehouse := domain.Warehouse{
+			ID:                 4,
+			Address:            "Rua Antonio",
+			Telephone:          "37122911",
+			WarehouseCode:      "AEX",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10,
+		}
+
+		repository, service := InitServerWithWarehousesRepository(t)
+		repository.On("Get", mock.Anything, expectedWarehouse.ID).Return(expectedWarehouse, nil)
+		repository.On("Exists", mock.Anything, expectedWarehouse.WarehouseCode).Return(false)
+		repository.On("Update", mock.Anything, expectedWarehouse).Return(nil)
+
+		updatedWarehouse, err := service.Update(context.TODO(), expectedWarehouse, expectedWarehouse.ID)
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedWarehouse, updatedWarehouse)
+	})
+	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
+		expectedWarehouse := domain.Warehouse{
+			ID:                 4,
+			Address:            "Rua Antonio",
+			Telephone:          "37122911",
+			WarehouseCode:      "AEX",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10,
+		}
+
+		repository, service := InitServerWithWarehousesRepository(t)
+
+		expectedError := errors.New("warehouse not found")
+		repository.On("Get", mock.Anything, expectedWarehouse.ID).Return(domain.Warehouse{}, expectedError)
+
+		updatedWarehouse, err := service.Update(context.TODO(), expectedWarehouse, expectedWarehouse.ID)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+		assert.Equal(t, domain.Warehouse{}, updatedWarehouse)
+	})
+	t.Run("Should return err warehouse already exists when warehouse already exists", func(t *testing.T) {
+		domainWarehouse := domain.Warehouse{
+			ID:                 4,
+			Address:            "Rua Antonio",
+			Telephone:          "37122911",
+			WarehouseCode:      "AEX",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10,
+		}
+
+		updateWarehouse := domain.Warehouse{
+			WarehouseCode:      "ADA",
+		}
+
+		repository, service := InitServerWithWarehousesRepository(t)
+
+		expectedError := errors.New("warehouse already exists")
+		repository.On("Get", mock.Anything, domainWarehouse.ID).Return(domainWarehouse, nil)
+		repository.On("Exists", mock.Anything, updateWarehouse.WarehouseCode).Return(true)
+
+		updatedWarehouse, err := service.Update(context.TODO(), updateWarehouse, 4)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+		assert.Equal(t, domain.Warehouse{}, updatedWarehouse)
+	})
+	t.Run("Should return error when there is an update repository error", func(t *testing.T) {
+		expectedWarehouse := domain.Warehouse{
+			ID:                 4,
+			Address:            "Rua Antonio",
+			Telephone:          "37122911",
+			WarehouseCode:      "AEX",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10,
+		}
+
+		repository, service := InitServerWithWarehousesRepository(t)
+
+		expectedError := errors.New("some error")
+		repository.On("Get", mock.Anything, expectedWarehouse.ID).Return(expectedWarehouse, nil)
+		repository.On("Exists", mock.Anything, expectedWarehouse.WarehouseCode).Return(false)
+		repository.On("Update", mock.Anything, expectedWarehouse).Return(expectedError)
+
+		_, err := service.Update(context.TODO(), expectedWarehouse, expectedWarehouse.ID)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)

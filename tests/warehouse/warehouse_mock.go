@@ -61,7 +61,8 @@ func (m *WarehouseServiceMock) Update(ctx context.Context, d domain.Warehouse, i
 }
 
 func (m *WarehouseRepositoryMock) Update(ctx context.Context, w domain.Warehouse) error {
-	return nil
+	args := m.Called(ctx, w)
+	return args.Error(0)
 }
 
 func (m *WarehouseRepositoryMock) Exists(ctx context.Context, warehouseCode string) bool {
