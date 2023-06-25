@@ -1,10 +1,6 @@
 package handler_test
 
 /*
-CREATE create_ok Quando a entrada de dados for
-bem-sucedida, um código 201 será
-retornado junto com o objeto inserido.
-201
 
 CREATE create_fail Se o objeto JSON não contiver os campos
 necessários, um código 422 será
@@ -22,9 +18,6 @@ com um código 200
 
 UPDATE update_non_existent Se o comprador a ser atualizado não
 existir, um código 404 será devolvido
-404
-
-DELETE delete_non_existent Quando o comprador não existir, um código 404 será devolvido
 404
 */
 import (
@@ -47,6 +40,7 @@ const (
 	GetAll = "/buyers"
 	Get    = "/buyers/:id"
 	Delete = "/buyers/:id"
+	Create = "/buyers"
 )
 
 func TestGetAll(t *testing.T) {
@@ -171,6 +165,35 @@ func TestDelete(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+}
+
+func TestCreate(t *testing.T) {
+	t.Run("Should return status 201 with the buyer created", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+		expectedBuyers := domain.Buyer{
+			ID:           9,
+			CardNumberID: "2556",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
+
+		mockService.On("Create", mock.Anything, mock.Anything).Return(expectedBuyers, nil)
+
+		server.POST(Create, handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/buyers", `{
+			"card_number_id":"2556",
+			"first_name":"Giulianna",
+			"last_name":"Oliveira"}`)
+		server.ServeHTTP(response, request)
+
+		responseResult := domain.BuyerResponseID{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+		assert.Equal(t, http.StatusCreated, response.Code)
+
+		assert.Equal(t, expectedBuyers, responseResult.Data)
 	})
 }
 

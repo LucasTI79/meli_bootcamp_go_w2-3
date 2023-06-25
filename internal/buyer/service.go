@@ -16,7 +16,7 @@ var (
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
-	Create(ctx context.Context, b domain.Buyer) (int, error)
+	Create(ctx context.Context, b domain.Buyer) (domain.Buyer, error)
 	Update(ctx context.Context, b domain.Buyer) error
 	Delete(ctx context.Context, id int) error
 }
@@ -50,13 +50,14 @@ func (b *buyerService) Get(ctx context.Context, id int) (domain.Buyer, error) {
 	return buyer, err
 }
 
-func (b *buyerService) Create(ctx context.Context, d domain.Buyer) (int, error) {
+func (b *buyerService) Create(ctx context.Context, d domain.Buyer) (domain.Buyer, error) {
 	userExist := b.repository.Exists(ctx, d.CardNumberID)
 	if userExist {
-		return 0, ErrExists
+		return domain.Buyer{}, ErrExists
 	}
-	sellerId, err := b.repository.Save(ctx, d)
-	return sellerId, err
+	buyerId, err := b.repository.Save(ctx, d)
+	d.ID = buyerId
+	return d, err
 }
 
 func (b *buyerService) Update(ctx context.Context, d domain.Buyer) error {
