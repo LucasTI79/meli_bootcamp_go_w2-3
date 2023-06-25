@@ -14,9 +14,6 @@ retornado.
 CREATE create_conflict Se o card_number_id já existir, ele retornará um erro 409 Conflict.
 409
 
-READ find_by_id_non_existent Quando o funcionário não existir, um código 404 será retornado
-404
-
 UPDATE update_ok Quando a atualização dos dados for bem
 sucedida, o comprador será devolvido com
 as informações atualizadas juntamente
@@ -29,9 +26,6 @@ existir, um código 404 será devolvido
 
 DELETE delete_non_existent Quando o comprador não existir, um código 404 será devolvido
 404
-
-DELETE delete_ok Quando a exclusão for bem-sucedida, um código 204 será retornado.
-204
 */
 import (
 	"encoding/json"
@@ -52,6 +46,7 @@ import (
 const (
 	GetAll = "/buyers"
 	Get    = "/buyers/:id"
+	Delete = "/buyers/:id"
 )
 
 func TestGetAll(t *testing.T) {
@@ -97,7 +92,6 @@ func TestGetAll(t *testing.T) {
 		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptyBuyers, nil)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAll, "")
-
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNoContent, response.Code)
@@ -145,6 +139,23 @@ func TestGet(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
+
+	})
+}
+
+func TestDelete(t *testing.T) {
+	t.Run("Delete status 204 successful with no content", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		mockService.On("Delete", mock.Anything, 7).Return(nil)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/buyers/7", "")
+
+		server.DELETE(Delete, handler.Delete())
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNoContent, response.Code)
 
 	})
 }
