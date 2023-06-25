@@ -1,9 +1,6 @@
 package buyer_test
 
 /*
-CREATE create_ok Se contiver os campos necessários, será criado
-
-CREATE create_conflict Se o card_number_id já existir, ele não pode ser criado
 
 READ find_by_id_non_existent Se o elemento procurado por id não existir, retorna null
 
@@ -68,6 +65,18 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, "Oliveira", buyer.LastName)
 
 		assert.NoError(t, err)
+	})
+	t.Run("Should return err card_id already exists", func(t *testing.T) {
+		expectedMessage := "buyer already exists"
+
+		repository, service := InitServerWithBuyersRepository(t)
+
+		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
+
+		_, err := service.Create(context.TODO(), domain.Buyer{})
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedMessage, err.Error())
 	})
 }
 
