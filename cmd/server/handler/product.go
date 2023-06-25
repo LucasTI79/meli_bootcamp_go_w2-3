@@ -84,7 +84,7 @@ func (p *ProductController) Create() gin.HandlerFunc {
 
 		err := c.ShouldBindJSON(productImput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusBadRequest, product.ErrTryAgain.Error(), err)
 			return
 		}
 
@@ -109,7 +109,11 @@ func (p *ProductController) Create() gin.HandlerFunc {
 
 		productId, err := p.productService.Save(c, productItem)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			if errors.Is(err, product.ErrProductAlreadyExists) {
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		productItem.ID = productId

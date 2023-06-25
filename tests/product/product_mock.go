@@ -29,15 +29,32 @@ func (p *ProductRepositoryMock) GetAll() ([]domain.Product, error) {
 
 func (p *ProductServiceMock) Update(ctx context.Context, d domain.Product) error {
 
-	return nil
+	args := p.Called(ctx, d)
+	return args.Error(0)
+
 }
 
-func (p *ProductServiceMock) Save(ctx context.Context, d domain.Product) (int, error) {
+func (p *ProductRepositoryMock) Update(ctx context.Context, d domain.Product) error {
 
-	return 0, nil
+	args := p.Called(ctx, d)
+	return args.Error(0)
+}
+func (p *ProductServiceMock) Save(ctx context.Context, d domain.Product) (int, error) {
+	args := p.Called(d)
+	return args.Int(0), args.Error(1)
+}
+
+func (p *ProductRepositoryMock) Save(ctx context.Context, d domain.Product) (int, error) {
+	args := p.Called(d)
+	return args.Int(0), args.Error(1)
 }
 
 func (p *ProductServiceMock) Delete(ctx context.Context, id int) error {
+	args := p.Called(id)
+	return args.Error(0)
+}
+
+func (p *ProductRepositoryMock) Delete(ctx context.Context, id int) error {
 	args := p.Called(id)
 	return args.Error(0)
 }

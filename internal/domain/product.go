@@ -35,5 +35,5 @@ type ProductResponse struct {
 }
 
 type ProductResponseById struct {
-	Data Product
+	Data Product `json:"data"`
 }
