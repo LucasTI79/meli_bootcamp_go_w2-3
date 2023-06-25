@@ -7,9 +7,6 @@ necessários, um código 422 será
 retornado.
 422
 
-CREATE create_conflict Se o card_number_id já existir, ele retornará um erro 409 Conflict.
-409
-
 UPDATE update_ok Quando a atualização dos dados for bem
 sucedida, o comprador será devolvido com
 as informações atualizadas juntamente
@@ -41,6 +38,7 @@ const (
 	Get    = "/buyers/:id"
 	Delete = "/buyers/:id"
 	Create = "/buyers"
+	Update = "/buyers/:id"
 )
 
 func TestGetAll(t *testing.T) {
@@ -226,6 +224,27 @@ func TestCreate(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusConflict, response.Code)
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	newBuyer := domain.Buyer{
+		CardNumberID: "3093",
+		FirstName:    "Giulianna",
+		LastName:     "Goncalves",
+	}
+	var responseResult domain.BuyerResponse
+	t.Run("Should return 200 and updated buyer", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+		server.PATCH(Update, handler.Update())
+		jsonSection, _ := json.Marshal(newBuyer)
+		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/6", string(jsonSection))
+		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusOK, response.Code)
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+		newBuyer.ID = 6
+		assert.EqualValues(t, newBuyer, responseResult.Data)
 	})
 }
 
