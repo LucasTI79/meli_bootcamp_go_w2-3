@@ -142,12 +142,12 @@ func (p *ProductController) Update() gin.HandlerFunc {
 		productImput := &domain.ProductRequest{}
 		err := c.ShouldBindJSON(productImput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusBadRequest, product.ErrTryAgain.Error(), err)
 			return
 		}
 
 		if productImput.Description == "" || productImput.ExpirationRate == 0 || productImput.FreezingRate == 0 || productImput.Height == 0 || productImput.Length == 0 || productImput.Netweight == 0 || productImput.ProductCode == "" || productImput.RecomFreezTemp == 0 || productImput.SellerID == 0 {
-			web.Error(c, http.StatusNotFound, product.ErrInvalidBody.Error())
+			web.Error(c, http.StatusUnprocessableEntity, product.ErrInvalidBody.Error())
 			return
 		}
 

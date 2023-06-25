@@ -33,6 +33,21 @@ var productJson = `{
 	"seller_id": 1
 }`
 
+var expectedProduct = domain.Product{
+	ID:             1,
+	Description:    "milk",
+	ExpirationRate: 1,
+	FreezingRate:   2,
+	Height:         6.4,
+	Length:         4.5,
+	Netweight:      3.4,
+	ProductCode:    "PROD03",
+	RecomFreezTemp: 1.3,
+	Width:          1.2,
+	ProductTypeID:  1,
+	SellerID:       1,
+}
+
 const (
 	GetAllProducts = "/products"
 )
@@ -180,35 +195,45 @@ func TestCreatProduct(t *testing.T) {
 
 	t.Run("Should return 201 when product is created", func(t *testing.T) {
 
-		expectedProduct := domain.Product{
-			ID:             1,
-			Description:    "milk",
-			ExpirationRate: 1,
-			FreezingRate:   2,
-			Height:         6.4,
-			Length:         4.5,
-			Netweight:      3.4,
-			ProductCode:    "PROD03",
-			RecomFreezTemp: 1.3,
-			Width:          1.2,
-			ProductTypeID:  1,
-			SellerID:       1,
-		}
+		// expectedProduct := domain.Product{
+		// 	ID:             1,
+		// 	Description:    "milk",
+		// 	ExpirationRate: 1,
+		// 	FreezingRate:   2,
+		// 	Height:         6.4,
+		// 	Length:         4.5,
+		// 	Netweight:      3.4,
+		// 	ProductCode:    "PROD03",
+		// 	RecomFreezTemp: 1.3,
+		// 	Width:          1.2,
+		// 	ProductTypeID:  1,
+		// 	SellerID:       1,
+		// }
 		server, mockService, handler := InitServerWithProducts(t)
 		server.POST("/products", handler.Create())
-		// jsonProduct, _ := json.Marshal(expectedProduct)
-		request, response := testutil.MakeRequest(http.MethodPost, "/products", productJson)
+		request, response := testutil.MakeRequest(http.MethodPost, "/products", `{
+			"description": "milk",
+			"expiration_rate": 1,
+			"freezing_rate": 2,
+			"height": 6.4,
+			"length": 4.5,
+			"netweight": 3.4,
+			"product_code": "PROD03",
+			"recommended_freezing_temperature": 1.3,
+			"width": 1.2,
+			"product_type_id": 1,
+			"seller_id": 1
+		}`)
 
-		// mockService.On("Save", mock.Anything).Return(expectedProduct, nil)
 		mockService.On("Save", mock.Anything).Return(1, nil)
 
 		server.ServeHTTP(response, request)
 		responseResult := domain.ProductResponseById{}
 		err := json.Unmarshal(response.Body.Bytes(), &responseResult)
 		fmt.Print(err)
+		assert.Equal(t, expectedProduct, responseResult.Data)
 
 		assert.Equal(t, http.StatusCreated, response.Code)
-		assert.Equal(t, expectedProduct, responseResult.Data)
 
 	})
 
@@ -232,20 +257,43 @@ func TestCreatProduct(t *testing.T) {
 
 }
 
-// func TestUpdateProduct(t *testing.T) {
+func TestUpdateProduct(t *testing.T) {
 
-// 	t.Run("Should return 404 when product does not exist", func(t *testing.T) {
-// 		server, mockService, handler := InitServerWithProducts(t)
-// 		server.PATCH("/products/:id", handler.Update())
+	t.Run("Should return 200 when product is updated", func(t *testing.T) {
 
-// 		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", string(productJson))
+		server, mockService, handler := InitServerWithProducts(t)
+		server.PATCH("/products/:id", handler.Update())
+		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", productJson)
 
-// 		mockService.On("Patch", mock.Anything, mock.Anything).Return(nil)
-// 		server.ServeHTTP(response, request)
-// 		assert.Equal(t, http.StatusNoContent, response.Code)
-// 	})
+		// fmt.Print(productJson)
+		responseResult := domain.ProductResponseById{}
 
-// }
+		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
+		// fmt.Print(responseResult)
+		server.ServeHTTP(response, request)
+		err := json.Unmarshal(response.Body.Bytes(), &responseResult)
+		fmt.Print(response)
+
+		fmt.Print(err)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, expectedProduct, responseResult.Data)
+
+	})
+
+	t.Run("Should return 404 when product does not exist", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+		server.PATCH("/products/:id", handler.Update())
+		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", productJson)
+		responseResult := domain.Product{}
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+		mockService.On("Update", mock.Anything, mock.Anything).Return(product.ErrNotFound)
+		server.ServeHTTP(response, request)
+		// assert.Equal(t, http.StatusNotFound, response.Code)
+
+	})
+
+}
 
 // iniciar o servidor de testes
 func InitServerWithProducts(t *testing.T) (*gin.Engine, *mocks.ProductServiceMock, *handler.ProductController) {
