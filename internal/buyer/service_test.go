@@ -48,6 +48,29 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
+func TestCreate(t *testing.T) {
+	t.Run("Should create the buyer", func(t *testing.T) {
+		id := 10
+		expectedBuyer := domain.Buyer{
+			CardNumberID: "138935",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
+
+		repository, service := InitServerWithBuyersRepository(t)
+		repository.On("Exists", mock.Anything, "138935").Return(false)
+		repository.On("Save", mock.Anything, expectedBuyer).Return(id, nil)
+
+		buyer, err := service.Create(context.TODO(), expectedBuyer)
+
+		assert.Equal(t, "138935", buyer.CardNumberID)
+		assert.Equal(t, "Giulianna", buyer.FirstName)
+		assert.Equal(t, "Oliveira", buyer.LastName)
+
+		assert.NoError(t, err)
+	})
+}
+
 func TestGetById(t *testing.T) {
 	t.Run("Should get the buyer if exists", func(t *testing.T) {
 		expectedBuyer := domain.Buyer{
@@ -65,6 +88,16 @@ func TestGetById(t *testing.T) {
 		assert.Equal(t, expectedBuyer, buyer)
 		assert.NoError(t, err)
 	})
+	/*t.Run("Should return null if id not exist", func(t *testing.T) {
+
+		repository, service := InitServerWithBuyersRepository(t)
+		repository.On("Get", mock.Anything, expectedBuyer.ID).Return(expectedBuyer, nil)
+
+		buyer, err := service.Get(context.TODO(), 10)
+
+		assert.Equal(t, expectedBuyer, buyer)
+		assert.NoError(t, err)
+	})*/
 }
 
 func InitServerWithBuyersRepository(t *testing.T) (*mocks.BuyerRepositoryMock, buyer.Service) {
