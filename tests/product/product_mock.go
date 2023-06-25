@@ -22,7 +22,7 @@ func (p *ProductServiceMock) GetAll(ctx context.Context) ([]domain.Product, erro
 }
 
 // Mock da Service Product recebe o mock da repository
-func (p *ProductRepositoryMock) GetAll() ([]domain.Product, error) {
+func (p *ProductRepositoryMock) GetAll(ctx context.Context) ([]domain.Product, error) {
 	args := p.Called()
 	return args.Get(0).([]domain.Product), args.Error(1)
 }
@@ -67,4 +67,9 @@ func (p *ProductRepositoryMock) Update(ctx context.Context, d domain.Product) er
 
 	args := p.Called(ctx, d)
 	return args.Error(0)
+}
+
+func (p *ProductRepositoryMock) Exists(ctx context.Context, productCode string) bool {
+	args := p.Called(ctx, productCode)
+	return args.Get(0).(bool)
 }
