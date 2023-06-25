@@ -31,7 +31,8 @@ func (m *BuyerServiceMock) Update(ctx context.Context, b domain.Buyer) error {
 }
 
 func (m *BuyerServiceMock) Delete(ctx context.Context, id int) error {
-	return nil
+	args := m.Called(ctx, id)
+	return args.Error(0)
 }
 
 func (m *BuyerServiceMock) Create(ctx context.Context, b domain.Buyer) (int, error) {

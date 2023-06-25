@@ -158,6 +158,20 @@ func TestDelete(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, response.Code)
 
 	})
+
+	t.Run("Should return status 404 when buyer is not found", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/buyers/1", "")
+
+		mockService.On("Delete", mock.Anything, 1).Return(buyer.ErrNotFound)
+
+		server.DELETE(Delete, handler.Delete())
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
 }
 
 func InitServerWithGetBuyers(t *testing.T) (*gin.Engine, *mocks.BuyerServiceMock, *handler.BuyerController) {
