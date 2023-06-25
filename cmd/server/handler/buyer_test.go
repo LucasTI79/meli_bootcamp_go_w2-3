@@ -182,7 +182,7 @@ func TestCreate(t *testing.T) {
 
 		server.POST(Create, handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, "/buyers", `{
+		request, response := testutil.MakeRequest(http.MethodPost, Create, `{
 			"card_number_id":"2556",
 			"first_name":"Giulianna",
 			"last_name":"Oliveira"}`)
@@ -194,6 +194,38 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, response.Code)
 
 		assert.Equal(t, expectedBuyers, responseResult.Data)
+	})
+
+	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetBuyers(t)
+
+		server.POST(Create, handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, Create, `{"
+		"card_number_id":""}`)
+
+		fmt.Println("Responseeee: ", response)
+		fmt.Println("Requesteeeee: ", request)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("Should return status 409 when buyer already exists", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		request, response := testutil.MakeRequest(http.MethodPost, Create, `{
+			"card_number_id":"1234",
+			"first_name":"Giu",
+			"last_name":"Oli"}`)
+
+		mockService.On("Create", mock.Anything, mock.AnythingOfType("domain.Buyer")).Return(domain.Buyer{}, buyer.ErrExists)
+
+		server.POST(Create, handler.Create())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusConflict, response.Code)
 	})
 }
 
