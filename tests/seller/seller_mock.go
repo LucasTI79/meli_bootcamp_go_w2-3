@@ -31,7 +31,8 @@ func (s *SellerServiceMock) Save(ctx context.Context, d domain.Seller) (domain.S
 }
 
 func (s *SellerServiceMock) Delete(ctx context.Context, id int) error {
-	return nil
+	args := s.Called(ctx, id)
+	return args.Error(0)
 }
 
 func (s *SellerServiceMock) Get(ctx context.Context, id int) (domain.Seller, error) {

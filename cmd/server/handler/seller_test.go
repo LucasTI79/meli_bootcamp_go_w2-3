@@ -20,6 +20,7 @@ const (
 	GetAllSellers  = "/sellers"
 	GetByIdSellers = "/sellers/1"
 	CreateSellers  = "/sellers"
+	DeleteSellers = "/sellers/1"
 )
 
 func TestGetAllSeller(t *testing.T) {
@@ -281,8 +282,54 @@ func TestCreateSeller(t *testing.T) {
 	})
 }
 
-func TestUpdate(t *testing.T){
-	t.Run("")
+func TestDelete(t *testing.T){
+	t.Run("Should return 204", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+		server.DELETE("/sellers/:id", handler.Delete())
+
+		request, response := testutil.MakeRequest(http.MethodDelete, DeleteSellers, "")
+		mockService.On("Delete", mock.Anything, 1).Return(nil)
+
+		server.ServeHTTP(response, request)
+		
+		assert.Equal(t, http.StatusNoContent, response.Code)
+	})
+	t.Run("Should return status 404", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+		server.DELETE("/sellers/:id", handler.Delete())
+
+		request, response := testutil.MakeRequest(http.MethodDelete, DeleteSellers, "")
+
+		mockService.On("Delete", mock.Anything, 1).Return(seller.ErrNotFound)
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+	t.Run("Should return status 400", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+
+		server.DELETE("/sellers/:id", handler.Delete())
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/sellers/invalid", "")
+		mockService.On("Delete", mock.Anything, "invalid").Return(seller.ErrInvalidId)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, DeleteSellers, "")
+
+		mockService.On("Delete", mock.Anything, 1).Return(seller.ErrTryAgain)
+
+		server.DELETE("/sellers/:id", handler.Delete())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+	
 }
 
 func InitServer(t *testing.T) (*gin.Engine, *mocks.SellerServiceMock, *handler.SellerController) {
