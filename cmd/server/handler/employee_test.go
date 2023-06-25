@@ -102,3 +102,45 @@ func TestCreateEmployees(t *testing.T) {
 		assert.Equal(t, expectedError, err)
 	})
 }
+
+func TestGetByIdEmployees(t *testing.T) {
+	t.Run("Should get the employee when it exists in database", func(t *testing.T) {
+		expectedEmployee := domain.Employee{
+			ID:           4,
+			CardNumberID: "001",
+			FirstName:    "Joana",
+			LastName:     "Silva",
+			WarehouseID:  1,
+		}
+
+		repository, service := InitServerWithEmployeesRepository(t)
+		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(expectedEmployee, nil)
+
+		employee, err := service.Get(context.TODO(), 4)
+
+		assert.Equal(t, expectedEmployee, employee)
+		assert.NoError(t, err)
+	})
+	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
+		repository, service := InitServerWithEmployeesRepository(t)
+
+		expectedError := errors.New("employee not found")
+		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Employee{}, employee.ErrNotFound)
+
+		_, err := service.Get(context.TODO(), 1)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+	t.Run("Should return error when there is an get repository error", func(t *testing.T) {
+		repository, service := InitServerWithEmployeesRepository(t)
+
+		expectedError := errors.New("some error")
+		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Employee{}, expectedError)
+
+		_, err := service.Get(context.TODO(), 1)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+}
