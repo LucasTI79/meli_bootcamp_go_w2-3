@@ -17,11 +17,6 @@ CREATE create_conflict Se o card_number_id já existir, ele retornará um erro 4
 READ find_by_id_non_existent Quando o funcionário não existir, um código 404 será retornado
 404
 
-READ find_by_id_existent Quando a solicitação for bem-sucedida, o
-back-end retornará as informações do
-comprador solicitado
-200
-
 UPDATE update_ok Quando a atualização dos dados for bem
 sucedida, o comprador será devolvido com
 as informações atualizadas juntamente
@@ -45,6 +40,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
 	mocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/buyer"
@@ -134,6 +130,21 @@ func TestGet(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.EqualValues(t, expectedBuyers, responseResult.Data)
+
+	})
+
+	t.Run("Find by ID status 404 with buyer not found", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		server.GET(Get, handler.Get())
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/buyers/1", "")
+
+		mockService.On("Get", mock.Anything, 1).Return(domain.Buyer{}, buyer.ErrNotFound)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
 
 	})
 }
