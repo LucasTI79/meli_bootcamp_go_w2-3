@@ -85,7 +85,11 @@ func (s *SellerController) Get() gin.HandlerFunc {
 // @Tags Sellers
 // @Accept json
 // @Param seller body domain.Seller true "Seller Data"
-// @Success 201 {object} domain.Seller
+// @Success 201 {object} domain.Seller "Created seller"
+// @Failure 400 {object} errorResponse "Bad Request"
+// @Failure 422	{object} web.errorResponse "Unprocessable Entity"
+// @Failure 409 {object} errorResponse "Conflict"
+// @Failure 500 {object} errorResponse "Internal Server Error"
 // @Description Create Sellers
 func (s *SellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -129,7 +133,11 @@ func (s *SellerController) Create() gin.HandlerFunc {
 // @Router /api/v1/sellers/{id} [patch]
 // @Accept json
 // @Tags Sellers
-// @Success 200 {object}  domain.Seller
+// @Success 200 {object} domain.Seller "Updated seller"
+// @Failure 400 {object} errorResponse "Bad Request"
+// @Failure 404 {object} errorResponse "Not Found"
+// @Failure 422 {object} web.errorResponse	"Unprocessable Entity"
+// @Failure 500 {object} errorResponse "Internal Server Error"
 // @Param id path int true "Seller ID"
 // @Param seller body domain.Seller true "Seller Data"
 // @Description Update Seller
@@ -167,7 +175,10 @@ func (s *SellerController) Update() gin.HandlerFunc {
 // @Param   id     path    int     true        "Seller ID"
 // @Tags Sellers
 // @Accept json
-// @Success 204
+// @Success 204 "No Content"
+// @Failure 400 {object} errorResponse "Bad Request"
+// @Failure 404 {object} errorResponse "Not Found"
+// @Failure 500 {object} errorResponse "Internal Server Error"
 // @Description Delete Seller
 func (s *SellerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
