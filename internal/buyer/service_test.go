@@ -136,6 +136,27 @@ func TestDelete(t *testing.T) {
 	})
 }
 
+func TestUpdate(t *testing.T) {
+	t.Run("Should update the buyer", func(t *testing.T) {
+		expectedBuyer := domain.Buyer{
+			ID:           9,
+			CardNumberID: "2556",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
+
+		repository, service := InitServerWithBuyersRepository(t)
+		repository.On("Get", mock.Anything, expectedBuyer.ID).Return(expectedBuyer, nil)
+		repository.On("Exists", mock.Anything, expectedBuyer.ID).Return(false)
+		repository.On("Update", mock.Anything, expectedBuyer).Return(nil)
+
+		updatedWarehouse, err := service.Update(context.TODO(), expectedBuyer, expectedBuyer.ID)
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBuyer, updatedWarehouse)
+	})
+}
+
 func InitServerWithBuyersRepository(t *testing.T) (*mocks.BuyerRepositoryMock, buyer.Service) {
 	t.Helper()
 	mockRepository := &mocks.BuyerRepositoryMock{}
