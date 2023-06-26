@@ -2,8 +2,6 @@ package buyer_test
 
 /*
 
-READ find_by_id_non_existent Se o elemento procurado por id não existir, retorna null
-
 UPDATE update_existent Quando a atualização dos dados for bem sucedida, o
 comprador será devolvido com as informações
 atualizadas
@@ -16,6 +14,7 @@ DELETE delete_ok Se a exclusão for bem-sucedida, o item não aparecerá na list
 */
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
@@ -68,9 +67,7 @@ func TestCreate(t *testing.T) {
 	})
 	t.Run("Should return err card_id already exists", func(t *testing.T) {
 		expectedMessage := "buyer already exists"
-
 		repository, service := InitServerWithBuyersRepository(t)
-
 		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
 
 		_, err := service.Create(context.TODO(), domain.Buyer{})
@@ -97,16 +94,17 @@ func TestGetById(t *testing.T) {
 		assert.Equal(t, expectedBuyer, buyer)
 		assert.NoError(t, err)
 	})
-	/*t.Run("Should return null if id not exist", func(t *testing.T) {
+	t.Run("Should return null if id not exist", func(t *testing.T) {
 
 		repository, service := InitServerWithBuyersRepository(t)
-		repository.On("Get", mock.Anything, expectedBuyer.ID).Return(expectedBuyer, nil)
+		expectedError := errors.New("buyer not found")
+		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Buyer{}, buyer.ErrNotFound)
 
-		buyer, err := service.Get(context.TODO(), 10)
+		_, err := service.Get(context.TODO(), 1)
 
-		assert.Equal(t, expectedBuyer, buyer)
-		assert.NoError(t, err)
-	})*/
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
 }
 
 func InitServerWithBuyersRepository(t *testing.T) (*mocks.BuyerRepositoryMock, buyer.Service) {
