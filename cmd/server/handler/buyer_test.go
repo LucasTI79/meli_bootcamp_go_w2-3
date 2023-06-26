@@ -16,14 +16,14 @@ import (
 )
 
 const (
-	GetAll = "/buyers"
+	GetAllBuyers = "/buyers"
 	Get    = "/buyers/:id"
 	Delete = "/buyers/:id"
 	Create = "/buyers"
 	Update = "/buyers/:id"
 )
 
-func TestGetAll(t *testing.T) {
+func TestGetAllBuyers(t *testing.T) {
 	t.Run("Should return status 200 with all buyers", func(t *testing.T) {
 		server, mockBuyer, handler := InitServerWithGetBuyers(t)
 		expectedBuyers := []domain.Buyer{
@@ -40,9 +40,9 @@ func TestGetAll(t *testing.T) {
 				LastName:     "Oli",
 			},
 		}
-		server.GET(GetAll, handler.GetAll())
+		server.GET(GetAllBuyers, handler.GetAll())
 
-		request, response := testutil.MakeRequest(http.MethodGet, GetAll, "")
+		request, response := testutil.MakeRequest(http.MethodGet, GetAllBuyers, "")
 		mockBuyer.On("GetAll", mock.AnythingOfType("string")).Return(expectedBuyers, nil)
 		server.ServeHTTP(response, request)
 
@@ -60,18 +60,18 @@ func TestGetAll(t *testing.T) {
 	t.Run("Should return status 204 with no content", func(t *testing.T) {
 		emptyBuyers := make([]domain.Buyer, 0)
 		server, mockService, handler := InitServerWithGetBuyers(t)
-		server.GET(GetAll, handler.GetAll())
+		server.GET(GetAllBuyers, handler.GetAll())
 
 		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptyBuyers, nil)
 
-		request, response := testutil.MakeRequest(http.MethodGet, GetAll, "")
+		request, response := testutil.MakeRequest(http.MethodGet, GetAllBuyers, "")
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNoContent, response.Code)
 	})
 }
 
-func TestGet(t *testing.T) {
+func TestGetBuyers(t *testing.T) {
 	t.Run("Find by ID status 200 with buyer content", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 
@@ -130,7 +130,7 @@ func TestGet(t *testing.T) {
 	})
 }
 
-func TestDelete(t *testing.T) {
+func TestDeleteBuyers(t *testing.T) {
 	t.Run("Delete status 204 successful with no content", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 
@@ -161,7 +161,7 @@ func TestDelete(t *testing.T) {
 	})
 }
 
-func TestCreate(t *testing.T) {
+func TestCreateBuyers(t *testing.T) {
 	t.Run("Should return status 201 with the buyer created", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		expectedBuyers := domain.Buyer{
@@ -230,7 +230,7 @@ func TestCreate(t *testing.T) {
 	})
 }
 
-func TestUpdate(t *testing.T) {
+func TestUpdateBuyers(t *testing.T) {
 	t.Run("Should return status 200 and updated buyer", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		updatedBuyer := domain.Buyer{

@@ -21,7 +21,7 @@ const (
 )
 
 
-func TestGetAll(t *testing.T) {
+func TestGetAllSections(t *testing.T) {
 	t.Run("Should return status 200 with all sections", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		expectedSections := []domain.Section{

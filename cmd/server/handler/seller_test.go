@@ -284,7 +284,7 @@ func TestCreateSeller(t *testing.T) {
 	})
 }
 
-func TestDelete(t *testing.T){
+func TestDeleteSeller(t *testing.T){
 	t.Run("Should return 204 and delete seller with id", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 		server.DELETE("/sellers/:id", handler.Delete())

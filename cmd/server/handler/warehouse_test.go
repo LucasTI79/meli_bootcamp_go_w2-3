@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	BaseEndpoint             = "/warehouses"
-	BaseEndpointWithId       = "/warehouses/:id"
-	BaseEndpointWithIdNumber = "/warehouses/1"
+	BaseEndpointWarehouse             = "/warehouses"
+	BaseEndpointWithIdWarehouse       = "/warehouses/:id"
+	BaseEndpointWithIdNumberWarehouse = "/warehouses/1"
 )
 
 func TestGetAllWarehouses(t *testing.T) {
@@ -44,11 +44,11 @@ func TestGetAllWarehouses(t *testing.T) {
 			},
 		}
 
-		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpoint, "")
+		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWarehouse, "")
 
 		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(expectedWarehouses, nil)
 
-		server.GET(BaseEndpoint, handler.GetAll())
+		server.GET(BaseEndpointWarehouse, handler.GetAll())
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.WarehouseResponse{}
@@ -65,9 +65,9 @@ func TestGetAllWarehouses(t *testing.T) {
 
 		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(emptyWarehouses, nil)
 
-		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpoint, "")
+		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWarehouse, "")
 
-		server.GET(BaseEndpoint, handler.GetAll())
+		server.GET(BaseEndpointWarehouse, handler.GetAll())
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.WarehouseResponse{}
@@ -83,9 +83,9 @@ func TestGetAllWarehouses(t *testing.T) {
 
 		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(emptyWarehouses, warehouse.ErrTryAgain)
 
-		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpoint, "")
+		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWarehouse, "")
 
-		server.GET(BaseEndpoint, handler.GetAll())
+		server.GET(BaseEndpointWarehouse, handler.GetAll())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -105,9 +105,9 @@ func TestGetByIdWarehouses(t *testing.T) {
 		}
 		mockService.On("Get", mock.Anything, 1).Return(expectedWarehouse, nil)
 
-		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumber, "")
+		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.GET(BaseEndpointWithId, handler.Get())
+		server.GET(BaseEndpointWithIdWarehouse, handler.Get())
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.WarehouseResponseId{}
@@ -123,7 +123,7 @@ func TestGetByIdWarehouses(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/warehouses/invalid", "")
 
-		server.GET(BaseEndpointWithId, handler.Get())
+		server.GET(BaseEndpointWithIdWarehouse, handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -134,9 +134,9 @@ func TestGetByIdWarehouses(t *testing.T) {
 
 		mockService.On("Get", mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrNotFound)
 
-		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumber, "")
+		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.GET(BaseEndpointWithId, handler.Get())
+		server.GET(BaseEndpointWithIdWarehouse, handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -147,9 +147,9 @@ func TestGetByIdWarehouses(t *testing.T) {
 
 		mockService.On("Get", mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
 
-		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumber, "")
+		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.GET(BaseEndpointWithId, handler.Get())
+		server.GET(BaseEndpointWithIdWarehouse, handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -170,9 +170,9 @@ func TestCreateWarehouses(t *testing.T) {
 
 		mockService.On("Save", mock.Anything, mock.Anything).Return(expectedWarehouse, nil)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		responseResult := domain.WarehouseResponseId{}
@@ -185,9 +185,9 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":}`)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
@@ -195,9 +195,9 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 400 when Address is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":"","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":"","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -205,9 +205,9 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 400 when MinimumCapacity is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":0,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":0,"minimum_temperature":10}`)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -215,9 +215,9 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 400 when Telephone is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":"Rua Pedro Dias","telephone":"","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":"Rua Pedro Dias","telephone":"","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -226,9 +226,9 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 400 when WarehouseCode is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":"Rua Pedro Dias","telephone":"37111029","warehouse_code":"","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":"Rua Pedro Dias","telephone":"37111029","warehouse_code":"","minimum_capacity":10,"minimum_temperature":10}`)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -236,11 +236,11 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 409 when Warehouse already exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
 		mockService.On("Save", mock.Anything, mock.AnythingOfType("domain.Warehouse")).Return(domain.Warehouse{}, warehouse.ErrAlredyExists)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusConflict, response.Code)
@@ -248,11 +248,11 @@ func TestCreateWarehouses(t *testing.T) {
 	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpoint, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointWarehouse, `{"address":"Rua Pedro Dias","telephone":"3712291281","warehouse_code":"DAEAQ","minimum_capacity":10,"minimum_temperature":10}`)
 
 		mockService.On("Save", mock.Anything, mock.AnythingOfType("domain.Warehouse")).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
 
-		server.POST(BaseEndpoint, handler.Create())
+		server.POST(BaseEndpointWarehouse, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -265,9 +265,9 @@ func TestDeleteWarehouses(t *testing.T) {
 
 		mockService.On("Delete", mock.Anything, 1).Return(nil)
 
-		request, response := testutil.MakeRequest(http.MethodDelete, BaseEndpointWithIdNumber, "")
+		request, response := testutil.MakeRequest(http.MethodDelete, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.DELETE(BaseEndpointWithId, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNoContent, response.Code)
@@ -275,11 +275,11 @@ func TestDeleteWarehouses(t *testing.T) {
 	t.Run("Should return status 404 when warehouse is not found", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodDelete, BaseEndpointWithIdNumber, "")
+		request, response := testutil.MakeRequest(http.MethodDelete, BaseEndpointWithIdNumberWarehouse, "")
 
 		mockService.On("Delete", mock.Anything, 1).Return(warehouse.ErrNotFound)
 
-		server.DELETE(BaseEndpointWithId, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -291,7 +291,7 @@ func TestDeleteWarehouses(t *testing.T) {
 
 		mockService.On("Delete", mock.Anything, "invalid").Return(warehouse.ErrInvalidId)
 
-		server.DELETE(BaseEndpointWithId, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -299,11 +299,11 @@ func TestDeleteWarehouses(t *testing.T) {
 	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodDelete, BaseEndpointWithIdNumber, "")
+		request, response := testutil.MakeRequest(http.MethodDelete, BaseEndpointWithIdNumberWarehouse, "")
 
 		mockService.On("Delete", mock.Anything, 1).Return(warehouse.ErrTryAgain)
 
-		server.DELETE(BaseEndpointWithId, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -324,9 +324,9 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(updatedWarehouse, nil)
 
-		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumber, `{"address":"Rua Pedro Dias","telephone":"371928"}`)
+		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumberWarehouse, `{"address":"Rua Pedro Dias","telephone":"371928"}`)
 
-		server.PATCH(BaseEndpointWithId, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
 		server.ServeHTTP(response, request)
 
 		responseResult := domain.WarehouseResponseId{}
@@ -342,7 +342,7 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/warehouses/invalid", `{"address":"Rua Pedro Dias","telephone":"371928"}`)
 
-		server.PATCH(BaseEndpointWithId, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -352,9 +352,9 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		mockService.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(domain.Warehouse{}, warehouse.ErrInvalidBody)
 
-		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumber, "")
+		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.PATCH(BaseEndpointWithId, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
@@ -362,11 +362,11 @@ func TestUpdateWarehouse(t *testing.T) {
 	t.Run("Should return status 404 when warehouse is not found", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumber, `{"address":"Rua Pedro Dias","telephone":"371928"}`)
+		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumberWarehouse, `{"address":"Rua Pedro Dias","telephone":"371928"}`)
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrNotFound)
 
-		server.PATCH(BaseEndpointWithId, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -374,11 +374,11 @@ func TestUpdateWarehouse(t *testing.T) {
 	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumber, `{"telephone":"371928"}`)
+		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumberWarehouse, `{"telephone":"371928"}`)
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
 
-		server.PATCH(BaseEndpointWithId, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
