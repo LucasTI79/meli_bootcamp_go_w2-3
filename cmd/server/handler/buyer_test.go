@@ -182,11 +182,7 @@ func TestCreate(t *testing.T) {
 
 		server.POST(Create, handler.Create())
 
-		request, response := testutil.MakeRequest(http.MethodPost, Create, `{"
-		"card_number_id":""}`)
-
-		fmt.Println("Responseeee: ", response)
-		fmt.Println("Requesteeeee: ", request)
+		request, response := testutil.MakeRequest(http.MethodPost, Create, `{"card_number_id":""}`)
 
 		server.ServeHTTP(response, request)
 
