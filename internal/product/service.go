@@ -12,6 +12,9 @@ var (
 	ErrNotFound    = errors.New("product not found")
 	ErrInvalidId   = errors.New("invalid id")
 	ErrInvalidBody = errors.New("invalid body")
+	ErrTryAgain    = errors.New("error, try again %s")
+
+	ErrProductAlreadyExists = errors.New("product already exists")
 )
 
 type Service interface {
@@ -35,9 +38,11 @@ func NewService(r Repository) Service {
 func (s *productService) Save(ctx context.Context, p domain.Product) (int, error) {
 	productExists := s.repository.Exists(ctx, p.ProductCode)
 	if productExists {
-		return 0, errors.New("product already exists")
+		return 0, ErrProductAlreadyExists
 	}
+
 	productId, err := s.repository.Save(ctx, p)
+
 	return productId, err
 }
 

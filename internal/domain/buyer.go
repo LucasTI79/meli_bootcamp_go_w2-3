@@ -12,3 +12,11 @@ type BuyerRequest struct {
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 }
+
+type BuyerResponse struct {
+	Data []Buyer `json:"data"`
+}
+
+type BuyerResponseID struct {
+	Data Buyer `json:"data"`
+}

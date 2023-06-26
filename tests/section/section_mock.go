@@ -1,0 +1,73 @@
+package mocks
+
+import (
+	"context"
+
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/stretchr/testify/mock"
+)
+
+type SectionServiceMock struct {
+	mock.Mock
+}
+
+type SectionRepositoryMock struct {
+	mock.Mock
+}
+
+func (m *SectionServiceMock) GetAll(ctx context.Context) ([]domain.Section, error) {
+	args := m.Called()
+
+	return args.Get(0).([]domain.Section), args.Error(1)
+}
+
+func (m *SectionRepositoryMock) GetAll(ctx context.Context) ([]domain.Section, error) {
+
+	args := m.Called()
+
+	return args.Get(0).([]domain.Section), args.Error(1)
+}
+
+func (m *SectionServiceMock) Save(ctx context.Context, s domain.Section) (int, error) {
+	args := m.Called(s)
+	return args.Int(0), args.Error(1)
+}
+
+func (m *SectionRepositoryMock) Save(ctx context.Context, s domain.Section) (int, error) {
+	args := m.Called(s)
+	return args.Int(0), args.Error(1)
+}
+
+func (m *SectionServiceMock) Delete(ctx context.Context, id int) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *SectionRepositoryMock) Delete(ctx context.Context, id int) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *SectionServiceMock) Get(ctx context.Context, id int) (domain.Section, error) {
+	args := m.Called(id)
+	return args.Get(0).(domain.Section), args.Error(1)
+}
+
+func (m *SectionRepositoryMock) Get(ctx context.Context, id int) (domain.Section, error) {
+	args := m.Called(id)
+	return args.Get(0).(domain.Section), args.Error(1)
+}
+
+func (m *SectionServiceMock) Update(ctx context.Context, s domain.Section) error {
+	args := m.Called(ctx, s)
+	return args.Error(0)
+}
+func (m *SectionRepositoryMock) Update(ctx context.Context, s domain.Section) error {
+	args := m.Called(ctx, s)
+	return args.Error(0)
+}
+
+func (m *SectionRepositoryMock) Exists(ctx context.Context, sectionNumber int) bool {
+	args := m.Called(ctx, sectionNumber)
+	return args.Get(0).(bool)
+}
