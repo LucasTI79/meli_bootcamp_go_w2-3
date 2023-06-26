@@ -11,12 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type sellerController struct {
+type SellerController struct {
 	sellerService seller.Service
 }
 
-func NewSeller(s seller.Service) *sellerController {
-	return &sellerController{
+func NewSeller(s seller.Service) *SellerController {
+	return &SellerController{
 		sellerService: s,
 	}
 }
@@ -29,12 +29,15 @@ func NewSeller(s seller.Service) *sellerController {
 // @Accept json
 // @Success 200 {object}  []domain.Seller
 // @Description List all Sellers
-func (s *sellerController) GetAll() gin.HandlerFunc {
+func (s *SellerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellers, err := s.sellerService.GetAll(c)
 		if err != nil {
-			web.Error(c, http.StatusInternalServerError, seller.ErrTryAgain.Error())
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
+		}
+		if len(sellers) == 0 {
+			web.Success(c, http.StatusNoContent, sellers)
 		}
 		web.Success(c, http.StatusOK, sellers)
 	}
@@ -42,14 +45,14 @@ func (s *sellerController) GetAll() gin.HandlerFunc {
 
 // @Summary Get Seller by ID
 // @Produce json
-// GET /seller/:id @Summary Returns a seller per Id
+// GET /sellers/:id @Summary Returns a seller per Id
 // @Router /api/v1/sellers/{id} [get]
 // @Param   id     path    int     true        "Seller ID"
 // @Tags Sellers
 // @Accept json
 // @Success 200 {object}  domain.Seller
 // @Description List one by Seller id
-func (s *sellerController) Get() gin.HandlerFunc {
+func (s *SellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -72,41 +75,46 @@ func (s *sellerController) Get() gin.HandlerFunc {
 
 // @Summary Create Seller
 // @Produce json
-// POST /seller/:id @Summary Create a seller
+// POST /sellers/:id @Summary Create a seller
 // @Router /api/v1/sellers [post]
 // @Tags Sellers
 // @Accept json
 // @Param seller body domain.Seller true "Seller Data"
 // @Success 201 {object} domain.Seller
 // @Description Create Sellers
-func (s *sellerController) Create() gin.HandlerFunc {
+func (s *SellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerInput := &domain.Seller{}
 		err := c.ShouldBindJSON(sellerInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, seller.ErrTryAgain.Error(), err)
+			web.Error(c, http.StatusUnprocessableEntity, seller.ErrTryAgain.Error())
 			return
 		}
 
-		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
-			web.Error(c, http.StatusUnprocessableEntity, seller.ErrInvalidBody.Error())
+		switch {
+		case sellerInput.CID == 0:
+			web.Error(c, http.StatusBadRequest, "cid is required")
+			return
+		case sellerInput.CompanyName == "":
+			web.Error(c, http.StatusBadRequest, "company name is required")
+			return
+		case sellerInput.Address == "":
+			web.Error(c, http.StatusBadRequest, "address is required")
+			return
+		case sellerInput.Telephone == "":
+			web.Error(c, http.StatusBadRequest, "phone is required")
 			return
 		}
 
-		sellerItem := domain.Seller{
-			CID:         sellerInput.CID,
-			CompanyName: sellerInput.CompanyName,
-			Address:     sellerInput.Address,
-			Telephone:   sellerInput.Telephone,
-		}
-		sellerId, err := s.sellerService.Save(c, sellerItem)
+		sellerSaved, err := s.sellerService.Save(c, *sellerInput)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
-			return
+			if err == seller.ErrCidAlreadyExists {
+				web.Error(c, http.StatusConflict, err.Error())
+			}else{
+				web.Error(c, http.StatusInternalServerError, err.Error())
+			}
 		}
-
-		sellerItem.ID = sellerId
-		web.Success(c, http.StatusCreated, sellerItem)
+		web.Success(c, http.StatusCreated, sellerSaved)
 	}
 }
 
@@ -120,46 +128,30 @@ func (s *sellerController) Create() gin.HandlerFunc {
 // @Param id path int true "Seller ID"
 // @Param seller body domain.Seller true "Seller Data"
 // @Description Update Seller
-func (s *sellerController) Update() gin.HandlerFunc {
+func (s *SellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sellerId, errId := strconv.Atoi(c.Param("id"))
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
-			return
-		}
-
-		sellerInput := &domain.Seller{}
-		err := c.ShouldBindJSON(sellerInput)
+		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, seller.ErrTryAgain.Error(), err)
+			web.Error(c, http.StatusBadRequest, err.Error())
 			return
 		}
-
-		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
+		domain := new(domain.Seller)
+		if err := c.ShouldBindJSON(domain); err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, seller.ErrInvalidBody.Error())
 			return
 		}
-
-		sellerItem := domain.Seller{
-			ID:          sellerId,
-			CID:         sellerInput.CID,
-			CompanyName: sellerInput.CompanyName,
-			Address:     sellerInput.Address,
-			Telephone:   sellerInput.Telephone,
-		}
-
-		err = s.sellerService.Update(c, sellerItem)
+		sellerUpdated, err := s.sellerService.Update(c, id, *domain)
 		if err != nil {
-			if errors.Is(err, seller.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, seller.ErrNotFound.Error())
+			switch err {
+			case seller.ErrNotFound:
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			default:
+				web.Error(c, http.StatusInternalServerError, err.Error())
 				return
 			}
-
-			web.Error(c, http.StatusInternalServerError, err.Error())
-			return
 		}
-
-		web.Success(c, http.StatusOK, sellerItem)
+		web.Success(c, http.StatusOK, sellerUpdated)
 	}
 }
 
@@ -172,7 +164,7 @@ func (s *sellerController) Update() gin.HandlerFunc {
 // @Accept json
 // @Success 204
 // @Description Delete Seller
-func (s *sellerController) Delete() gin.HandlerFunc {
+func (s *SellerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerId, err := strconv.Atoi(c.Param("id"))
 
