@@ -21,6 +21,7 @@ const (
 	GetByIdSellers = "/sellers/1"
 	CreateSellers  = "/sellers"
 	DeleteSellers = "/sellers/1"
+	UpdatedSellers = "/sellers/1"
 )
 
 func TestGetAllSeller(t *testing.T) {
@@ -67,7 +68,7 @@ func TestGetAllSeller(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, response.Code)
 	})
 
-	t.Run("Should return 500", func(t *testing.T) {
+	t.Run("Should return 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 		server.GET(GetAllSellers, handler.GetAll())
 
@@ -101,7 +102,7 @@ func TestGetSeller(t *testing.T) {
 		assert.Equal(t, expectedSeller, responseResult.Data)
 	})
 
-	t.Run("Should return status 400", func(t *testing.T) {
+	t.Run("Should return status 400 when the seller id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 		mockService.On("Get", mock.Anything, "invalid").Return(domain.Seller{}, seller.ErrInvalidId)
 
@@ -111,7 +112,7 @@ func TestGetSeller(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
-	t.Run("Should return status 404", func(t *testing.T) {
+	t.Run("Should return status 404 when the seller id does not exist", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 
 		mockService.On("Get", mock.Anything, 1).Return(domain.Seller{}, seller.ErrNotFound)
@@ -122,7 +123,7 @@ func TestGetSeller(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
-	t.Run("Should return status 500", func(t *testing.T) {
+	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 
 		mockService.On("Get", mock.Anything, 1).Return(domain.Seller{}, seller.ErrTryAgain)
@@ -136,7 +137,7 @@ func TestGetSeller(t *testing.T) {
 }
 
 func TestCreateSeller(t *testing.T) {
-	t.Run("Should return status 201", func(t *testing.T) {
+	t.Run("Should return status 201 with all sellers", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 		server.POST(CreateSellers, handler.Create())
 
@@ -235,7 +236,7 @@ func TestCreateSeller(t *testing.T) {
 
 		assert.Equal(t, "phone is required", responseData.Message)
 	})
-	t.Run("Should return status 422", func(t *testing.T) {
+	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
 		server, _, handler := InitServer(t)
 		server.POST(CreateSellers, handler.Create())
 
@@ -262,7 +263,7 @@ func TestCreateSeller(t *testing.T) {
 
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
-	t.Run("Should return status 500", func(t *testing.T) {
+	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 		server.POST(CreateSellers, handler.Create())
 
@@ -283,7 +284,7 @@ func TestCreateSeller(t *testing.T) {
 }
 
 func TestDelete(t *testing.T){
-	t.Run("Should return 204", func(t *testing.T) {
+	t.Run("Should return 204 and delete seller with id", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 		server.DELETE("/sellers/:id", handler.Delete())
 
@@ -294,7 +295,7 @@ func TestDelete(t *testing.T){
 		
 		assert.Equal(t, http.StatusNoContent, response.Code)
 	})
-	t.Run("Should return status 404", func(t *testing.T) {
+	t.Run("Should return status 404 when id seller is not found", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 		server.DELETE("/sellers/:id", handler.Delete())
 
@@ -305,7 +306,7 @@ func TestDelete(t *testing.T){
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
-	t.Run("Should return status 400", func(t *testing.T) {
+	t.Run("Should return status 400 when the seller id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServer(t)
 
 		server.DELETE("/sellers/:id", handler.Delete())
@@ -332,6 +333,81 @@ func TestDelete(t *testing.T){
 	
 }
 
+func TestUpdateSeller(t *testing.T) {
+	t.Run("Should return status 200 and updated seller", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+		updatedSeller := domain.Seller{
+			ID: 1,
+			CID:         1,
+			CompanyName: "Company Name",
+			Address:     "Address",
+			Telephone:   "88748585",
+		}
+
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(updatedSeller, nil)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdatedSellers, `{"address":"Address","telephone":"88748585"}`)
+
+		server.PATCH("/sellers/:id", handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		responseResult := domain.SellerResponseId{}
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+
+		assert.Equal(t, updatedSeller, responseResult.Data)
+	})
+
+	t.Run("Should return status 400 when the seller id is invalid", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+
+		mockService.On("Update", mock.Anything, mock.Anything, "invalid").Return(domain.Seller{}, seller.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/sellers/invalid", `{"address":"Address","telephone":"88748585"}`)
+
+		server.PATCH("/sellers/:id", handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+		
+		mockService.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(domain.Seller{}, seller.ErrInvalidBody)
+		
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdatedSellers, "")
+
+		server.PATCH("/sellers/:id", handler.Update())
+		server.ServeHTTP(response, request)
+		
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+	t.Run("Should return status 404 when seller is not found", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdatedSellers, `{"address":"Address","telephone":"88748585"}`)
+
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Seller{}, seller.ErrNotFound)
+
+		server.PATCH("/sellers/:id", handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
+		server, mockService, handler := InitServer(t)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, UpdatedSellers, `{"telephone":"88748585"}`)
+
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Seller{}, seller.ErrTryAgain)
+
+		server.PATCH("/sellers/:id", handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+}
 func InitServer(t *testing.T) (*gin.Engine, *mocks.SellerServiceMock, *handler.SellerController) {
 	t.Helper()
 	server := testutil.CreateServer()

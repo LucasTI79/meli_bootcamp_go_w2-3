@@ -35,7 +35,7 @@ func (s *SellerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellers, err := s.sellerService.GetAll(c)
 		if err != nil {
-			web.Error(c, http.StatusInternalServerError, seller.ErrTryAgain.Error())
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if len(sellers) == 0 {
@@ -135,44 +135,28 @@ func (s *SellerController) Create() gin.HandlerFunc {
 // @Description Update Seller
 func (s *SellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sellerId, errId := strconv.Atoi(c.Param("id"))
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
-			return
-		}
-
-		sellerInput := &domain.Seller{}
-		err := c.ShouldBindJSON(sellerInput)
+		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, seller.ErrTryAgain.Error(), err)
+			web.Error(c, http.StatusBadRequest, err.Error())
 			return
 		}
-
-		if sellerInput.Address == "" || sellerInput.CID == 0 || sellerInput.CompanyName == "" || sellerInput.Telephone == "" {
+		domain := new(domain.Seller)
+		if err := c.ShouldBindJSON(domain); err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, seller.ErrInvalidBody.Error())
 			return
 		}
-
-		sellerItem := domain.Seller{
-			ID:          sellerId,
-			CID:         sellerInput.CID,
-			CompanyName: sellerInput.CompanyName,
-			Address:     sellerInput.Address,
-			Telephone:   sellerInput.Telephone,
-		}
-
-		err = s.sellerService.Update(c, sellerItem)
+		sellerUpdated, err := s.sellerService.Update(c, id, *domain)
 		if err != nil {
-			if errors.Is(err, seller.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, seller.ErrNotFound.Error())
+			switch err {
+			case seller.ErrNotFound:
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			default:
+				web.Error(c, http.StatusInternalServerError, err.Error())
 				return
 			}
-
-			web.Error(c, http.StatusInternalServerError, err.Error())
-			return
 		}
-
-		web.Success(c, http.StatusOK, sellerItem)
+		web.Success(c, http.StatusOK, sellerUpdated)
 	}
 }
 
