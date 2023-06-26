@@ -2,7 +2,7 @@ package handler_test
 
 import (
 	"encoding/json"
-	"fmt"
+
 	"net/http"
 	"testing"
 
@@ -120,25 +120,11 @@ func TestGetProductById(t *testing.T) {
 	//case find_by_id_existent
 	t.Run("Should return status 200 with the requested product", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
-		expectedProducts := domain.Product{
 
-			ID:             2,
-			Description:    "milk",
-			ExpirationRate: 1,
-			FreezingRate:   2,
-			Height:         6.4,
-			Length:         4.5,
-			Netweight:      3.4,
-			ProductCode:    "PROD02",
-			RecomFreezTemp: 1.3,
-			Width:          1.2,
-			ProductTypeID:  1,
-			SellerID:       1,
-		}
 		server.GET("/products/:id", handler.Get())
-		request, response := testutil.MakeRequest(http.MethodGet, "/products/2", "")
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/1", "")
 
-		mockService.On("Get", mock.AnythingOfType("int")).Return(expectedProducts, nil)
+		mockService.On("Get", mock.AnythingOfType("int")).Return(expectedProduct, nil)
 
 		server.ServeHTTP(response, request)
 
@@ -146,7 +132,7 @@ func TestGetProductById(t *testing.T) {
 
 		_ = json.Unmarshal(response.Body.Bytes(), responseResult)
 
-		assert.Equal(t, expectedProducts, responseResult.Data)
+		assert.Equal(t, expectedProduct, responseResult.Data)
 		assert.Equal(t, http.StatusOK, response.Code)
 
 	})
@@ -184,9 +170,10 @@ func TestDeleteProduct(t *testing.T) {
 		server.DELETE("/products/:id", handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/products/1", "")
-		mockService.On("Delete", mock.AnythingOfType("int")).Return(nil)
+		mockService.On("Delete", mock.Anything).Return(product.ErrNotFound)
 		server.ServeHTTP(response, request)
-		assert.Equal(t, http.StatusNoContent, response.Code)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
 }
@@ -195,20 +182,6 @@ func TestCreatProduct(t *testing.T) {
 
 	t.Run("Should return 201 when product is created", func(t *testing.T) {
 
-		// expectedProduct := domain.Product{
-		// 	ID:             1,
-		// 	Description:    "milk",
-		// 	ExpirationRate: 1,
-		// 	FreezingRate:   2,
-		// 	Height:         6.4,
-		// 	Length:         4.5,
-		// 	Netweight:      3.4,
-		// 	ProductCode:    "PROD03",
-		// 	RecomFreezTemp: 1.3,
-		// 	Width:          1.2,
-		// 	ProductTypeID:  1,
-		// 	SellerID:       1,
-		// }
 		server, mockService, handler := InitServerWithProducts(t)
 		server.POST("/products", handler.Create())
 		request, response := testutil.MakeRequest(http.MethodPost, "/products", `{
@@ -229,8 +202,8 @@ func TestCreatProduct(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 		responseResult := domain.ProductResponseById{}
-		err := json.Unmarshal(response.Body.Bytes(), &responseResult)
-		fmt.Print(err)
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+
 		assert.Equal(t, expectedProduct, responseResult.Data)
 
 		assert.Equal(t, http.StatusCreated, response.Code)
@@ -245,11 +218,21 @@ func TestCreatProduct(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
-	t.Run("Should return 422 when body is invalid", func(t *testing.T) {
-		server, mockService, handler := InitServerWithProducts(t)
+
+	t.Run("Should return 400 when field is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithProducts(t)
 		server.POST("/products", handler.Create())
-		mockService.On("Save", mock.Anything).Return(0, product.ErrInvalidBody)
 		request, response := testutil.MakeRequest(http.MethodPost, "/products", string(`{"ExpirationRate": 0}`))
+		server.ServeHTTP(response, request)
+		// corrigir bara request 400
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+	t.Run("Should return 422 when Json is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithProducts(t)
+		server.POST("/products", handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/products", string(`{"ExpirationRate":}`))
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
@@ -265,16 +248,12 @@ func TestUpdateProduct(t *testing.T) {
 		server.PATCH("/products/:id", handler.Update())
 		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", productJson)
 
-		// fmt.Print(productJson)
 		responseResult := domain.ProductResponseById{}
 
 		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
-		// fmt.Print(responseResult)
-		server.ServeHTTP(response, request)
-		err := json.Unmarshal(response.Body.Bytes(), &responseResult)
-		fmt.Print(response)
 
-		fmt.Print(err)
+		server.ServeHTTP(response, request)
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedProduct, responseResult.Data)
@@ -289,7 +268,7 @@ func TestUpdateProduct(t *testing.T) {
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		mockService.On("Update", mock.Anything, mock.Anything).Return(product.ErrNotFound)
 		server.ServeHTTP(response, request)
-		// assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 
 	})
 
