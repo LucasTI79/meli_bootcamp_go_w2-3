@@ -21,15 +21,13 @@ func NewSeller(s seller.Service) *SellerController {
 	}
 }
 
-// @Summary	Get All Sellers
+// @Summary Get All Sellers
 // @Produce json
 // GET /sellers @Summary Returns a list of sellers
 // @Router /api/v1/sellers [get]
 // @Tags Sellers
 // @Accept json
 // @Success 200 {object}  []domain.Seller
-// @Success 204 "No Content"
-// @Failure 500	{object} web.errorResponse	"Internal Server Error"
 // @Description List all Sellers
 func (s *SellerController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -47,15 +45,12 @@ func (s *SellerController) GetAll() gin.HandlerFunc {
 
 // @Summary Get Seller by ID
 // @Produce json
-// GET /seller/:id @Summary Returns a seller per Id
+// GET /sellers/:id @Summary Returns a seller per Id
 // @Router /api/v1/sellers/{id} [get]
 // @Param   id     path    int     true        "Seller ID"
 // @Tags Sellers
 // @Accept json
 // @Success 200 {object}  domain.Seller
-// @Failure 400 {object} web.errorResponse "Bad Request"
-// @Failure 404 {object} web.errorResponse "Not Found"
-// @Failure 500 {object} web.errorResponse "Internal Server Error"
 // @Description List one by Seller id
 func (s *SellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -80,16 +75,12 @@ func (s *SellerController) Get() gin.HandlerFunc {
 
 // @Summary Create Seller
 // @Produce json
-// POST /seller/:id @Summary Create a seller
+// POST /sellers/:id @Summary Create a seller
 // @Router /api/v1/sellers [post]
 // @Tags Sellers
 // @Accept json
 // @Param seller body domain.Seller true "Seller Data"
-// @Success 201 {object} domain.Seller "Created seller"
-// @Failure 400 {object} errorResponse "Bad Request"
-// @Failure 422	{object} web.errorResponse "Unprocessable Entity"
-// @Failure 409 {object} errorResponse "Conflict"
-// @Failure 500 {object} errorResponse "Internal Server Error"
+// @Success 201 {object} domain.Seller
 // @Description Create Sellers
 func (s *SellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -133,11 +124,7 @@ func (s *SellerController) Create() gin.HandlerFunc {
 // @Router /api/v1/sellers/{id} [patch]
 // @Accept json
 // @Tags Sellers
-// @Success 200 {object} domain.Seller "Updated seller"
-// @Failure 400 {object} errorResponse "Bad Request"
-// @Failure 404 {object} errorResponse "Not Found"
-// @Failure 422 {object} web.errorResponse	"Unprocessable Entity"
-// @Failure 500 {object} errorResponse "Internal Server Error"
+// @Success 200 {object}  domain.Seller
 // @Param id path int true "Seller ID"
 // @Param seller body domain.Seller true "Seller Data"
 // @Description Update Seller
@@ -175,10 +162,7 @@ func (s *SellerController) Update() gin.HandlerFunc {
 // @Param   id     path    int     true        "Seller ID"
 // @Tags Sellers
 // @Accept json
-// @Success 204 "No Content"
-// @Failure 400 {object} errorResponse "Bad Request"
-// @Failure 404 {object} errorResponse "Not Found"
-// @Failure 500 {object} errorResponse "Internal Server Error"
+// @Success 204
 // @Description Delete Seller
 func (s *SellerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
