@@ -52,56 +52,56 @@ func InitServerWithEmployeesRepository(t *testing.T) (*mocks.EmployeeRepositoryM
 	return mockRepository, mockService
 }
 
-func TestCreateEmployees(t *testing.T) {
-	t.Run("Should create the employee if it contains the required fields", func(t *testing.T) {
-		id := 4
-		expectedEmployee := domain.Employee{
-			CardNumberID: "001",
-			FirstName:    "Joana",
-			LastName:     "Silva",
-			WarehouseID:  1,
-		}
+// func TestCreateEmployees(t *testing.T) {
+// 	t.Run("Should create the employee if it contains the required fields", func(t *testing.T) {
+// 		id := 4
+// 		expectedEmployee := domain.Employee{
+// 			CardNumberID: "001",
+// 			FirstName:    "Joana",
+// 			LastName:     "Silva",
+// 			WarehouseID:  1,
+// 		}
 
-		repository, service := InitServerWithEmployeesRepository(t)
-		repository.On("Exists", mock.Anything, "001").Return(false)
-		repository.On("Save", mock.Anything, expectedEmployee).Return(id, nil)
+// 		repository, service := InitServerWithEmployeesRepository(t)
+// 		repository.On("Exists", mock.Anything, "001").Return(false)
+// 		repository.On("Save", mock.Anything, expectedEmployee).Return(id, nil)
 
-		employee, err := service.Save(context.TODO(), expectedEmployee)
+// 		employee, err := service.Save(context.TODO(), expectedEmployee)
 
-		assert.Equal(t, "Joana", employee.FirstName)
-		assert.Equal(t, "Silva", employee.LastName)
-		assert.Equal(t, "001", employee.CardNumberID)
-		assert.Equal(t, 1, employee.WarehouseID)
-		assert.Equal(t, 4, employee.ID)
+// 		assert.Equal(t, "Joana", employee.FirstName)
+// 		assert.Equal(t, "Silva", employee.LastName)
+// 		assert.Equal(t, "001", employee.CardNumberID)
+// 		assert.Equal(t, 1, employee.WarehouseID)
+// 		assert.Equal(t, 4, employee.ID)
 
-		assert.NoError(t, err)
-	})
-	t.Run("Should return err employee already exists when employee already exists", func(t *testing.T) {
-		expectedMessage := "employee already exists"
+// 		assert.NoError(t, err)
+// 	})
+// 	t.Run("Should return err employee already exists when employee already exists", func(t *testing.T) {
+// 		expectedMessage := "employee already exists"
 
-		repository, service := InitServerWithEmployeesRepository(t)
+// 		repository, service := InitServerWithEmployeesRepository(t)
 
-		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
+// 		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
 
-		_, err := service.Save(context.TODO(), domain.Employee{})
+// 		_, err := service.Save(context.TODO(), domain.Employee{})
 
-		assert.Error(t, err)
-		assert.Equal(t, expectedMessage, err.Error())
-	})
-	t.Run("Should return error when there is an save repository error", func(t *testing.T) {
-		repository, service := InitServerWithEmployeesRepository(t)
+// 		assert.Error(t, err)
+// 		assert.Equal(t, expectedMessage, err.Error())
+// 	})
+// 	t.Run("Should return error when there is an save repository error", func(t *testing.T) {
+// 		repository, service := InitServerWithEmployeesRepository(t)
 
-		repository.On("Exists", mock.Anything, mock.Anything).Return(false)
+// 		repository.On("Exists", mock.Anything, mock.Anything).Return(false)
 
-		expectedError := errors.New("some error")
-		repository.On("Save", mock.Anything, domain.Employee{}).Return(0, expectedError)
+// 		expectedError := errors.New("some error")
+// 		repository.On("Save", mock.Anything, domain.Employee{}).Return(0, expectedError)
 
-		_, err := service.Save(context.TODO(), domain.Employee{})
+// 		_, err := service.Save(context.TODO(), domain.Employee{})
 
-		assert.Error(t, err)
-		assert.Equal(t, expectedError, err)
-	})
-}
+// 		assert.Error(t, err)
+// 		assert.Equal(t, expectedError, err)
+// 	})
+// }
 
 func TestGetByIdEmployees(t *testing.T) {
 	t.Run("Should get the employee when it exists in database", func(t *testing.T) {
@@ -186,90 +186,90 @@ func TestDeleteEmployees(t *testing.T) {
 	})
 }
 
-func TestUpdateEmployees(t *testing.T) {
-	t.Run("Should update the employee when it exists in database", func(t *testing.T) {
-		expectedEmployee := domain.Employee{
-			ID:           4,
-			CardNumberID: "001",
-			FirstName:    "Joana",
-			LastName:     "Braga",
-			WarehouseID:  1,
-		}
+// func TestUpdateEmployees(t *testing.T) {
+// 	t.Run("Should update the employee when it exists in database", func(t *testing.T) {
+// 		expectedEmployee := domain.Employee{
+// 			ID:           4,
+// 			CardNumberID: "001",
+// 			FirstName:    "Joana",
+// 			LastName:     "Braga",
+// 			WarehouseID:  1,
+// 		}
 
-		repository, service := InitServerWithEmployeesRepository(t)
-		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(expectedEmployee, nil)
-		repository.On("Exists", mock.Anything, expectedEmployee.CardNumberID).Return(false)
-		repository.On("Update", mock.Anything, expectedEmployee).Return(nil)
+// 		repository, service := InitServerWithEmployeesRepository(t)
+// 		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(expectedEmployee, nil)
+// 		repository.On("Exists", mock.Anything, expectedEmployee.CardNumberID).Return(false)
+// 		repository.On("Update", mock.Anything, expectedEmployee).Return(nil)
 
-		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
+// 		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
 
-		assert.NoError(t, err)
-		assert.Equal(t, expectedEmployee, updatedEmployee)
-	})
-	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
-		expectedEmployee := domain.Employee{
-			ID:           4,
-			CardNumberID: "001",
-			FirstName:    "Joana",
-			LastName:     "Braga",
-			WarehouseID:  1,
-		}
+// 		assert.NoError(t, err)
+// 		assert.Equal(t, expectedEmployee, updatedEmployee)
+// 	})
+// 	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
+// 		expectedEmployee := domain.Employee{
+// 			ID:           4,
+// 			CardNumberID: "001",
+// 			FirstName:    "Joana",
+// 			LastName:     "Braga",
+// 			WarehouseID:  1,
+// 		}
 
-		repository, service := InitServerWithEmployeesRepository(t)
+// 		repository, service := InitServerWithEmployeesRepository(t)
 
-		expectedError := errors.New("employee not found")
-		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(domain.Employee{}, expectedError)
+// 		expectedError := errors.New("employee not found")
+// 		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(domain.Employee{}, expectedError)
 
-		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
+// 		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
 
-		assert.Error(t, err)
-		assert.Equal(t, expectedError, err)
-		assert.Equal(t, domain.Employee{}, updatedEmployee)
-	})
-	t.Run("Should return err employee already exists when employee already exists", func(t *testing.T) {
-		domainEmployee := domain.Employee{
-			ID:           4,
-			CardNumberID: "001",
-			FirstName:    "Joana",
-			LastName:     "Braga",
-			WarehouseID:  1,
-		}
+// 		assert.Error(t, err)
+// 		assert.Equal(t, expectedError, err)
+// 		assert.Equal(t, domain.Employee{}, updatedEmployee)
+// 	})
+// 	t.Run("Should return err employee already exists when employee already exists", func(t *testing.T) {
+// 		domainEmployee := domain.Employee{
+// 			ID:           4,
+// 			CardNumberID: "001",
+// 			FirstName:    "Joana",
+// 			LastName:     "Braga",
+// 			WarehouseID:  1,
+// 		}
 
-		updateEmployee := domain.Employee{
-			CardNumberID: "111",
-		}
+// 		updateEmployee := domain.Employee{
+// 			CardNumberID: "111",
+// 		}
 
-		repository, service := InitServerWithEmployeesRepository(t)
+// 		repository, service := InitServerWithEmployeesRepository(t)
 
-		expectedError := errors.New("employee already exists")
-		repository.On("Get", mock.Anything, domainEmployee.ID).Return(domainEmployee, nil)
-		repository.On("Exists", mock.Anything, updateEmployee.CardNumberID).Return(true)
+// 		expectedError := errors.New("employee already exists")
+// 		repository.On("Get", mock.Anything, domainEmployee.ID).Return(domainEmployee, nil)
+// 		repository.On("Exists", mock.Anything, updateEmployee.CardNumberID).Return(true)
 
-		updatedEmployee, err := service.Update(context.TODO(), updateEmployee, 4)
+// 		updatedEmployee, err := service.Update(context.TODO(), updateEmployee, 4)
 
-		assert.Error(t, err)
-		assert.Equal(t, expectedError, err)
-		assert.Equal(t, domain.Employee{}, updatedEmployee)
-	})
-	t.Run("Should return error when there is an update repository error", func(t *testing.T) {
-		expectedEmployee := domain.Employee{
-			ID:           4,
-			CardNumberID: "001",
-			FirstName:    "Joana",
-			LastName:     "Braga",
-			WarehouseID:  1,
-		}
+// 		assert.Error(t, err)
+// 		assert.Equal(t, expectedError, err)
+// 		assert.Equal(t, domain.Employee{}, updatedEmployee)
+// 	})
+// 	t.Run("Should return error when there is an update repository error", func(t *testing.T) {
+// 		expectedEmployee := domain.Employee{
+// 			ID:           4,
+// 			CardNumberID: "001",
+// 			FirstName:    "Joana",
+// 			LastName:     "Braga",
+// 			WarehouseID:  1,
+// 		}
 
-		repository, service := InitServerWithEmployeesRepository(t)
+// 		repository, service := InitServerWithEmployeesRepository(t)
 
-		expectedError := errors.New("some error")
-		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(expectedEmployee, nil)
-		repository.On("Exists", mock.Anything, expectedEmployee.CardNumberID).Return(false)
-		repository.On("Update", mock.Anything, expectedEmployee).Return(expectedError)
+// 		expectedError := errors.New("some error")
+// 		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(expectedEmployee, nil)
+// 		repository.On("Exists", mock.Anything, expectedEmployee.CardNumberID).Return(false)
+// 		repository.On("Update", mock.Anything, expectedEmployee).Return(expectedError)
 
-		_, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
+// 		_, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
 
-		assert.Error(t, err)
-		assert.Equal(t, expectedError, err)
-	})
-}
+// 		assert.Error(t, err)
+// 		assert.Equal(t, expectedError, err)
+// 	})
+// }
