@@ -1,13 +1,5 @@
 package buyer_test
 
-/*
-
-UPDATE update_existent Quando a atualização dos dados for bem sucedida, o
-comprador será devolvido com as informações
-atualizadas
-
-UPDATE update_non_existent Se o comprador a ser atualizado não existir, será retornado null.
-*/
 import (
 	"context"
 	"errors"
@@ -150,6 +142,17 @@ func TestUpdate(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedBuyer, updatedWarehouse)
+	})
+	t.Run("Should return nil when dont exists", func(t *testing.T) {
+		repository, service := InitServerWithBuyersRepository(t)
+
+		expectedError := errors.New("buyer not found")
+		repository.On("Delete", mock.Anything, mock.Anything).Return(buyer.ErrNotFound)
+
+		err := service.Delete(context.TODO(), 19)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
 	})
 }
 
