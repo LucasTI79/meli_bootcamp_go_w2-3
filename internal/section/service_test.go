@@ -144,8 +144,6 @@ func TestSave(t *testing.T) {
 	})
 }
 
-// Tests cases for delete service section
-
 func TestDelete(t *testing.T) {
 	t.Run("should delete a section", func(t *testing.T) {
 		mockRepository, service := InitServerWithWarehousesRepository(t)
@@ -159,6 +157,33 @@ func TestDelete(t *testing.T) {
 		mockRepository.On("Delete", 1).Return(errors.New("error"))
 		err := service.Delete(context.Background(), 1)
 
+		assert.Error(t, err)
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	section := domain.Section{
+		ID:                 1,
+		SectionNumber:      1,
+		CurrentTemperature: 10,
+		MinimumTemperature: 5,
+		CurrentCapacity:    10,
+		MinimumCapacity:    5,
+		MaximumCapacity:    20,
+		WarehouseID:        1,
+		ProductTypeID:      1,
+	}
+	t.Run("should update a section", func(t *testing.T) {
+		mockRepository, service := InitServerWithWarehousesRepository(t)
+		mockRepository.On("Update", mock.Anything, mock.Anything).Return(nil)
+		err := service.Update(context.Background(), section)
+		assert.NoError(t, err)
+	})
+
+	t.Run("should not update a section", func(t *testing.T) {
+		mockRepository, service := InitServerWithWarehousesRepository(t)
+		mockRepository.On("Update", mock.Anything, mock.Anything).Return(errors.New("error"))
+		err := service.Update(context.Background(), section)
 		assert.Error(t, err)
 	})
 }
