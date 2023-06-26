@@ -61,13 +61,9 @@ func (b *buyerService) Create(ctx context.Context, d domain.Buyer) (domain.Buyer
 }
 
 func (b *buyerService) Update(ctx context.Context, d domain.Buyer, id int) (domain.Buyer, error) {
-	userExist := b.repository.Exists(ctx, d.CardNumberID)
-	if !userExist {
-		return domain.Buyer{}, ErrNotFound
-	}
-	buyer, err := b.Get(ctx, id)
+	buyer, err := b.repository.Get(ctx, id)
 	if err != nil {
-		return domain.Buyer{}, ErrNotFound
+		return domain.Buyer{}, errors.New("error getting buyer")
 	}
 	if d.FirstName != "" {
 		buyer.FirstName = d.FirstName
@@ -75,10 +71,11 @@ func (b *buyerService) Update(ctx context.Context, d domain.Buyer, id int) (doma
 	if d.LastName != "" {
 		buyer.LastName = d.LastName
 	}
-	errUpdate := b.repository.Update(ctx, buyer)
-	if errUpdate != nil {
-		return domain.Buyer{}, errUpdate
+	err = b.repository.Update(ctx, buyer)
+	if err != nil {
+		return domain.Buyer{}, ErrNotFound
 	}
+
 	return buyer, nil
 
 }

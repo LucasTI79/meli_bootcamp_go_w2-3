@@ -7,10 +7,6 @@ comprador será devolvido com as informações
 atualizadas
 
 UPDATE update_non_existent Se o comprador a ser atualizado não existir, será retornado null.
-
-DELETE delete_non_existent Quando o comprador não existir, será devolvido null.
-
-DELETE delete_ok Se a exclusão for bem-sucedida, o item não aparecerá na lista.
 */
 import (
 	"context"

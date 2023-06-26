@@ -113,42 +113,22 @@ func (b *BuyerController) Create() gin.HandlerFunc {
 // @Tags Buyers
 func (b *BuyerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		buyerId, errId := strconv.Atoi(c.Param("id"))
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, "invalid id")
+		var buyer domain.Buyer
+		if err := c.ShouldBindJSON(&buyer); err != nil {
+			web.Error(c, http.StatusUnprocessableEntity, "buyer not created")
 			return
 		}
-		buyerInput := &domain.BuyerRequest{}
-		errBind := c.ShouldBindJSON(buyerInput)
-		if errBind != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", errBind)
-			return
-		}
-		if buyerInput.CardNumberID == "" || buyerInput.FirstName == "" || buyerInput.LastName == "" {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
-			return
-		}
-		err := b.buyerService.Update(c, domain.Buyer{
-			ID:           buyerId,
-			CardNumberID: buyerInput.CardNumberID,
-			FirstName:    buyerInput.FirstName,
-			LastName:     buyerInput.LastName,
-		})
+		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Error(c, http.StatusNotFound, err.Error())
+			web.Error(c, http.StatusBadRequest, "invalid ID")
 			return
 		}
-		buyerObj, errGet := b.buyerService.Get(c, buyerId)
-		if errGet != nil {
-			buyerNotFound := errors.Is(errGet, buyer.ErrNotFound)
-			if buyerNotFound {
-				web.Error(c, http.StatusNotFound, "buyer not found")
-				return
-			}
-			web.Error(c, http.StatusInternalServerError, "error listing buyer")
+		buyerUpdated, err := b.buyerService.Update(c, buyer, id)
+		if err != nil {
+			web.Error(c, http.StatusNotFound, "buyer not updated")
 			return
 		}
-		web.Success(c, http.StatusOK, buyerObj)
+		web.Success(c, http.StatusOK, buyerUpdated)
 	}
 }
 
