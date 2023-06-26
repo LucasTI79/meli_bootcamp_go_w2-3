@@ -1,12 +1,5 @@
 package handler_test
 
-/*
-
-CREATE create_fail Se o objeto JSON não contiver os campos
-necessários, um código 422 será
-retornado.
-422
-*/
 import (
 	"encoding/json"
 	"fmt"
