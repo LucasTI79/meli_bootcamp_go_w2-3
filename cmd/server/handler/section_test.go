@@ -3,7 +3,6 @@ package handler_test
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -198,7 +197,6 @@ func TestGetAll(t *testing.T) {
 
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		assert.Equal(t, http.StatusOK, response.Code)
-		fmt.Println(responseResult)
 
 		assert.Equal(t, expectedSections, responseResult.Data)
 
@@ -238,7 +236,6 @@ func TestGetById(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 		responseResult := &domain.SectionResponse{}
-		fmt.Println(response.Body)
 		err := json.Unmarshal(response.Body.Bytes(), responseResult)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, response.Code)
@@ -413,7 +410,6 @@ func TestUpdate(t *testing.T) {
 		mockService.On("Update", mock.Anything, mock.Anything).Return(section.ErrNotFound)
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusNotFound, response.Code)
-		fmt.Println(response.Code, "CODEEE")
 	})
 	t.Run("Should return 422 when any of fields is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithGetSections(t)
