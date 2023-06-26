@@ -237,13 +237,21 @@ func TestUpdate(t *testing.T) {
 	t.Run("Should return 200 and updated buyer", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.PATCH(Update, handler.Update())
+
 		jsonSection, _ := json.Marshal(newBuyer)
+
 		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/6", string(jsonSection))
+
 		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
+
 		server.ServeHTTP(response, request)
+
 		assert.Equal(t, http.StatusOK, response.Code)
+
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+
 		newBuyer.ID = 6
+
 		assert.EqualValues(t, newBuyer, responseResult.Data)
 	})
 }
