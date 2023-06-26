@@ -189,7 +189,7 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, expectedBuyers, responseResult.Data)
 	})
 
-	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
+	t.Run("Should return status 422 when JSON is empty", func(t *testing.T) {
 		server, _, handler := InitServerWithGetBuyers(t)
 
 		server.POST(Create, handler.Create())
@@ -199,6 +199,18 @@ func TestCreate(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("Should return status 400 when JSON is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetBuyers(t)
+
+		server.POST(Create, handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, Create, `{"card_number_id":2}`)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
 	t.Run("Should return status 409 when buyer already exists", func(t *testing.T) {
