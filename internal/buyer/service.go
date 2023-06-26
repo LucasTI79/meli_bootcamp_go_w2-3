@@ -9,8 +9,9 @@ import (
 
 // Errors
 var (
-	ErrNotFound = errors.New("buyer not found")
-	ErrExists   = errors.New("buyer already exists")
+	ErrNotFound  = errors.New("buyer not found")
+	ErrExists    = errors.New("buyer already exists")
+	ErrInvalidID = errors.New("invalid ID")
 )
 
 type Service interface {

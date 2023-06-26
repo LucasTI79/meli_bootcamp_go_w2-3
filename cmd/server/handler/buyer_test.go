@@ -102,6 +102,20 @@ func TestGet(t *testing.T) {
 
 	})
 
+	t.Run("Should return err if id is invalid", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		mockService.On("Get", mock.Anything, "invalid").Return(domain.Buyer{}, buyer.ErrInvalidID)
+
+		server.GET(Get, handler.Get())
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/buyers/invalid", "")
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
 	t.Run("Find by ID status 404 with buyer not found", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 
