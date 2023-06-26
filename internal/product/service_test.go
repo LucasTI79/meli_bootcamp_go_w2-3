@@ -12,6 +12,22 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var expectedProduct = domain.Product{
+
+	ID:             1,
+	Description:    "milk",
+	ExpirationRate: 1,
+	FreezingRate:   2,
+	Height:         6.4,
+	Length:         4.5,
+	Netweight:      3.4,
+	ProductCode:    "PROD02",
+	RecomFreezTemp: 1.3,
+	Width:          1.2,
+	ProductTypeID:  1,
+	SellerID:       1,
+}
+
 func TestGetAllProducts(t *testing.T) {
 	t.Run("Should return all products when repository is called", func(t *testing.T) {
 		expectedProducts := []domain.Product{
@@ -57,21 +73,6 @@ func TestGetAllProducts(t *testing.T) {
 
 func TestGetProductsById(t *testing.T) {
 	t.Run("Should return the product when it exists", func(t *testing.T) {
-		expectedProduct := domain.Product{
-
-			ID:             1,
-			Description:    "milk",
-			ExpirationRate: 1,
-			FreezingRate:   2,
-			Height:         6.4,
-			Length:         4.5,
-			Netweight:      3.4,
-			ProductCode:    "PROD02",
-			RecomFreezTemp: 1.3,
-			Width:          1.2,
-			ProductTypeID:  1,
-			SellerID:       1,
-		}
 
 		service, repository := CreareProductService(t)
 
@@ -118,20 +119,6 @@ func TestDeleteProducts(t *testing.T) {
 func TestCreateProducts(t *testing.T) {
 	t.Run("Should create a product when it contains the necessary fields", func(t *testing.T) {
 		id := 1
-		expectedProduct := domain.Product{
-			ID:             1,
-			Description:    "milk",
-			ExpirationRate: 1,
-			FreezingRate:   2,
-			Height:         6.4,
-			Length:         4.5,
-			Netweight:      3.4,
-			ProductCode:    "PROD02",
-			RecomFreezTemp: 1.3,
-			Width:          1.2,
-			ProductTypeID:  1,
-			SellerID:       1,
-		}
 
 		service, repository := CreareProductService(t)
 
@@ -145,20 +132,7 @@ func TestCreateProducts(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("Should return an error when product already exists", func(t *testing.T) {
-		expectedProduct := domain.Product{
-			ID:             1,
-			Description:    "milk",
-			ExpirationRate: 1,
-			FreezingRate:   2,
-			Height:         6.4,
-			Length:         4.5,
-			Netweight:      3.4,
-			ProductCode:    "PROD02",
-			RecomFreezTemp: 1.3,
-			Width:          1.2,
-			ProductTypeID:  1,
-			SellerID:       1,
-		}
+
 		expectedErrorMessage := "product already exists"
 
 		service, repository := CreareProductService(t)
@@ -173,20 +147,7 @@ func TestCreateProducts(t *testing.T) {
 }
 
 func TestUpdateProducts(t *testing.T) {
-	expectedProduct := domain.Product{
-		ID:             1,
-		Description:    "milk",
-		ExpirationRate: 1,
-		FreezingRate:   2,
-		Height:         6.4,
-		Length:         4.5,
-		Netweight:      3.4,
-		ProductCode:    "PROD02",
-		RecomFreezTemp: 1.3,
-		Width:          1.2,
-		ProductTypeID:  1,
-		SellerID:       1,
-	}
+
 	t.Run("Should update the product when it exists.", func(t *testing.T) {
 
 		service, repository := CreareProductService(t)
