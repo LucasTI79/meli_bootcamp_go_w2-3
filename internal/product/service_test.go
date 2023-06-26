@@ -115,6 +115,63 @@ func TestDeleteProducts(t *testing.T) {
 	})
 }
 
+func TestCreateProducts(t *testing.T) {
+	t.Run("Should create a product when it contains the necessary fields", func(t *testing.T) {
+		id := 1
+		expectedProduct := domain.Product{
+			ID:             1,
+			Description:    "milk",
+			ExpirationRate: 1,
+			FreezingRate:   2,
+			Height:         6.4,
+			Length:         4.5,
+			Netweight:      3.4,
+			ProductCode:    "PROD02",
+			RecomFreezTemp: 1.3,
+			Width:          1.2,
+			ProductTypeID:  1,
+			SellerID:       1,
+		}
+
+		service, repository := CreareProductService(t)
+
+		repository.On("Exists", mock.Anything, "PROD02").Return(false)
+		repository.On("Save", mock.Anything).Return(id, nil)
+
+		productId, err := service.Save(context.TODO(), expectedProduct)
+
+		assert.Equal(t, expectedProduct.ID, productId)
+
+		assert.NoError(t, err)
+	})
+	t.Run("Should return an error when product already exists", func(t *testing.T) {
+		expectedProduct := domain.Product{
+			ID:             1,
+			Description:    "milk",
+			ExpirationRate: 1,
+			FreezingRate:   2,
+			Height:         6.4,
+			Length:         4.5,
+			Netweight:      3.4,
+			ProductCode:    "PROD02",
+			RecomFreezTemp: 1.3,
+			Width:          1.2,
+			ProductTypeID:  1,
+			SellerID:       1,
+		}
+		expectedErrorMessage := "product already exists"
+
+		service, repository := CreareProductService(t)
+
+		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
+
+		_, err := service.Save(context.TODO(), expectedProduct)
+
+		assert.Equal(t, expectedErrorMessage, err.Error())
+		assert.Error(t, err)
+	})
+}
+
 func CreareProductService(t *testing.T) (product.Service, *mocks.ProductRepositoryMock) {
 	mockRepository := new(mocks.ProductRepositoryMock)
 	mockService := product.NewService(mockRepository)
