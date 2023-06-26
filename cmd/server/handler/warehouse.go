@@ -69,7 +69,7 @@ func (w *WarehouseController) GetAll() gin.HandlerFunc {
 		}
 
 		if len(warehouses) == 0 {
-			web.Error(c, http.StatusNoContent, "There are no warehouses stored")
+			web.Success(c, http.StatusNoContent, "There are no warehouses stored")
 			return
 		}
 

@@ -87,9 +87,9 @@ func (w *WarehouseService) Update(ctx context.Context, d domain.Warehouse, id in
 		warehouseDomain.MinimumTemperature = d.MinimumTemperature
 	}
 	
-	err2 := w.repository.Update(ctx, warehouseDomain)
-	if err2 != nil {
-		return domain.Warehouse{}, err2
+	err = w.repository.Update(ctx, warehouseDomain)
+	if err != nil {
+		return domain.Warehouse{}, err
 	}
 
 	return warehouseDomain, nil
