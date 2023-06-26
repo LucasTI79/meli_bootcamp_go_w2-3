@@ -6,16 +6,6 @@ CREATE create_fail Se o objeto JSON não contiver os campos
 necessários, um código 422 será
 retornado.
 422
-
-UPDATE update_ok Quando a atualização dos dados for bem
-sucedida, o comprador será devolvido com
-as informações atualizadas juntamente
-com um código 200
-200
-
-UPDATE update_non_existent Se o comprador a ser atualizado não
-existir, um código 404 será devolvido
-404
 */
 import (
 	"encoding/json"
@@ -228,23 +218,46 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	newBuyer := domain.Buyer{
-		CardNumberID: "3093",
-		FirstName:    "Giulianna",
-		LastName:     "Goncalves",
-	}
-	var responseResult domain.BuyerResponse
-	t.Run("Should return 200 and updated buyer", func(t *testing.T) {
+	t.Run("Should return status 200 and updated buyer", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
+		updatedBuyer := domain.Buyer{
+			ID:           8,
+			CardNumberID: "5435",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
+		mockService.On("Update", mock.Anything, mock.Anything, 8).Return(updatedBuyer, nil)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/8", `{
+			"first_name": "Giulianna",
+			"last_name": "Goncalves"
+		  }`)
+
 		server.PATCH(Update, handler.Update())
-		jsonSection, _ := json.Marshal(newBuyer)
-		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/6", string(jsonSection))
-		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
 		server.ServeHTTP(response, request)
+
 		assert.Equal(t, http.StatusOK, response.Code)
+
+		responseResult := domain.BuyerResponseID{}
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
-		newBuyer.ID = 6
-		assert.EqualValues(t, newBuyer, responseResult.Data)
+
+		assert.Equal(t, updatedBuyer, responseResult.Data)
+	})
+	t.Run("Should return status 404 when buyer not found", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/10", `{
+			"card_number_id": "5435",
+			"first_name": "Giulianna",
+			"last_name": "Goncalves"
+		  }`)
+
+		mockService.On("Update", mock.Anything, mock.Anything, 10).Return(domain.Buyer{}, buyer.ErrNotFound)
+
+		server.PATCH(Update, handler.Update())
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 }
 

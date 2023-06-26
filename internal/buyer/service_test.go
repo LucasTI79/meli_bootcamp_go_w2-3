@@ -138,10 +138,10 @@ func TestUpdate(t *testing.T) {
 		repository.On("Exists", mock.Anything, expectedBuyer.ID).Return(false)
 		repository.On("Update", mock.Anything, expectedBuyer).Return(nil)
 
-		updatedWarehouse, err := service.Update(context.TODO(), expectedBuyer, expectedBuyer.ID)
+		updatedBuyer, err := service.Update(context.TODO(), expectedBuyer, expectedBuyer.ID)
 
 		assert.NoError(t, err)
-		assert.Equal(t, expectedBuyer, updatedWarehouse)
+		assert.Equal(t, expectedBuyer, updatedBuyer)
 	})
 	t.Run("Should return nil when dont exists", func(t *testing.T) {
 		repository, service := InitServerWithBuyersRepository(t)
