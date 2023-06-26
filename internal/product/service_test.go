@@ -172,6 +172,47 @@ func TestCreateProducts(t *testing.T) {
 	})
 }
 
+func TestUpdateProducts(t *testing.T) {
+	expectedProduct := domain.Product{
+		ID:             1,
+		Description:    "milk",
+		ExpirationRate: 1,
+		FreezingRate:   2,
+		Height:         6.4,
+		Length:         4.5,
+		Netweight:      3.4,
+		ProductCode:    "PROD02",
+		RecomFreezTemp: 1.3,
+		Width:          1.2,
+		ProductTypeID:  1,
+		SellerID:       1,
+	}
+	t.Run("Should update the product when it exists.", func(t *testing.T) {
+
+		service, repository := CreareProductService(t)
+
+		repository.On("Exists", mock.Anything, expectedProduct.ProductCode).Return(false)
+		repository.On("Update", mock.Anything, expectedProduct).Return(nil)
+
+		err := service.Update(context.TODO(), expectedProduct)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("Should return an error when the product does not exists", func(t *testing.T) {
+		service, repository := CreareProductService(t)
+
+		expectedError := errors.New("product not found")
+		repository.On("Update", mock.Anything, mock.Anything).Return(product.ErrNotFound)
+
+		err := service.Update(context.TODO(), expectedProduct)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+
+}
+
 func CreareProductService(t *testing.T) (product.Service, *mocks.ProductRepositoryMock) {
 	mockRepository := new(mocks.ProductRepositoryMock)
 	mockService := product.NewService(mockRepository)
