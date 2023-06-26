@@ -68,6 +68,6 @@ func (m *SectionRepositoryMock) Update(ctx context.Context, s domain.Section) er
 }
 
 func (m *SectionRepositoryMock) Exists(ctx context.Context, sectionNumber int) bool {
-	args := m.Called(sectionNumber)
-	return args.Bool(0)
+	args := m.Called(ctx, sectionNumber)
+	return args.Get(0).(bool)
 }
