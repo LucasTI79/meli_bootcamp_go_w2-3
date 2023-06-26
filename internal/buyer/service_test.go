@@ -107,6 +107,35 @@ func TestGetById(t *testing.T) {
 	})
 }
 
+func TestDelete(t *testing.T) {
+	t.Run("Should delete the buyer when it exists", func(t *testing.T) {
+		expectedBuyer := domain.Buyer{
+			ID:           9,
+			CardNumberID: "2556",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
+
+		repository, service := InitServerWithBuyersRepository(t)
+		repository.On("Delete", mock.Anything, expectedBuyer.ID).Return(nil)
+
+		err := service.Delete(context.TODO(), 9)
+
+		assert.NoError(t, err)
+	})
+	t.Run("Should return nill when buyer dont exists", func(t *testing.T) {
+		repository, service := InitServerWithBuyersRepository(t)
+
+		expectedError := errors.New("buyer not found")
+		repository.On("Delete", mock.Anything, mock.Anything).Return(buyer.ErrNotFound)
+
+		err := service.Delete(context.TODO(), 19)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+}
+
 func InitServerWithBuyersRepository(t *testing.T) (*mocks.BuyerRepositoryMock, buyer.Service) {
 	t.Helper()
 	mockRepository := &mocks.BuyerRepositoryMock{}
