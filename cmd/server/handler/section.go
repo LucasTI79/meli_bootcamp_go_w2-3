@@ -53,7 +53,7 @@ func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, domain.ErrAlreadyExists.Error())
+			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
 			return
 		}
 		section, err := s.sectionService.Get(c, id)
@@ -124,7 +124,8 @@ func (s *SectionController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		web.Success(c, http.StatusCreated, sectionID)
+		sectionInput.ID = sectionID
+		web.Success(c, http.StatusCreated, sectionInput)
 	}
 }
 
@@ -192,8 +193,8 @@ func (s *SectionController) Update() gin.HandlerFunc {
 
 		err = s.sectionService.Update(c, sectionUpdated)
 		if err != nil {
-			if errors.Is(err, domain.ErrModifySection) {
-				web.Error(c, http.StatusConflict, domain.ErrModifySection.Error())
+			if errors.Is(err, section.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, section.ErrNotFound.Error())
 				return
 			}
 			web.Error(c, http.StatusInternalServerError, err.Error())

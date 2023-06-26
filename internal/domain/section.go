@@ -22,8 +22,12 @@ type Section struct {
 	ProductTypeID      int `json:"product_type_id"`
 }
 
-type SectionResponse struct {
+type SectionsResponse struct {
 	Data []Section `json:"data"`
+}
+
+type SectionResponse struct {
+	Data Section `json:"data"`
 }
 
 type SectionRequest struct {
