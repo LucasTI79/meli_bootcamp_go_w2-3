@@ -2,7 +2,6 @@ package handler_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -51,7 +50,6 @@ func TestGetAll(t *testing.T) {
 
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		assert.Equal(t, http.StatusOK, response.Code)
-		fmt.Println(responseResult)
 
 		assert.Equal(t, expectedBuyers, responseResult.Data)
 
