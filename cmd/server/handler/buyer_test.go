@@ -262,6 +262,24 @@ func TestUpdate(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
+
+	t.Run("Should return err if id is invalid", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetBuyers(t)
+
+		mockService.On("Update", mock.Anything, mock.Anything, "invalid").Return(domain.Buyer{}, buyer.ErrInvalidID)
+
+		server.PATCH(Update, handler.Update())
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/invalid", `{
+			"card_number_id": "5435",
+			"first_name": "Giulianna",
+			"last_name": "Goncalves"
+		  }`)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
 }
 
 func InitServerWithGetBuyers(t *testing.T) (*gin.Engine, *mocks.BuyerServiceMock, *handler.BuyerController) {
