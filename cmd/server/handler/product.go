@@ -115,7 +115,7 @@ func (p *ProductController) Create() gin.HandlerFunc {
 				web.Error(c, http.StatusConflict, err.Error())
 				return
 			}
-			web.Error(c, http.StatusInternalServerError, err.Error())
+			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
 			return
 		}
 		productItem.ID = productId
