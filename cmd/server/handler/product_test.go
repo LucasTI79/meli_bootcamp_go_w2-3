@@ -155,6 +155,20 @@ func TestGetProductById(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		ExpectedEmpityProduct := domain.Product{}
+
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.GET("/products/:id", handler.Get())
+
+		mockService.On("Get", mock.Anything).Return(ExpectedEmpityProduct, product.ErrTryAgain)
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/1", "")
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+
 }
 
 func TestDeleteProduct(t *testing.T) {
