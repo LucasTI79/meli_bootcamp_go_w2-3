@@ -284,7 +284,6 @@ func TestCreatProduct(t *testing.T) {
 		server.POST("/products", handler.Create())
 		request, response := testutil.MakeRequest(http.MethodPost, "/products", string(`{"ExpirationRate": 0}`))
 		server.ServeHTTP(response, request)
-		// corrigir bara request 400
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
@@ -367,6 +366,18 @@ func TestUpdateProduct(t *testing.T) {
 		mockService.On("Update", mock.Anything, mock.Anything).Return(product.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/products/invalidId", productJson)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+	t.Run("Should return 400 when field is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithProducts(t)
+
+		server.PATCH("/products/:id", handler.Update())
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", string(`{"ExpirationRate": 0}`))
 
 		server.ServeHTTP(response, request)
 
