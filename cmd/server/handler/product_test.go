@@ -191,6 +191,20 @@ func TestDeleteProduct(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.DELETE("/products/:id", handler.Delete())
+
+		mockService.On("Delete", mock.Anything).Return(product.ErrTryAgain)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/products/1", "")
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	})
+
 }
 
 func TestCreatProduct(t *testing.T) {
