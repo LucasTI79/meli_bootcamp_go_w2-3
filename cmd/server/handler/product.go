@@ -32,7 +32,9 @@ func (p *ProductController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		products, err := p.productService.GetAll(c)
 		if err != nil {
-			web.Error(c, http.StatusInternalServerError, "error listing products")
+			// web.Error(c, http.StatusInternalServerError, "error listing products")
+			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
+
 			return
 		}
 		web.Success(c, http.StatusOK, products)
