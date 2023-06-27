@@ -9,10 +9,12 @@ import (
 
 // Errors
 var (
-	ErrNotFound    = errors.New("product not found")
-	ErrInvalidId   = errors.New("invalid id")
-	ErrInvalidBody = errors.New("invalid body")
-	ErrTryAgain    = errors.New("error, try again %s")
+	ErrNotFound     = errors.New("product not found")
+	ErrInvalidId    = errors.New("invalid id")
+	ErrInvalidBody  = errors.New("invalid body")
+	ErrInvalidField = errors.New("invalid field")
+	ErrTryAgain     = errors.New("error, try again %s")
+	ErrInvalidJson  = errors.New("invalid json")
 
 	ErrProductAlreadyExists = errors.New("product already exists")
 )
