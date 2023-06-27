@@ -244,19 +244,8 @@ func TestCreatProduct(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProducts(t)
 		server.POST("/products", handler.Create())
-		request, response := testutil.MakeRequest(http.MethodPost, "/products", `{
-			"description": "milk",
-			"expiration_rate": 1,
-			"freezing_rate": 2,
-			"height": 6.4,
-			"length": 4.5,
-			"netweight": 3.4,
-			"product_code": "PROD03",
-			"recommended_freezing_temperature": 1.3,
-			"width": 1.2,
-			"product_type_id": 1,
-			"seller_id": 1
-		}`)
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/products", productJson)
 
 		mockService.On("Save", mock.Anything).Return(1, nil)
 
