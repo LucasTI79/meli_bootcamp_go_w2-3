@@ -384,6 +384,16 @@ func TestUpdateProduct(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
+	t.Run("Should return 422 when Json is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithProducts(t)
+
+		server.PATCH("/products/:id", handler.Update())
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", string(`{"ExpirationRate":}`))
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
 }
 
 // iniciar o servidor de testes
