@@ -17,9 +17,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// var ExpectedEmpityProducts = []domain.Product{}
-// var ExpectedEmpityProducts = make([]domain.Product, 0)
-
 var productJson = `{
 	"description": "milk",
 	"expiration_rate": 1,
@@ -256,6 +253,18 @@ func TestCreatProduct(t *testing.T) {
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+		server.POST("/products", handler.Create())
+
+		mockService.On("Save", mock.Anything).Return(0, product.ErrTryAgain)
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/products", productJson)
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	})
 }
 
 func TestUpdateProduct(t *testing.T) {
