@@ -313,6 +313,20 @@ func TestUpdateProduct(t *testing.T) {
 
 	})
 
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.PATCH("/products/:id", handler.Update())
+
+		mockService.On("Update", mock.Anything, mock.Anything).Return(product.ErrTryAgain)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", productJson)
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	})
+
 }
 
 // iniciar o servidor de testes
