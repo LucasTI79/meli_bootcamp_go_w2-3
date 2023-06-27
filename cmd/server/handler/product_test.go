@@ -166,6 +166,22 @@ func TestGetProductById(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
 
+	t.Run("Should return 400 when an Id is invalid", func(t *testing.T) {
+		ExpectedEmpityProduct := domain.Product{}
+
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.GET("/products/:id", handler.Get())
+
+		mockService.On("Get", mock.Anything).Return(ExpectedEmpityProduct, product.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/invalidId", "")
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
 }
 
 func TestDeleteProduct(t *testing.T) {
@@ -203,6 +219,21 @@ func TestDeleteProduct(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
+	})
+
+	t.Run("Should return 400 when an Id is invalid", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.DELETE("/products/:id", handler.Delete())
+
+		mockService.On("Delete", mock.Anything).Return(product.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodDelete, "/products/invalidId", "")
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
 }
@@ -325,6 +356,21 @@ func TestUpdateProduct(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
+	})
+
+	t.Run("Should return 400 when an Id is invalid", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithProducts(t)
+
+		server.PATCH("/products/:id", handler.Update())
+
+		mockService.On("Update", mock.Anything, mock.Anything).Return(product.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/products/invalidId", productJson)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
 }
