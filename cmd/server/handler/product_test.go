@@ -17,7 +17,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var ExpectedEmpityProducts = []domain.Product{}
+// var ExpectedEmpityProducts = []domain.Product{}
+// var ExpectedEmpityProducts = make([]domain.Product, 0)
 
 var productJson = `{
 	"description": "milk",
@@ -102,13 +103,16 @@ func TestGetAllProducts(t *testing.T) {
 
 	})
 
-	t.Run("Should return status 500", func(t *testing.T) {
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		var ExpectedEmpityProducts = []domain.Product{}
+
 		server, mockService, handler := InitServerWithProducts(t)
 
 		server.GET(GetAllProducts, handler.GetAll())
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllProducts, "")
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(nil, "error listing products")
+		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmpityProducts, product.ErrTryAgain)
+
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
