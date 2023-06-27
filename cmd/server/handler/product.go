@@ -32,7 +32,6 @@ func (p *ProductController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		products, err := p.productService.GetAll(c)
 		if err != nil {
-			// web.Error(c, http.StatusInternalServerError, "error listing products")
 			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
 
 			return
@@ -91,7 +90,7 @@ func (p *ProductController) Create() gin.HandlerFunc {
 		}
 
 		if productImput.Description == "" || productImput.ExpirationRate == 0 || productImput.FreezingRate == 0 || productImput.Height == 0 || productImput.Length == 0 || productImput.Netweight == 0 || productImput.ProductCode == "" || productImput.RecomFreezTemp == 0 || productImput.SellerID == 0 {
-			web.Error(c, http.StatusBadRequest, product.ErrInvalidField.Error(), err)
+			web.Error(c, http.StatusBadRequest, product.ErrInvalidField.Error())
 			return
 		}
 
