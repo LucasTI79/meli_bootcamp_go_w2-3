@@ -65,7 +65,7 @@ func (p *ProductController) Get() gin.HandlerFunc {
 				return
 			}
 
-			web.Error(c, http.StatusInternalServerError, err.Error())
+			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
 			return
 		}
 		web.Success(c, http.StatusOK, newProduct)
