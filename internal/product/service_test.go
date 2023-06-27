@@ -61,7 +61,7 @@ func TestGetAllProducts(t *testing.T) {
 			},
 		}
 
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 		repository.On("GetAll", mock.Anything).Return(expectedProducts, nil)
 
 		products, err := service.GetAll(context.TODO())
@@ -74,7 +74,7 @@ func TestGetAllProducts(t *testing.T) {
 func TestGetProductsById(t *testing.T) {
 	t.Run("Should return the product when it exists", func(t *testing.T) {
 
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 
 		repository.On("Get", mock.Anything).Return(expectedProduct, nil)
 
@@ -84,7 +84,7 @@ func TestGetProductsById(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("Should return an error when the product does not exists", func(t *testing.T) {
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 		expectedError := errors.New("product not found")
 		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Product{}, product.ErrNotFound)
 		_, err := service.Get(context.TODO(), 1)
@@ -96,7 +96,7 @@ func TestGetProductsById(t *testing.T) {
 func TestDeleteProducts(t *testing.T) {
 	t.Run("Should delete the products when it exists", func(t *testing.T) {
 
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 		repository.On("Delete", mock.Anything).Return(nil)
 
 		err := service.Delete(context.TODO(), 1)
@@ -104,7 +104,7 @@ func TestDeleteProducts(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("Should return an error when the product does not exists", func(t *testing.T) {
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 
 		expectedError := errors.New("product not found")
 		repository.On("Delete", mock.Anything, mock.Anything).Return(product.ErrNotFound)
@@ -120,7 +120,7 @@ func TestCreateProducts(t *testing.T) {
 	t.Run("Should create a product when it contains the necessary fields", func(t *testing.T) {
 		id := 1
 
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 
 		repository.On("Exists", mock.Anything, "PROD02").Return(false)
 		repository.On("Save", mock.Anything).Return(id, nil)
@@ -135,7 +135,7 @@ func TestCreateProducts(t *testing.T) {
 
 		expectedErrorMessage := "product already exists"
 
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 
 		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
 
@@ -150,7 +150,7 @@ func TestUpdateProducts(t *testing.T) {
 
 	t.Run("Should update the product when it exists.", func(t *testing.T) {
 
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 
 		repository.On("Exists", mock.Anything, expectedProduct.ProductCode).Return(false)
 		repository.On("Update", mock.Anything, expectedProduct).Return(nil)
@@ -161,7 +161,7 @@ func TestUpdateProducts(t *testing.T) {
 	})
 
 	t.Run("Should return an error when the product does not exists", func(t *testing.T) {
-		service, repository := CreareProductService(t)
+		service, repository := CreateProductService(t)
 
 		expectedError := errors.New("product not found")
 		repository.On("Update", mock.Anything, mock.Anything).Return(product.ErrNotFound)
@@ -174,7 +174,7 @@ func TestUpdateProducts(t *testing.T) {
 
 }
 
-func CreareProductService(t *testing.T) (product.Service, *mocks.ProductRepositoryMock) {
+func CreateProductService(t *testing.T) (product.Service, *mocks.ProductRepositoryMock) {
 	mockRepository := new(mocks.ProductRepositoryMock)
 	mockService := product.NewService(mockRepository)
 	return mockService, mockRepository
