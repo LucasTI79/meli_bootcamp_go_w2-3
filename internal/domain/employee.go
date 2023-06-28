@@ -7,3 +7,7 @@ type Employee struct {
 	LastName     string `json:"last_name"`
 	WarehouseID  int    `json:"warehouse_id"`
 }
+
+type EmployeeResponse struct {
+	Data []Section `json:"data"`
+}

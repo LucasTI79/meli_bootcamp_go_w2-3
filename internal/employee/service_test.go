@@ -201,7 +201,7 @@ func TestUpdateEmployees(t *testing.T) {
 		repository.On("Exists", mock.Anything, expectedEmployee.CardNumberID).Return(false)
 		repository.On("Update", mock.Anything, expectedEmployee).Return(nil)
 
-		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
+		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee)
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedEmployee, updatedEmployee)

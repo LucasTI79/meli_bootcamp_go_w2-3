@@ -25,9 +25,9 @@ func (m *EmployeeRepositoryMock) GetAll(ctx context.Context) ([]domain.Employee,
 	return args.Get(0).([]domain.Employee), args.Error(1)
 }
 
-func (m *EmployeeServiceMock) Save(ctx context.Context, e domain.Employee) (domain.Employee, error) {
+func (m *EmployeeServiceMock) Save(ctx context.Context, e domain.Employee) (int, error) {
 	args := m.Called(ctx, e)
-	return args.Get(0).(domain.Employee), args.Error(1)
+	return args.Get(0).(int), args.Error(1)
 }
 
 func (m *EmployeeRepositoryMock) Save(ctx context.Context, e domain.Employee) (int, error) {
@@ -55,9 +55,9 @@ func (m *EmployeeRepositoryMock) Get(ctx context.Context, id int) (domain.Employ
 	return args.Get(0).(domain.Employee), args.Error(1)
 }
 
-func (m *EmployeeServiceMock) Update(ctx context.Context, e domain.Employee, id int) (domain.Employee, error) {
-	args := m.Called(ctx, e, id)
-	return args.Get(0).(domain.Employee), args.Error(1)
+func (m *EmployeeServiceMock) Update(ctx context.Context, e domain.Employee) error {
+	args := m.Called(ctx, e)
+	return args.Error(1)
 }
 
 func (m *EmployeeRepositoryMock) Update(ctx context.Context, e domain.Employee) error {
