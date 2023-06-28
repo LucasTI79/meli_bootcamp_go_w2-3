@@ -11,12 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type productController struct {
+type ProductController struct {
 	productService product.Service
 }
 
-func NewProduct(s product.Service) *productController {
-	return &productController{
+func NewProduct(s product.Service) *ProductController {
+	return &ProductController{
 		productService: s,
 	}
 }
@@ -28,11 +28,12 @@ func NewProduct(s product.Service) *productController {
 // @Accept json
 // @Success 200 {object}  []domain.Product
 // @Description List all Products
-func (p *productController) GetAll() gin.HandlerFunc {
+func (p *ProductController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		products, err := p.productService.GetAll(c)
 		if err != nil {
-			web.Error(c, http.StatusInternalServerError, "error listing products")
+			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
+
 			return
 		}
 		web.Success(c, http.StatusOK, products)
@@ -47,7 +48,7 @@ func (p *productController) GetAll() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {object}  domain.Product
 // @Description List one product by it's Product id
-func (p *productController) Get() gin.HandlerFunc {
+func (p *ProductController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -55,17 +56,18 @@ func (p *productController) Get() gin.HandlerFunc {
 			return
 		}
 
-		product, err := p.productService.Get(c, productId)
+		newProduct, err := p.productService.Get(c, productId)
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				web.Error(c, http.StatusNotFound, "")
+			if errors.Is(err, product.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, product.ErrNotFound.Error())
+
 				return
 			}
 
-			web.Error(c, http.StatusInternalServerError, err.Error())
+			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, product)
+		web.Success(c, http.StatusOK, newProduct)
 	}
 }
 
@@ -77,18 +79,18 @@ func (p *productController) Get() gin.HandlerFunc {
 // @Param product body domain.Product true "Product Data"
 // @Success 201 {object} domain.Product
 // @Description Create Product
-func (p *productController) Create() gin.HandlerFunc {
+func (p *ProductController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productImput := &domain.ProductRequest{}
 
 		err := c.ShouldBindJSON(productImput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusUnprocessableEntity, product.ErrInvalidJson.Error())
 			return
 		}
 
 		if productImput.Description == "" || productImput.ExpirationRate == 0 || productImput.FreezingRate == 0 || productImput.Height == 0 || productImput.Length == 0 || productImput.Netweight == 0 || productImput.ProductCode == "" || productImput.RecomFreezTemp == 0 || productImput.SellerID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, product.ErrInvalidBody.Error())
+			web.Error(c, http.StatusBadRequest, product.ErrInvalidField.Error())
 			return
 		}
 
@@ -108,7 +110,11 @@ func (p *productController) Create() gin.HandlerFunc {
 
 		productId, err := p.productService.Save(c, productItem)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			if errors.Is(err, product.ErrProductAlreadyExists) {
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
 			return
 		}
 		productItem.ID = productId
@@ -125,7 +131,7 @@ func (p *productController) Create() gin.HandlerFunc {
 // @Param id path int true "Product ID"
 // @Param product body domain.Product true "Product Data"
 // @Description Update Product
-func (p *productController) Update() gin.HandlerFunc {
+func (p *ProductController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, errId := strconv.Atoi(c.Param("id"))
 
@@ -137,12 +143,14 @@ func (p *productController) Update() gin.HandlerFunc {
 		productImput := &domain.ProductRequest{}
 		err := c.ShouldBindJSON(productImput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+
+			web.Error(c, http.StatusUnprocessableEntity, product.ErrInvalidJson.Error(), err)
 			return
 		}
 
 		if productImput.Description == "" || productImput.ExpirationRate == 0 || productImput.FreezingRate == 0 || productImput.Height == 0 || productImput.Length == 0 || productImput.Netweight == 0 || productImput.ProductCode == "" || productImput.RecomFreezTemp == 0 || productImput.SellerID == 0 {
-			web.Error(c, http.StatusNotFound, product.ErrInvalidBody.Error())
+
+			web.Error(c, http.StatusBadRequest, product.ErrInvalidField.Error())
 			return
 		}
 
@@ -184,7 +192,7 @@ func (p *productController) Update() gin.HandlerFunc {
 // @Accept json
 // @Success 204
 // @Description Delete Product
-func (p *productController) Delete() gin.HandlerFunc {
+func (p *ProductController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))
 
