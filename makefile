@@ -39,5 +39,10 @@ rebuild-database-with-password:
 	@echo "MysqlRoot Passowrd (if don't have ignore): "; \
     curl -s https://raw.githubusercontent.com/bootcamp-go/bootcamps-scripts/main/meli_database.sh | bash  -s rebuild ${p}
 
-cov:
-	go test -cover ./... -coverpkg=./... -coverprofile=coverage.out && go tool cover -html=coverage.out
+#.PHONY: test-cov
+#cov:
+#	go test -cover ./... -coverpkg=./... -coverprofile=coverage.out && go tool cover -html=coverage.out
+
+#.PHONY: test
+#test:
+#    go test -v ./...

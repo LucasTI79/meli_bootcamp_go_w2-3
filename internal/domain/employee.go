@@ -9,5 +9,9 @@ type Employee struct {
 }
 
 type EmployeeResponse struct {
-	Data []Section `json:"data"`
+	Data []Employee `json:"data"`
+}
+
+type EmployeeResponseID struct {
+	Data Employee `json:"data"`
 }

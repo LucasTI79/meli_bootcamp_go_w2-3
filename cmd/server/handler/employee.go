@@ -92,13 +92,12 @@ func (e *Employee) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
 			return
 		}
-		employeeId, err := e.employeeService.Save(c, *employeeInput)
+		employeeResult, err := e.employeeService.Save(c, *employeeInput)
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			web.Error(c, http.StatusConflict, employee.ErrAlreadyExists.Error())
 			return
 		}
-		employeeInput.ID = employeeId
-		web.Success(c, http.StatusCreated, employeeInput)
+		web.Success(c, http.StatusCreated, employeeResult)
 	}
 }
 

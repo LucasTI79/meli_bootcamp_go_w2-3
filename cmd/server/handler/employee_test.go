@@ -16,13 +16,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var employeeJson = `{
-	ID:           01,
-	CardNumberID: "001",
-	FirstName:    "Joana",
-	LastName:     "Silva",
-	WarehouseID:  1,
-}`
+var employeeJson = `{"card_number_id":"001","first_name":"Joana","last_name":"Silva","warehouse_id":1}`
 
 var expectedEmployees = domain.Employee{
 	ID:           01,
@@ -64,25 +58,23 @@ func TestGetAllEmployees(t *testing.T) {
 
 		responseResult := &domain.EmployeeResponse{}
 
-		// fmt.Println(responseResult)
-
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 		//fmt.Println(err)
 		fmt.Println(responseResult)
 		assert.Equal(t, http.StatusOK, response.Code)
-		//assert.Equal(t, expectedEmployees, responseResult.Data)
+		assert.Equal(t, expectedEmployees, responseResult.Data)
 		assert.True(t, len(responseResult.Data) == 2)
 
 	})
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
-		var ExpectedEmpityEmployees = []domain.Employee{}
+		var ExpectedEmptyEmployees = []domain.Employee{}
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
 		server.GET(GetAllEmployees, handler.GetAll())
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllEmployees, "")
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmpityEmployees)
+		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmptyEmployees, employee.ErrTryAgain)
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -143,15 +135,15 @@ func TestGetEmployeeById(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
 		server.GET("/employees/:id", handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/1", "")
-		mockService.On("Get", mock.AnythingOfType("int")).Return(expectedEmployees, nil)
+		mockService.On("Get", mock.Anything, mock.AnythingOfType("int")).Return(expectedEmployees, nil)
 
 		server.ServeHTTP(response, request)
 
-		responseResult := &domain.EmployeeResponse{}
+		responseResult := &domain.EmployeeResponseID{}
 
 		_ = json.Unmarshal(response.Body.Bytes(), responseResult)
-		//assert.Equal(t, expectedEmployees, responseResult.Data)
-		//assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, expectedEmployees, responseResult.Data)
+		assert.Equal(t, http.StatusOK, response.Code)
 
 	})
 
@@ -162,9 +154,9 @@ func TestGetEmployeeById(t *testing.T) {
 		server.GET("/employees/:id", handler.Get())
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/2", "")
-		mockService.On("Get", mock.AnythingOfType("int")).Return(domain.Employee{}, employee.ErrNotFound)
+		mockService.On("Get", mock.Anything, mock.AnythingOfType("int")).Return(domain.Employee{}, employee.ErrNotFound)
 		server.ServeHTTP(response, request)
-		//assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
@@ -173,7 +165,7 @@ func TestGetEmployeeById(t *testing.T) {
 
 		server.GET("/employees/:id", handler.Get())
 
-		mockService.On("Get", mock.Anything).Return(ExpectedEmptyEmployees, employee.ErrTryAgain)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(ExpectedEmptyEmployees, employee.ErrTryAgain)
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/1", "")
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -198,29 +190,29 @@ func TestCreateEmployees(t *testing.T) {
 	t.Run("Should return 201 when employee is created", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.POST("/employees", handler.Create())
-
+		mockService.On("Save", mock.Anything, mock.Anything).Return(expectedEmployees, nil)
 		request, response := testutil.MakeRequest(http.MethodPost, "/employees", employeeJson)
 
-		mockService.On("Save", mock.Anything).Return(1, nil)
-
+		server.POST("/employees", handler.Create())
 		server.ServeHTTP(response, request)
-		responseResult := domain.EmployeeResponse{}
-		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 
-		//assert.Equal(t, expectedEmployees, responseResult.Data)
+		responseResult := &domain.EmployeeResponseID{}
+		_ = json.Unmarshal(response.Body.Bytes(), responseResult)
 
-		//assert.Equal(t, http.StatusCreated, response.Code)
+		assert.Equal(t, expectedEmployees, responseResult.Data)
+
+		assert.Equal(t, http.StatusCreated, response.Code)
 
 	})
 
 	t.Run("Should return 409 when employee already exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
+		mockService.On("Save", mock.Anything, mock.Anything).Return(domain.Employee{}, employee.ErrAlreadyExists)
+		request, response := testutil.MakeRequest(http.MethodPost, "/employees", employeeJson)
+
 		server.POST("/employees", handler.Create())
-		mockService.On("Save", mock.Anything).Return(0)
-		request, response := testutil.MakeRequest(http.MethodPost, "/employee", employeeJson)
 		server.ServeHTTP(response, request)
-		//assert.Equal(t, http.StatusConflict, response.Code)
+		assert.Equal(t, http.StatusConflict, response.Code)
 	})
 
 	t.Run("Should return 400 when field is invalid", func(t *testing.T) {
@@ -260,18 +252,18 @@ func TestUpdateEmployee(t *testing.T) {
 	t.Run("Should return 200 when employee is updated", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.PATCH("/employees/:id", handler.Update())
 		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", employeeJson)
-
-		responseResult := domain.EmployeeResponse{}
+		responseResult := domain.EmployeeResponseID{}
 
 		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
+		server.PATCH("/employees/:id", handler.Update())
 
 		server.ServeHTTP(response, request)
+
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 
-		//assert.Equal(t, http.StatusOK, response.Code)
-		//assert.Equal(t, expectedProduct, responseResult.Data)
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, expectedEmployees, responseResult.Data)
 
 	})
 

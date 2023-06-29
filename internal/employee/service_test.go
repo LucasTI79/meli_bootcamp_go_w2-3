@@ -62,12 +62,16 @@ func TestCreateEmployees(t *testing.T) {
 
 		repository, service := InitServerWithEmployeesRepository(t)
 
-		repository.On("Exists", mock.Anything, "002").Return(false)
-		repository.On("Save", mock.Anything).Return(id, nil)
+		repository.On("Exists", mock.Anything, "001").Return(false)
+		repository.On("Save", mock.Anything, expectedEmployee).Return(id, nil)
 
-		employeeId, err := service.Save(context.TODO(), expectedEmployee)
+		employeeResult, err := service.Save(context.TODO(), expectedEmployee)
 
-		assert.Equal(t, expectedEmployee.ID, employeeId)
+		assert.Equal(t, 01, employeeResult.ID)
+		assert.Equal(t, "001", employeeResult.CardNumberID)
+		assert.Equal(t, "Joana", employeeResult.FirstName)
+		assert.Equal(t, "Silva", employeeResult.LastName)
+		assert.Equal(t, 1, employeeResult.WarehouseID)
 
 		assert.NoError(t, err)
 	})
