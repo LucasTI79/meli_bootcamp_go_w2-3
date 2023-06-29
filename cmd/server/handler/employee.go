@@ -7,7 +7,6 @@ import (
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
-	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
 )
@@ -115,39 +114,26 @@ func (e *Employee) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employeeId, errId := strconv.Atoi(c.Param("id"))
 		if errId != nil {
-			web.Response(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
+			web.Response(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
 			return
 		}
-
-		employeeInput := &domain.Employee{}
-		err := c.ShouldBindJSON(employeeInput)
+		domain := new(domain.Employee)
+		if err := c.ShouldBindJSON(domain); err != nil {
+			web.Error(c, http.StatusUnprocessableEntity, employee.ErrInvalidBody.Error())
+			return
+		}
+		result, err := e.employeeService.Update(c, *domain, employeeId)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, employee.ErrTryAgain.Error(), err)
-			return
-		}
-		if employeeInput.CardNumberID == "" || employeeInput.FirstName == "" || employeeInput.LastName == "" || employeeInput.WarehouseID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
-			return
-		}
-
-		employeeItem := domain.Employee{
-			ID:           employeeId,
-			CardNumberID: employeeInput.CardNumberID,
-			FirstName:    employeeInput.FirstName,
-			LastName:     employeeInput.LastName,
-			WarehouseID:  employeeInput.WarehouseID,
-		}
-		err = e.employeeService.Update(c, employeeItem)
-		if err != nil {
-			if errors.Is(err, employee.ErrNotFound) {
-				web.Error(c, http.StatusNotFound, employee.ErrNotFound.Error())
+			switch err {
+			case employee.ErrNotFound:
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			default:
+				web.Error(c, http.StatusInternalServerError, employee.ErrTryAgain.Error(), err)
 				return
 			}
-
-			web.Error(c, http.StatusInternalServerError, err.Error())
-			return
 		}
-		web.Success(c, http.StatusOK, employeeItem)
+		web.Success(c, http.StatusOK, result)
 	}
 }
 

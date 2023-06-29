@@ -13,13 +13,14 @@ var (
 	ErrAlreadyExists = errors.New("employee already exists")
 	ErrTryAgain      = errors.New("error, try again %s")
 	ErrInvalidId     = errors.New("invalid id")
+	ErrInvalidBody   = errors.New("invalid body")
 )
 
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Employee, error)
 	Get(ctx context.Context, id int) (domain.Employee, error)
 	Save(ctx context.Context, e domain.Employee) (domain.Employee, error)
-	Update(ctx context.Context, e domain.Employee) error
+	Update(ctx context.Context, e domain.Employee, id int) (domain.Employee, error)
 	Delete(ctx context.Context, id int) error
 }
 
@@ -62,7 +63,30 @@ func (s *employeeService) Save(ctx context.Context, e domain.Employee) (domain.E
 	return e, nil
 }
 
-func (s *employeeService) Update(ctx context.Context, e domain.Employee) error {
-	err := s.repository.Update(ctx, e)
-	return err
+func (s *employeeService) Update(ctx context.Context, e domain.Employee, id int) (domain.Employee, error) {
+	employeeDomain, err := s.Get(ctx, id)
+	if err != nil {
+		return domain.Employee{}, ErrNotFound
+	}
+	if e.FirstName != "" {
+		employeeDomain.FirstName = e.FirstName
+	}
+	if e.LastName != "" {
+		employeeDomain.LastName = e.LastName
+	}
+	if e.CardNumberID != "" {
+		exists := s.repository.Exists(ctx, e.CardNumberID)
+		if exists && employeeDomain.CardNumberID != e.CardNumberID {
+			return domain.Employee{}, ErrAlreadyExists
+		}
+		employeeDomain.CardNumberID = e.CardNumberID
+	}
+	if e.WarehouseID != 0 {
+		employeeDomain.WarehouseID = e.WarehouseID
+	}
+	err = s.repository.Update(ctx, employeeDomain)
+	if err != nil {
+		return domain.Employee{}, err
+	}
+	return employeeDomain, nil
 }

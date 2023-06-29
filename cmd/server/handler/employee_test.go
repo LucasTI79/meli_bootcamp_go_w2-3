@@ -89,9 +89,9 @@ func TestDeleteEmployees(t *testing.T) {
 		server.DELETE("/employees/:id", handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/employees/1", "")
-		mockService.On("Delete", mock.AnythingOfType("int")).Return(nil)
+		mockService.On("Delete", mock.Anything, mock.AnythingOfType("int")).Return(nil)
 		server.ServeHTTP(response, request)
-		//assert.Equal(t, http.StatusNoContent, response.Code)
+		assert.Equal(t, http.StatusNoContent, response.Code)
 	})
 
 	t.Run("Should return 404 when employee does not exist", func(t *testing.T) {
@@ -99,16 +99,16 @@ func TestDeleteEmployees(t *testing.T) {
 		server.DELETE("/employees/:id", handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/employees/1", "")
-		mockService.On("Delete", mock.Anything).Return(employee.ErrNotFound)
+		mockService.On("Delete", mock.Anything, mock.Anything).Return(employee.ErrNotFound)
 		server.ServeHTTP(response, request)
-		//assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
 		server.DELETE("/employees/:id", handler.Delete())
 
-		mockService.On("Delete", mock.Anything).Return(employee.ErrTryAgain)
+		mockService.On("Delete", mock.Anything, mock.Anything).Return(employee.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/employees/1", "")
 		server.ServeHTTP(response, request)
@@ -255,7 +255,7 @@ func TestUpdateEmployee(t *testing.T) {
 		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", employeeJson)
 		responseResult := domain.EmployeeResponseID{}
 
-		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(expectedEmployees, nil)
 		server.PATCH("/employees/:id", handler.Update())
 
 		server.ServeHTTP(response, request)
@@ -273,9 +273,9 @@ func TestUpdateEmployee(t *testing.T) {
 		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", employeeJson)
 		responseResult := domain.Employee{}
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
-		mockService.On("Update", mock.Anything, mock.Anything).Return(employee.ErrNotFound)
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Employee{}, employee.ErrNotFound)
 		server.ServeHTTP(response, request)
-		//assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 
 	})
 
@@ -284,36 +284,38 @@ func TestUpdateEmployee(t *testing.T) {
 
 		server.PATCH("/employees/:id", handler.Update())
 
-		mockService.On("Update", mock.Anything, mock.Anything).Return(employee.ErrTryAgain)
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Employee{}, employee.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", employeeJson)
 
 		server.ServeHTTP(response, request)
-		//assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
 	})
 
-	t.Run("Should return 400 when an Id is invalid", func(t *testing.T) {
+	t.Run("Should return 404 when an Id is invalid", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
 		server.PATCH("/employees/:id", handler.Update())
 
-		mockService.On("Update", mock.Anything, mock.Anything).Return(employee.ErrInvalidId)
+		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Employee{}, employee.ErrNotFound)
 
-		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/invalidId", employeeJson)
+		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", employeeJson)
 
 		server.ServeHTTP(response, request)
 
-		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
 	t.Run("Should return 400 when field is invalid", func(t *testing.T) {
-		server, _, handler := InitServerWithGetEmployees(t)
+		server, mockService, handler := InitServerWithGetEmployees(t)
 
 		server.PATCH("/employees/:id", handler.Update())
 
-		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", string(`{"{"CardNumberID": 0}`))
+		mockService.On("Update", mock.Anything, mock.Anything, "invalid").Return(domain.Employee{}, employee.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/invalid", string(`{"{"CardNumberID": "10"}`))
 
 		server.ServeHTTP(response, request)
 
@@ -328,7 +330,7 @@ func TestUpdateEmployee(t *testing.T) {
 		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", string(`{"CardNumberID":}`))
 
 		server.ServeHTTP(response, request)
-		//assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 }
 

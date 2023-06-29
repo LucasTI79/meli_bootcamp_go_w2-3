@@ -55,9 +55,9 @@ func (m *EmployeeRepositoryMock) Get(ctx context.Context, id int) (domain.Employ
 	return args.Get(0).(domain.Employee), args.Error(1)
 }
 
-func (m *EmployeeServiceMock) Update(ctx context.Context, e domain.Employee) error {
-	args := m.Called(ctx, e)
-	return args.Error(0)
+func (m *EmployeeServiceMock) Update(ctx context.Context, e domain.Employee, id int) (domain.Employee, error) {
+	args := m.Called(ctx, e, id)
+	return args.Get(0).(domain.Employee), args.Error(1)
 }
 
 func (m *EmployeeRepositoryMock) Update(ctx context.Context, e domain.Employee) error {
