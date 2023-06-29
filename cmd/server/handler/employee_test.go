@@ -38,6 +38,7 @@ func TestGetAllEmployees(t *testing.T) {
 				WarehouseID:  1,
 			},
 		}
+
 		server.GET(GetAllEmployees, handler.GetAll())
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllEmployees, "")
@@ -46,11 +47,29 @@ func TestGetAllEmployees(t *testing.T) {
 
 		responseResult := &domain.EmployeeResponse{}
 
+		// fmt.Println(responseResult)
+
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
-		assert.Equal(t, http.StatusOK, response.Code)
+		//fmt.Println(err)
 		fmt.Println(responseResult)
+		assert.Equal(t, http.StatusOK, response.Code)
 		//assert.Equal(t, expectedEmployees, responseResult.Data)
-		//assert.True(t, len(responseResult.Data) == 2)
+		assert.True(t, len(responseResult.Data) == 2)
+
+	})
+
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		var ExpectedEmpityEmployees = []domain.Employee{}
+
+		server, mockService, handler := InitServerWithGetEmployees(t)
+
+		server.GET(GetAllEmployees, handler.GetAll())
+		request, response := testutil.MakeRequest(http.MethodGet, GetAllEmployees, "")
+
+		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmpityEmployees)
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
 	})
 }
