@@ -12,6 +12,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var expectedEmployee = domain.Employee{
+	ID:           01,
+	CardNumberID: "001",
+	FirstName:    "Joana",
+	LastName:     "Silva",
+	WarehouseID:  1,
+}
+
 const (
 	GetAllEmployees = "/employees"
 )
@@ -220,7 +228,7 @@ func TestUpdateEmployees(t *testing.T) {
 		expectedError := errors.New("employee not found")
 		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(domain.Employee{}, expectedError)
 
-		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
+		updatedEmployee, err := service.Update(context.TODO(), expectedEmployee)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
@@ -245,7 +253,7 @@ func TestUpdateEmployees(t *testing.T) {
 		repository.On("Get", mock.Anything, domainEmployee.ID).Return(domainEmployee, nil)
 		repository.On("Exists", mock.Anything, updateEmployee.CardNumberID).Return(true)
 
-		updatedEmployee, err := service.Update(context.TODO(), updateEmployee, 4)
+		updatedEmployee, err := service.Update(context.TODO(), updateEmployee)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
@@ -267,7 +275,7 @@ func TestUpdateEmployees(t *testing.T) {
 		repository.On("Exists", mock.Anything, expectedEmployee.CardNumberID).Return(false)
 		repository.On("Update", mock.Anything, expectedEmployee).Return(expectedError)
 
-		_, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
+		_, err := service.Update(context.TODO(), expectedEmployee)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)

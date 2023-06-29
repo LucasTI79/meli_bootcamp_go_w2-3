@@ -16,12 +16,12 @@ type EmployeeRepositoryMock struct {
 }
 
 func (m *EmployeeServiceMock) GetAll(ctx context.Context) ([]domain.Employee, error) {
-	args := m.Called(ctx)
+	args := m.Called()
 	return args.Get(0).([]domain.Employee), args.Error(1)
 }
 
 func (m *EmployeeRepositoryMock) GetAll(ctx context.Context) ([]domain.Employee, error) {
-	args := m.Called(ctx)
+	args := m.Called()
 	return args.Get(0).([]domain.Employee), args.Error(1)
 }
 
