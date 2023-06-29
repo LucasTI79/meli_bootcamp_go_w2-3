@@ -211,6 +211,35 @@ func TestCreateEmployees(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
+
+	t.Run("Should return 422 when Json is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetEmployees(t)
+		server.POST("/employees", handler.Create())
+		request, response := testutil.MakeRequest(http.MethodPost, "/employees", string(`{"CardNumberID": 0}`))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("Should return 400 when field is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetEmployees(t)
+		server.POST("/employees", handler.Create())
+		request, response := testutil.MakeRequest(http.MethodPost, "/employees", string(`{"CardNumberID":}`))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetEmployees(t)
+		server.POST("/employees", handler.Create())
+
+		mockService.On("Save", mock.Anything, mock.Anything).Return(domain.Employee{}, employee.ErrTryAgain)
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/employees", employeeJson)
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+
 }
 
 func TestUpdateEmployee(t *testing.T) {

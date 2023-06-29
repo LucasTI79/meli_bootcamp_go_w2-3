@@ -93,8 +93,14 @@ func (e *Employee) Create() gin.HandlerFunc {
 		}
 		employeeResult, err := e.employeeService.Save(c, *employeeInput)
 		if err != nil {
-			web.Error(c, http.StatusConflict, employee.ErrAlreadyExists.Error())
-			return
+			switch err {
+			case employee.ErrAlreadyExists:
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			default:
+				web.Error(c, http.StatusInternalServerError, employee.ErrTryAgain.Error(), err)
+				return
+			}
 		}
 		web.Success(c, http.StatusCreated, employeeResult)
 	}
