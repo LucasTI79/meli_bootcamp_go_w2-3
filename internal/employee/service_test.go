@@ -88,6 +88,20 @@ func TestCreateEmployees(t *testing.T) {
 		assert.Equal(t, expectedErrorMessage, err.Error())
 		assert.Error(t, err)
 	})
+
+	t.Run("Should return error when there is an save repository error", func(t *testing.T) {
+		repository, service := InitServerWithEmployeesRepository(t)
+
+		repository.On("Exists", mock.Anything, mock.Anything).Return(false)
+
+		expectedError := errors.New("some error")
+		repository.On("Save", mock.Anything, domain.Employee{}).Return(0, expectedError)
+
+		_, err := service.Save(context.TODO(), domain.Employee{})
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
 }
 
 func TestGetEmployeesById(t *testing.T) {
@@ -175,6 +189,39 @@ func TestUpdateEmployee(t *testing.T) {
 		expectedError := errors.New("employee not found")
 
 		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(domain.Employee{}, expectedError)
+
+		_, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+
+	t.Run("Should return err employee already exists when warehouse already exists", func(t *testing.T) {
+		updateEmployee := domain.Employee{
+			CardNumberID: "111",
+		}
+
+		repository, service := InitServerWithEmployeesRepository(t)
+
+		expectedError := errors.New("employee already exists")
+		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(expectedEmployee, nil)
+		repository.On("Exists", mock.Anything, updateEmployee.CardNumberID).Return(true)
+
+		updatedEmployee, err := service.Update(context.TODO(), updateEmployee, 01)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+		assert.Equal(t, domain.Employee{}, updatedEmployee)
+	})
+
+	t.Run("Should return error when there is an update repository error", func(t *testing.T) {
+
+		repository, service := InitServerWithEmployeesRepository(t)
+
+		expectedError := errors.New("some error")
+		repository.On("Get", mock.Anything, expectedEmployee.ID).Return(expectedEmployee, nil)
+		repository.On("Exists", mock.Anything, expectedEmployee.CardNumberID).Return(false)
+		repository.On("Update", mock.Anything, expectedEmployee).Return(expectedError)
 
 		_, err := service.Update(context.TODO(), expectedEmployee, expectedEmployee.ID)
 
