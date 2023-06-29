@@ -16,6 +16,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var expectedEmployees = domain.Employee{
+	ID:           01,
+	CardNumberID: "001",
+	FirstName:    "Joana",
+	LastName:     "Silva",
+	WarehouseID:  1,
+}
+
 const (
 	GetAllEmployees = "/employees"
 )
@@ -61,7 +69,6 @@ func TestGetAllEmployees(t *testing.T) {
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
 		var ExpectedEmpityEmployees = []domain.Employee{}
-
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
 		server.GET(GetAllEmployees, handler.GetAll())
@@ -99,30 +106,80 @@ func TestDeleteEmployees(t *testing.T) {
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-
 		server.DELETE("/employees/:id", handler.Delete())
 
 		mockService.On("Delete", mock.Anything).Return(employee.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/employees/1", "")
-
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
 	})
 
 	t.Run("Should return 400 when an Id is invalid", func(t *testing.T) {
-
 		server, mockService, handler := InitServerWithGetEmployees(t)
-
 		server.DELETE("/employees/:id", handler.Delete())
 
 		mockService.On("Delete", mock.Anything).Return(employee.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/employees/invalidId", "")
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+}
+
+func TestGetEmployeeById(t *testing.T) {
+	//case find_by_id_existent
+	t.Run("Should return status 200 with the requested employee", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetEmployees(t)
+		server.GET("/employees/:id", handler.Get())
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/1", "")
+		mockService.On("Get", mock.AnythingOfType("int")).Return(expectedEmployees, nil)
 
 		server.ServeHTTP(response, request)
 
+		responseResult := &domain.EmployeeResponse{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), responseResult)
+		//assert.Equal(t, expectedEmployees, responseResult.Data)
+		//assert.Equal(t, http.StatusOK, response.Code)
+
+	})
+
+	// case find_by_id_non_existent
+
+	t.Run("Should return status 404 when the employee is not found", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetEmployees(t)
+		server.GET("/employees/:id", handler.Get())
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/2", "")
+		mockService.On("Get", mock.AnythingOfType("int")).Return(domain.Employee{}, employee.ErrNotFound)
+		server.ServeHTTP(response, request)
+		//assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		ExpectedEmptyEmployees := domain.Employee{}
+		server, mockService, handler := InitServerWithGetEmployees(t)
+
+		server.GET("/employees/:id", handler.Get())
+
+		mockService.On("Get", mock.Anything).Return(ExpectedEmptyEmployees, employee.ErrTryAgain)
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/1", "")
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+
+	t.Run("Should return 400 when an Id is invalid", func(t *testing.T) {
+		ExpectedEmptyEmployees := domain.Employee{}
+		server, mockService, handler := InitServerWithGetEmployees(t)
+
+		server.GET("/employees/:id", handler.Get())
+
+		mockService.On("Get", mock.Anything).Return(ExpectedEmptyEmployees, employee.ErrInvalidId)
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/invalidId", "")
+		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
