@@ -9,15 +9,16 @@ import (
 
 // Errors
 var (
-	ErrNotFound = errors.New("buyer not found")
-	ErrExists   = errors.New("buyer already exists")
+	ErrNotFound  = errors.New("buyer not found")
+	ErrExists    = errors.New("buyer already exists")
+	ErrInvalidID = errors.New("invalid ID")
 )
 
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
-	Save(ctx context.Context, b domain.Buyer) (int, error)
-	Update(ctx context.Context, b domain.Buyer) error
+	Create(ctx context.Context, b domain.Buyer) (domain.Buyer, error)
+	Update(ctx context.Context, b domain.Buyer, id int) (domain.Buyer, error)
 	Delete(ctx context.Context, id int) error
 }
 
@@ -50,22 +51,33 @@ func (b *buyerService) Get(ctx context.Context, id int) (domain.Buyer, error) {
 	return buyer, err
 }
 
-func (b *buyerService) Save(ctx context.Context, d domain.Buyer) (int, error) {
+func (b *buyerService) Create(ctx context.Context, d domain.Buyer) (domain.Buyer, error) {
 	userExist := b.repository.Exists(ctx, d.CardNumberID)
 	if userExist {
-		return 0, ErrExists
+		return domain.Buyer{}, ErrExists
 	}
-	sellerId, err := b.repository.Save(ctx, d)
-	return sellerId, err
+	buyerId, err := b.repository.Save(ctx, d)
+	d.ID = buyerId
+	return d, err
 }
 
-func (b *buyerService) Update(ctx context.Context, d domain.Buyer) error {
-	userExist := b.repository.Exists(ctx, d.CardNumberID)
-	if !userExist {
-		return ErrNotFound
+func (b *buyerService) Update(ctx context.Context, d domain.Buyer, id int) (domain.Buyer, error) {
+	buyer, err := b.repository.Get(ctx, id)
+	if err != nil {
+		return domain.Buyer{}, errors.New("error getting buyer")
 	}
-	err := b.repository.Update(ctx, d)
-	return err
+	if d.FirstName != "" {
+		buyer.FirstName = d.FirstName
+	}
+	if d.LastName != "" {
+		buyer.LastName = d.LastName
+	}
+	err = b.repository.Update(ctx, buyer)
+	if err != nil {
+		return domain.Buyer{}, ErrNotFound
+	}
+
+	return buyer, nil
 
 }
 

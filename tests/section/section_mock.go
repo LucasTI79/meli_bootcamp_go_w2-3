@@ -21,7 +21,7 @@ func (m *SectionServiceMock) GetAll(ctx context.Context) ([]domain.Section, erro
 	return args.Get(0).([]domain.Section), args.Error(1)
 }
 
-func (m *SectionRepositoryMock) GetAll() ([]domain.Section, error){
+func (m *SectionRepositoryMock) GetAll(ctx context.Context) ([]domain.Section, error) {
 
 	args := m.Called()
 
@@ -29,17 +29,45 @@ func (m *SectionRepositoryMock) GetAll() ([]domain.Section, error){
 }
 
 func (m *SectionServiceMock) Save(ctx context.Context, s domain.Section) (int, error) {
-	return 0, nil
+	args := m.Called(s)
+	return args.Int(0), args.Error(1)
+}
+
+func (m *SectionRepositoryMock) Save(ctx context.Context, s domain.Section) (int, error) {
+	args := m.Called(s)
+	return args.Int(0), args.Error(1)
 }
 
 func (m *SectionServiceMock) Delete(ctx context.Context, id int) error {
-	return nil
+	args := m.Called(id)
+	return args.Error(0)
 }
 
-func (m *SectionServiceMock) 	Get(ctx context.Context, id int) (domain.Section, error) {
-	return domain.Section{}, nil
+func (m *SectionRepositoryMock) Delete(ctx context.Context, id int) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *SectionServiceMock) Get(ctx context.Context, id int) (domain.Section, error) {
+	args := m.Called(id)
+	return args.Get(0).(domain.Section), args.Error(1)
+}
+
+func (m *SectionRepositoryMock) Get(ctx context.Context, id int) (domain.Section, error) {
+	args := m.Called(id)
+	return args.Get(0).(domain.Section), args.Error(1)
 }
 
 func (m *SectionServiceMock) Update(ctx context.Context, s domain.Section) error {
-	return nil
+	args := m.Called(ctx, s)
+	return args.Error(0)
+}
+func (m *SectionRepositoryMock) Update(ctx context.Context, s domain.Section) error {
+	args := m.Called(ctx, s)
+	return args.Error(0)
+}
+
+func (m *SectionRepositoryMock) Exists(ctx context.Context, sectionNumber int) bool {
+	args := m.Called(ctx, sectionNumber)
+	return args.Get(0).(bool)
 }
