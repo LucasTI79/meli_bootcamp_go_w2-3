@@ -40,6 +40,7 @@ func (r *router) MapRoutes() {
 	r.buildEmployeeRoutes()
 	r.buildBuyerRoutes()
 	r.buildSwagger()
+	r.buildPurchaseOrdersRoutes()
 }
 
 func (r *router) setGroup() {
@@ -121,4 +122,13 @@ func (r *router) buildSwagger() {
 	service := buyer.NewService(repo)
 	handler := handler.NewBuyer(service)
 	r.rg.GET("/teste", handler.GetAll())
+}
+
+func (r *router) buildPurchaseOrdersRoutes() {
+	repo := seller.NewRepository(r.db)
+	service := seller.NewService(repo)
+	handler := handler.NewSeller(service)
+	r.rg.GET("/purchaseorders", handler.GetAll())
+	r.rg.GET("/purchaseorders/:id", handler.Get())
+	r.rg.POST("/purchaseorders", handler.Create())
 }
