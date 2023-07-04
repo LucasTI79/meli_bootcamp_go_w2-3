@@ -8,6 +8,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/purchase_orders"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -125,9 +126,9 @@ func (r *router) buildSwagger() {
 }
 
 func (r *router) buildPurchaseOrdersRoutes() {
-	repo := seller.NewRepository(r.db)
-	service := seller.NewService(repo)
-	handler := handler.NewSeller(service)
+	repo := purchase_orders.NewRepository(r.db)
+	service := purchase_orders.NewService(repo)
+	handler := handler.NewPurchaseOrders(service)
 	r.rg.GET("/purchaseorders", handler.GetAll())
 	r.rg.GET("/purchaseorders/:id", handler.Get())
 	r.rg.POST("/purchaseorders", handler.Create())
