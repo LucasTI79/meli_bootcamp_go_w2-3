@@ -1,9 +1,10 @@
 package purchase_orders
 
 import (
-	//"context"
+	"context"
 	"errors"
-	//"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
 // Errors
@@ -14,11 +15,9 @@ var (
 )
 
 type Service interface {
-	//GetAll(ctx context.Context) ([]domain.Buyer, error)
-	//Get(ctx context.Context, id int) (domain.Buyer, error)
-	//Create(ctx context.Context, b domain.Buyer) (domain.Buyer, error)
-	//Update(ctx context.Context, b domain.Buyer, id int) (domain.Buyer, error)
-	//Delete(ctx context.Context, id int) error
+	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)
+	Get(ctx context.Context, id int) (domain.PurchaseOrders, error)
+	Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error)
 }
 
 type purchaseordersService struct {
@@ -29,4 +28,19 @@ func NewService(r Repository) Service {
 	return &purchaseordersService{
 		repository: r,
 	}
+}
+
+func (o *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
+	var purchaseorders []domain.PurchaseOrders
+	return purchaseorders, nil
+}
+
+func (o *purchaseordersService) Get(ctx context.Context, id int) (domain.PurchaseOrders, error) {
+	var purchaseorders domain.PurchaseOrders
+	return purchaseorders, nil
+}
+
+func (o *purchaseordersService) Create(ctx context.Context, p domain.PurchaseOrders) (domain.PurchaseOrders, error) {
+	var purchaseorders domain.PurchaseOrders
+	return purchaseorders, nil
 }
