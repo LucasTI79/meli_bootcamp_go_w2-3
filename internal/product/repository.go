@@ -133,3 +133,9 @@ func (r *repository) Delete(ctx context.Context, id int) error {
 
 	return nil
 }
+
+func (r *repository) ExistsById(productID int) bool {
+	row := r.db.QueryRow(ProductExists, productID)
+	err := row.Scan(&productID)
+	return err == nil
+}
