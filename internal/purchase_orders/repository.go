@@ -3,6 +3,7 @@ package purchase_orders
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
@@ -12,8 +13,8 @@ type Repository interface {
 	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)
 	Get(ctx context.Context, id int) (domain.PurchaseOrders, error)
 	ExistsOrder(ctx context.Context, orderNumber string) bool
-	ExistsBuyer(ctx context.Context, cardNumberID string) bool
-	Save(ctx context.Context, o domain.PurchaseOrders) (int, error)
+	ExistsBuyer(ctx context.Context, buyerID int) bool
+	Save(ctx context.Context, o domain.PurchaseOrders) error
 }
 
 type repository struct {
@@ -37,13 +38,43 @@ func (r *repository) Get(ctx context.Context, id int) (domain.PurchaseOrders, er
 }
 
 func (r *repository) ExistsOrder(ctx context.Context, orderNumber string) bool {
-	return false
+	query := "SELECT FROM product_orders WHERE order_number = ?"
+	err := r.db.QueryRow(query, orderNumber).Scan(&orderNumber)
+	return err == nil
 }
 
-func (r *repository) ExistsBuyer(ctx context.Context, cardNumberID string) bool {
-	return false
+func (r *repository) ExistsBuyer(ctx context.Context, buyerID int) bool {
+	query := "SELECT COUNT(*) FROM buyers WHERE id = ?"
+	var count int
+	err := r.db.QueryRow(query, buyerID).Scan(&count)
+	if err != nil {
+		fmt.Println("Error checking buyer existence:", err)
+		return false
+	}
+
+	return count > 0
 }
 
-func (r *repository) Save(ctx context.Context, o domain.PurchaseOrders) (int, error) {
-	return 0, nil
+func (r *repository) Save(ctx context.Context, o domain.PurchaseOrders) error {
+	query := "INSERT INTO purchase_orders(order_number, order_date, tracking_code, buyer_id, product_record_id, order_status_id) VALUES(?, ?, ?, ?, ?, ?)"
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(o.OrderNumber, o.OrderDate, o.TrackingCode, o.BuyerID, o.ProductRecordID, o.OrderStatusID)
+	if err != nil {
+		return err
+	}
+
+	insertedID, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	o.ID = int(insertedID)
+	fmt.Println(o.ID)
+
+	return nil
 }

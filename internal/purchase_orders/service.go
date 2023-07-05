@@ -3,15 +3,17 @@ package purchase_orders
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
 // Errors
 var (
-	ErrNotFound  = errors.New("buyer not found")
-	ErrExists    = errors.New("buyer already exists")
+	ErrNotFound  = errors.New("order not found")
+	ErrExists    = errors.New("order already exists")
 	ErrInvalidID = errors.New("invalid ID")
+	ErrConflict  = errors.New("buyer not found")
 )
 
 type Service interface {
@@ -30,17 +32,28 @@ func NewService(r Repository) Service {
 	}
 }
 
-func (o *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
+func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
 	var purchaseorders []domain.PurchaseOrders
 	return purchaseorders, nil
 }
 
-func (o *purchaseordersService) Get(ctx context.Context, id int) (domain.PurchaseOrders, error) {
+func (s *purchaseordersService) Get(ctx context.Context, id int) (domain.PurchaseOrders, error) {
 	var purchaseorders domain.PurchaseOrders
 	return purchaseorders, nil
 }
 
-func (o *purchaseordersService) Create(ctx context.Context, p domain.PurchaseOrders) (domain.PurchaseOrders, error) {
-	var purchaseorders domain.PurchaseOrders
-	return purchaseorders, nil
+func (s *purchaseordersService) Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error) {
+	orderExists := s.repository.ExistsOrder(ctx, o.OrderNumber)
+	if orderExists {
+		fmt.Println("order exist")
+		return domain.PurchaseOrders{}, ErrExists
+	}
+
+	if s.repository.ExistsBuyer(ctx, o.BuyerID) {
+		err := s.repository.Save(ctx, o)
+		fmt.Println("buyer exist")
+		return o, err
+	}
+
+	return domain.PurchaseOrders{}, ErrConflict
 }
