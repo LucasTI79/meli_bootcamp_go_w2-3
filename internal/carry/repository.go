@@ -12,6 +12,7 @@ import (
 type Repository interface {
 	Create(ctx context.Context, c domain.Carry) (int, error)
 	Get(ctx context.Context, id int) (domain.Carry, error)
+	ExistsByCidCarry(ctx context.Context, cid string) bool
 	ReadAllCarriers(ctx context.Context) ([]domain.LocalityCarriersReport, error)
 	ReadCarriersWithLocalityId(ctx context.Context, localityID int) (domain.LocalityCarriersReport, error)
 }
@@ -29,6 +30,7 @@ func NewRepository(db *sql.DB) Repository {
 const (
 	CreateCarry = "INSERT INTO carriers (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
 	GetCarry = "SELECT id, cid, company_name, address, telephone, locality_id FROM carriers WHERE id = ?"
+	ExistsByCidCarry = "SELECT id FROM carriers WHERE cid = ?"
 	ReadCarriersWithLocalityId = "SELECT L.id, L.locality_name, COUNT(C.id) AS carriers_count " +
 	"FROM localities L LEFT JOIN carriers C ON L.id = C.locality_id " +
 	"WHERE L.id = ? " +
@@ -59,6 +61,7 @@ func (r *repository) Create(ctx context.Context, c domain.Carry) (int, error) {
 
 func (r *repository) Get(ctx context.Context, id int) (domain.Carry, error) {
 	row := r.db.QueryRow(GetCarry, id)
+
 	c := domain.Carry{}
 	err := row.Scan(&c.ID, &c.Cid, &c.CompanyName, &c.Address, &c.Telephone, &c.LocalityId)
 	if err != nil {
@@ -69,6 +72,13 @@ func (r *repository) Get(ctx context.Context, id int) (domain.Carry, error) {
 	}
 
 	return c, nil
+}
+
+func (r *repository) ExistsByCidCarry(ctx context.Context, cid string) bool {
+	row := r.db.QueryRow(ExistsByCidCarry, cid)
+	err := row.Scan(&cid)
+
+	return err == nil
 }
 
 func (r *repository) ReadAllCarriers(ctx context.Context) ([]domain.LocalityCarriersReport, error) {
