@@ -3,9 +3,9 @@ package domain
 import "errors"
 
 var (
-	ErrNotFound     = errors.New("section not found")
-	ErrInvalidId    = errors.New("invalid id")
-	ErrTryAgain     = errors.New("error, try again %s")
+	ErrNotFound      = errors.New("section not found")
+	ErrInvalidId     = errors.New("invalid id")
+	ErrTryAgain      = errors.New("error, try again %s")
 	ErrAlreadyExists = errors.New("section already exists")
 	ErrModifySection = errors.New("cannot modify Section")
 )
@@ -24,6 +24,12 @@ type Section struct {
 
 type SectionsResponse struct {
 	Data []Section `json:"data"`
+}
+
+type ProductBySection struct {
+	ProductsCount int    `json:"products_count"`
+	SectionID     int    `json:"section_id"`
+	SectionNumber string `json:"section_number"`
 }
 
 type SectionResponse struct {
