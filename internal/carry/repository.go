@@ -10,8 +10,10 @@ import (
 
 // Repository encapsulates the storage of a carry.
 type Repository interface {
-	Read(ctx context.Context, localityId int) ([]domain.LocalityCarriersReport, error)
 	Create(ctx context.Context, c domain.Carry) (int, error)
+	Get(ctx context.Context, id int) (domain.Carry, error)
+	ReadAllCarriers(ctx context.Context) ([]domain.LocalityCarriersReport, error)
+	ReadCarriersWithLocalityId(ctx context.Context, localityID int) (domain.LocalityCarriersReport, error)
 }
 
 type repository struct {
@@ -26,6 +28,7 @@ func NewRepository(db *sql.DB) Repository {
 
 const (
 	CreateCarry = "INSERT INTO carriers (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
+	GetCarry = "SELECT id, cid, company_name, address, telephone, locality_id FROM carriers WHERE id = ?"
 	ReadCarriersWithLocalityId = "SELECT L.id, L.locality_name, COUNT(C.id) AS carriers_count " +
 	"FROM localities L LEFT JOIN carriers C ON L.id = C.locality_id " +
 	"WHERE L.id = ? " +
@@ -34,43 +37,6 @@ const (
 	"FROM localities L LEFT JOIN carriers C ON L.id = C.locality_id " +
 	"GROUP BY L.id, L.locality_name"
 )
-
-func (r *repository) Read(ctx context.Context, localityId int) ([]domain.LocalityCarriersReport, error) {
-	var query string
-
-	if localityId != 0 {
-		query = ReadCarriersWithLocalityId
-	} else {
-		query = ReadAllCarriers
-	}
-
-	rows, err := r.db.Query(query, localityId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-
-	var report []domain.LocalityCarriersReport
-
-	for rows.Next() {
-		var localityID int
-		var localityName string
-		var carriersCount int
-		err := rows.Scan(&localityId, &localityName, &carriersCount)
-		if err != nil {
-			return nil, err
-		}
-
-		carriersReport := domain.LocalityCarriersReport{
-			LocalityID: localityID,
-			LocalityName: localityName,
-			CarriersCount: carriersCount,
-		}
-		report = append(report, carriersReport)
-	}
-	return report, nil
-}
 
 func (r *repository) Create(ctx context.Context, c domain.Carry) (int, error) {
 	stmt, err := r.db.Prepare(CreateCarry)
@@ -89,4 +55,61 @@ func (r *repository) Create(ctx context.Context, c domain.Carry) (int, error) {
 	}
 
 	return int(id), nil
+}
+
+func (r *repository) Get(ctx context.Context, id int) (domain.Carry, error) {
+	row := r.db.QueryRow(GetCarry, id)
+	c := domain.Carry{}
+	err := row.Scan(&c.ID, &c.Cid, &c.CompanyName, &c.Address, &c.Telephone, &c.LocalityId)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return domain.Carry{}, ErrNotFound
+		}
+		return domain.Carry{}, err
+	}
+
+	return c, nil
+}
+
+func (r *repository) ReadAllCarriers(ctx context.Context) ([]domain.LocalityCarriersReport, error) {
+	rows, err := r.db.Query(ReadAllCarriers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var report []domain.LocalityCarriersReport
+
+	for rows.Next() {
+		var localityID int
+		var localityName string
+		var carriersCount int
+		err := rows.Scan(&localityID, &localityName, &carriersCount)
+		if err != nil {
+			return nil, err
+		}
+
+		carriersReport := domain.LocalityCarriersReport{
+			LocalityID: localityID,
+			LocalityName: localityName,
+			CarriersCount: carriersCount,
+		}
+		report = append(report, carriersReport)
+	}
+	return report, nil
+}
+
+func (r *repository) ReadCarriersWithLocalityId(ctx context.Context, localityID int) (domain.LocalityCarriersReport, error) {
+	row := r.db.QueryRow(ReadCarriersWithLocalityId, localityID)
+
+	l := domain.LocalityCarriersReport{}
+	err := row.Scan(&l.LocalityID, &l.LocalityName, &l.CarriersCount)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return domain.LocalityCarriersReport{}, ErrNotFound
+		}
+		return domain.LocalityCarriersReport{}, err
+	}
+
+	return l, nil
 }
