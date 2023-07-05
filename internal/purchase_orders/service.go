@@ -44,7 +44,7 @@ func (s *purchaseordersService) Get(ctx context.Context, id int) (domain.Purchas
 
 func (s *purchaseordersService) Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error) {
 	orderExists := s.repository.ExistsOrder(ctx, o.OrderNumber)
-	if orderExists {
+	if !orderExists {
 		fmt.Println("order exist")
 		return domain.PurchaseOrders{}, ErrExists
 	}
