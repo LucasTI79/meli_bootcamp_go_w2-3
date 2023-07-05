@@ -33,6 +33,7 @@ func NewService(r Repository) Service {
 }
 
 func (c *CarryService) Create(ctx context.Context, d domain.Carry) (domain.Carry, error) {
+	//VALIDAR LOCALITIES
 	if c.repository.ExistsByCidCarry(ctx, d.Cid) {
 		return domain.Carry{}, ErrAlredyExists
 	}
@@ -45,6 +46,7 @@ func (c *CarryService) Create(ctx context.Context, d domain.Carry) (domain.Carry
 }
 
 func (c *CarryService) Read(ctx context.Context, id int) ([]domain.LocalityCarriersReport, error){
+	//VALIDAR LOCALITIES
 	var readReport []domain.LocalityCarriersReport
 	if id != 0 {
 		reportWithId, err := c.repository.ReadCarriersWithLocalityId(ctx, id)
