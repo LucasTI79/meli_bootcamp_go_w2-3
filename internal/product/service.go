@@ -25,6 +25,7 @@ type Service interface {
 	Delete(ctx context.Context, id int) error
 	Get(ctx context.Context, id int) (domain.Product, error)
 	Update(ctx context.Context, p domain.Product) error
+	ExistsById(productID int) bool
 }
 
 type productService struct {
@@ -67,4 +68,8 @@ func (s *productService) Get(ctx context.Context, id int) (domain.Product, error
 func (s *productService) Update(ctx context.Context, p domain.Product) error {
 	err := s.repository.Update(ctx, p)
 	return err
+}
+
+func (s *productService) ExistsById(productID int) bool {
+	return s.repository.ExistsById(productID)
 }
