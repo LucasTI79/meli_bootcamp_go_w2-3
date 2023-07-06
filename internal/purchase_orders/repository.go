@@ -47,8 +47,9 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll,
 }
 
 func (r *repository) ExistsOrder(ctx context.Context, orderNumber string) bool {
-	query := "SELECT FROM product_orders WHERE order_number = ?"
+	query := "SELECT order_number FROM purchase_orders WHERE order_number = ?"
 	err := r.db.QueryRow(query, orderNumber).Scan(&orderNumber)
+	fmt.Println("err,", err)
 	return err == nil
 }
 

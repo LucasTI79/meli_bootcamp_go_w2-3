@@ -42,11 +42,13 @@ func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOr
 
 func (s *purchaseordersService) Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error) {
 	orderExists := s.repository.ExistsOrder(ctx, o.OrderNumber)
-	if !orderExists {
+	fmt.Println(o.OrderNumber)
+	if orderExists {
 		fmt.Println("order exist")
 		return domain.PurchaseOrders{}, ErrExists
+	} else {
+		err := s.repository.Save(ctx, o)
+		fmt.Println("buyer exist")
+		return o, err
 	}
-	err := s.repository.Save(ctx, o)
-	fmt.Println("buyer exist")
-	return o, err
 }
