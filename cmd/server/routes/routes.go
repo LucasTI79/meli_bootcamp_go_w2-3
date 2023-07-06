@@ -7,6 +7,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
@@ -40,6 +41,7 @@ func (r *router) MapRoutes() {
 	r.buildEmployeeRoutes()
 	r.buildBuyerRoutes()
 	r.buildSwagger()
+	r.buildLocalityRoutes()
 }
 
 func (r *router) setGroup() {
@@ -55,6 +57,13 @@ func (r *router) buildSellerRoutes() {
 	r.rg.POST("/sellers", handler.Create())
 	r.rg.DELETE("/sellers/:id", handler.Delete())
 	r.rg.PATCH("/sellers/:id", handler.Update())
+}
+
+func (r *router) buildLocalityRoutes(){
+	repo := locality.NewRepository(r.db)
+	service := locality.NewService(repo)
+	handler := handler.NewLocality(service)
+	r.rg.GET("/localities/report-sellers", handler.ReportSellersByLocalities())
 }
 
 func (r *router) buildProductRoutes() {
