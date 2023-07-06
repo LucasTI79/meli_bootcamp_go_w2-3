@@ -14,7 +14,8 @@ const (
 )
 
 type Repository interface {
-	GetProductsBySection() ([]domain.ProductBySection, error)
+	SectionProductsReports() ([]domain.ProductBySection, error)
+	SectionProductsReportsBySection() (domain.ProductBySection, error)
 	Save(produsctBatch domain.ProductBatch) (int, error)
 }
 
@@ -28,8 +29,8 @@ func NewRepository(db *sql.DB) Repository {
 	}
 }
 
-func (r *repository) GetProductsBySection() ([]domain.ProductBySection, error) {
-	rows, err := r.db.Query(ProductsBySection)
+func (r *repository) SectionProductsReports() ([]domain.ProductBySection, error) {
+	rows, err := r.db.Query(SectionProductsReports)
 	if err != nil {
 		return nil, err
 	}
@@ -43,6 +44,21 @@ func (r *repository) GetProductsBySection() ([]domain.ProductBySection, error) {
 		productsBySection = append(productsBySection, productBySection)
 	}
 	return productsBySection, nil
+}
+
+func (r *repository) SectionProductsReportsBySection() (domain.ProductBySection, error) {
+	rows, err := r.db.Query(SectionProductsReportsBySection)
+	if err != nil {
+		return domain.ProductBySection{}, err
+	}
+	var productBySection domain.ProductBySection
+	for rows.Next() {
+		err := rows.Scan(&productBySection.ProductsCount, &productBySection.SectionID, &productBySection.SectionNumber)
+		if err != nil {
+			return domain.ProductBySection{}, err
+		}
+	}
+	return productBySection, nil
 }
 
 func (r *repository) Save(produsctBatch domain.ProductBatch) (int, error) {
