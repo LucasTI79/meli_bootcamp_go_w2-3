@@ -10,7 +10,7 @@ import (
 
 // Repository encapsulates the storage of a purchased order.
 type Repository interface {
-	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)
+	GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll, error)
 	ExistsOrder(ctx context.Context, orderNumber string) bool
 	Save(ctx context.Context, o domain.PurchaseOrders) error
 }
@@ -25,20 +25,16 @@ func NewRepository(db *sql.DB) Repository {
 	}
 }
 
-func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
+func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll, error) {
 	rows, err := r.db.Query("SELECT * FROM purchase_orders")
 	if err != nil {
 		return nil, err
 	}
 
-	var purchaseOrders []domain.PurchaseOrders
+	var purchaseOrders []domain.PurchaseOrdersGetAll
 	for rows.Next() {
-		po := domain.PurchaseOrders{}
-		err := rows.Scan(&po.ID, &po.OrderNumber, &po.OrderDate, &po.TrackingCode, &po.BuyerID, &po.ProductRecordID, &po.OrderStatusID)
-		if err != nil {
-			fmt.Println("entrou aq")
-			return nil, err
-		}
+		po := domain.PurchaseOrdersGetAll{}
+		_ = rows.Scan(&po.ID, &po.OrderNumber, &po.OrderDate, &po.TrackingCode, &po.BuyerID, &po.CarrierID, &po.ProductRecordID, &po.WarehouseID, &po.OrderStatusID)
 		purchaseOrders = append(purchaseOrders, po)
 	}
 

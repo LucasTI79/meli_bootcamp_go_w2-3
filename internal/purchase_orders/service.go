@@ -17,7 +17,7 @@ var (
 )
 
 type Service interface {
-	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)
+	GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll, error)
 	Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error)
 }
 
@@ -31,7 +31,7 @@ func NewService(r Repository) Service {
 	}
 }
 
-func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
+func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll, error) {
 	fmt.Println("CHEGOU SERVICE")
 	orders, err := s.repository.GetAll(ctx)
 	if err != nil {
