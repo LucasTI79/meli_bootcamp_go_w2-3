@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 )
 
 var (
@@ -14,6 +15,7 @@ var (
 	ErrTryAgain     = errors.New("error, try again %s")
 	ErrAlredyExists = errors.New("carry already exists")
 	ErrInvalidJSON  = errors.New("invalid json")
+	ErrConflictLocalityId  = errors.New("locality_id not found")
 )
 
 type Service interface {
@@ -24,19 +26,25 @@ type Service interface {
 
 type CarryService struct {
 	repository Repository
+	repositoryLocality locality.Repository
 }
 
-func NewService(r Repository) Service {
+func NewService(r Repository, l locality.Repository) Service {
 	return &CarryService{
 		repository: r,
+		repositoryLocality: l,
 	}
 }
 
 func (c *CarryService) Create(ctx context.Context, d domain.Carry) (domain.Carry, error) {
-	//VALIDAR LOCALITIES
 	if c.repository.ExistsByCidCarry(ctx, d.Cid) {
 		return domain.Carry{}, ErrAlredyExists
 	}
+
+	if !c.repositoryLocality.ExistsById(ctx, d.LocalityId){
+		return domain.Carry{}, ErrConflictLocalityId
+	}
+
 	carryId, err := c.repository.Create(ctx, d)
 	if err != nil {
 		return domain.Carry{}, err
