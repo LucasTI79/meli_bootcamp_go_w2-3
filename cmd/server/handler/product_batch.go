@@ -63,6 +63,7 @@ func (s *ProductBatchController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		web.Success(c, http.StatusOK, productBatchID)
+		productBatch.ID = productBatchID
+		web.Success(c, http.StatusOK, productBatch)
 	}
 }
