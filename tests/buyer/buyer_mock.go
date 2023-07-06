@@ -70,6 +70,11 @@ func (m *BuyerRepositoryMock) Exists(ctx context.Context, cardnumber string) boo
 	return args.Get(0).(bool)
 }
 
+func (m *BuyerRepositoryMock) ExistsID(ctx context.Context, buyerID int) bool {
+	args := m.Called(ctx, buyerID)
+	return args.Get(0).(bool)
+}
+
 func (m *BuyerRepositoryMock) Save(ctx context.Context, b domain.Buyer) (int, error) {
 	args := m.Called(ctx, b)
 	return args.Get(0).(int), args.Error(1)

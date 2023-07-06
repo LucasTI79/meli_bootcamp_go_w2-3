@@ -2,7 +2,9 @@ package handler
 
 import (
 	//"errors"
+
 	"net/http"
+
 	//"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
@@ -28,6 +30,16 @@ func (po *PurchaseOrdersController) Get() gin.HandlerFunc {
 
 func (po *PurchaseOrdersController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		orders, err := po.purchaseordersService.GetAll(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, "error listing orders")
+			return
+		}
+		if len(orders) == 0 {
+			web.Success(c, http.StatusNoContent, orders)
+			return
+		}
+		web.Success(c, http.StatusOK, orders)
 	}
 }
 

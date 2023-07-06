@@ -12,8 +12,8 @@ import (
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)
 	Get(ctx context.Context, id int) (domain.PurchaseOrders, error)
+	GetBuyers(ctx context.Context) ([]domain.PurchaseOrders, error)
 	ExistsOrder(ctx context.Context, orderNumber string) bool
-	ExistsBuyer(ctx context.Context, buyerID int) bool
 	Save(ctx context.Context, o domain.PurchaseOrders) error
 }
 
@@ -27,9 +27,34 @@ func NewRepository(db *sql.DB) Repository {
 	}
 }
 
-func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
+func (r *repository) GetBuyers(ctx context.Context) ([]domain.PurchaseOrders, error) {
 	var purchaseorders []domain.PurchaseOrders
 	return purchaseorders, nil
+}
+
+func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
+	rows, err := r.db.Query("SELECT * FROM purchase_orders")
+	if err != nil {
+		return nil, err
+	}
+
+	var purchaseOrders []domain.PurchaseOrders
+	for rows.Next() {
+		po := domain.PurchaseOrders{}
+		err := rows.Scan(&po.ID, &po.OrderNumber, &po.OrderDate, &po.TrackingCode, &po.BuyerID, &po.ProductRecordID, &po.OrderStatusID)
+		if err != nil {
+			fmt.Println("entrou aq")
+			return nil, err
+		}
+		purchaseOrders = append(purchaseOrders, po)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return purchaseOrders, nil
 }
 
 func (r *repository) Get(ctx context.Context, id int) (domain.PurchaseOrders, error) {
@@ -41,18 +66,6 @@ func (r *repository) ExistsOrder(ctx context.Context, orderNumber string) bool {
 	query := "SELECT FROM product_orders WHERE order_number = ?"
 	err := r.db.QueryRow(query, orderNumber).Scan(&orderNumber)
 	return err == nil
-}
-
-func (r *repository) ExistsBuyer(ctx context.Context, buyerID int) bool {
-	query := "SELECT COUNT(*) FROM buyers WHERE id = ?"
-	var count int
-	err := r.db.QueryRow(query, buyerID).Scan(&count)
-	if err != nil {
-		fmt.Println("Error checking buyer existence:", err)
-		return false
-	}
-
-	return count > 0
 }
 
 func (r *repository) Save(ctx context.Context, o domain.PurchaseOrders) error {

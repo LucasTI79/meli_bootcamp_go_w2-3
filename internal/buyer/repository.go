@@ -12,6 +12,7 @@ type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
 	Exists(ctx context.Context, cardNumberID string) bool
+	ExistsID(ctx context.Context, buyerID int) bool
 	Save(ctx context.Context, b domain.Buyer) (int, error)
 	Update(ctx context.Context, b domain.Buyer) error
 	Delete(ctx context.Context, id int) error
@@ -25,6 +26,17 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{
 		db: db,
 	}
+}
+
+func (r *repository) ExistsID(ctx context.Context, buyerID int) bool {
+	query := "SELECT COUNT(*) FROM buyers WHERE id = ?"
+	var count int
+	err := r.db.QueryRow(query, buyerID).Scan(&count)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
 }
 
 func (r *repository) GetAll(ctx context.Context) ([]domain.Buyer, error) {
