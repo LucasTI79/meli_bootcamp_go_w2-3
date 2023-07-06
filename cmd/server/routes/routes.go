@@ -111,6 +111,8 @@ func (r *router) buildBuyerRoutes() {
 	handler := handler.NewBuyer(service)
 	r.rg.GET("/buyers", handler.GetAll())
 	r.rg.GET("/buyers/:id", handler.Get())
+	r.rg.GET("/buyers/purchase_orders", handler.GetBuyersOrders())
+	r.rg.GET("/buyers/purchase_orders/:id", handler.GetBuyerOrders())
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
 	r.rg.DELETE("/buyers/:id", handler.Delete())
@@ -133,6 +135,5 @@ func (r *router) buildPurchaseOrdersRoutes() {
 	service := purchase_orders.NewService(repo)
 	handler := handler.NewPurchaseOrders(service, buyerService)
 	r.rg.GET("/purchaseorders", handler.GetAll())
-	r.rg.GET("/purchaseorders/:id", handler.Get())
 	r.rg.POST("/purchaseorders", handler.Create())
 }

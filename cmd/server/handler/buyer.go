@@ -49,6 +49,42 @@ func (b *BuyerController) Get() gin.HandlerFunc {
 	}
 }
 
+func (b *BuyerController) GetBuyerOrders() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		buyerId, errId := strconv.Atoi(c.Param("id"))
+		if errId != nil {
+			web.Response(c, http.StatusBadRequest, "invalid id")
+			return
+		}
+		buyerOrders, errGet := b.buyerService.GetBuyerOrders(c, buyerId)
+		if errGet != nil {
+			buyerNotFound := errors.Is(errGet, buyer.ErrNotFound)
+			if buyerNotFound {
+				web.Error(c, http.StatusNotFound, "buyer not found")
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, "error listing buyer")
+			return
+		}
+		web.Success(c, http.StatusOK, buyerOrders)
+	}
+}
+
+func (b *BuyerController) GetBuyersOrders() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		buyersOrders, err := b.buyerService.GetBuyersOrders(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, "error listing buyers")
+			return
+		}
+		if len(buyersOrders) == 0 {
+			web.Success(c, http.StatusNoContent, buyersOrders)
+			return
+		}
+		web.Success(c, http.StatusOK, buyersOrders)
+	}
+}
+
 // @Produce json
 // GET /buyers @Summary Returns a list of buyers
 // @Router /api/v1/buyers [get]

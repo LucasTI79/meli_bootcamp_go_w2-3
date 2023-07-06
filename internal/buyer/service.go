@@ -21,8 +21,8 @@ type Service interface {
 	Create(ctx context.Context, b domain.Buyer) (domain.Buyer, error)
 	Update(ctx context.Context, b domain.Buyer, id int) (domain.Buyer, error)
 	Delete(ctx context.Context, id int) error
-	GetBuyerOrders(ctx context.Context, id int) (domain.PurchaseOrders, error)
-	GetBuyersOrders(ctx context.Context) ([]domain.PurchaseOrders, error)
+	GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error)
+	GetBuyersOrders(ctx context.Context) ([]domain.BuyerOrders, error)
 }
 
 type buyerService struct {
@@ -35,14 +35,23 @@ func NewService(r Repository) Service {
 	}
 }
 
-func (b *buyerService) GetBuyerOrders(ctx context.Context, id int) (domain.PurchaseOrders, error) {
-	var purchaseorders domain.PurchaseOrders
-	return purchaseorders, nil
+func (b *buyerService) GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error) {
+	buyerOrders, err := b.repository.GetBuyerOrders(ctx, id)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return domain.BuyerOrders{}, ErrNotFound
+		}
+		return domain.BuyerOrders{}, err
+	}
+	return buyerOrders, err
 }
 
-func (b *buyerService) GetBuyersOrders(ctx context.Context) ([]domain.PurchaseOrders, error) {
-	var purchaseorders []domain.PurchaseOrders
-	return purchaseorders, nil
+func (b *buyerService) GetBuyersOrders(ctx context.Context) ([]domain.BuyerOrders, error) {
+	buyersOrders, err := b.repository.GetBuyersOrders(ctx)
+	if err != nil {
+		return buyersOrders, err
+	}
+	return buyersOrders, nil
 }
 
 func (b *buyerService) ExistsID(ctx context.Context, id int) error {

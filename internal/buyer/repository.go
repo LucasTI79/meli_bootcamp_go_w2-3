@@ -16,8 +16,8 @@ type Repository interface {
 	Save(ctx context.Context, b domain.Buyer) (int, error)
 	Update(ctx context.Context, b domain.Buyer) error
 	Delete(ctx context.Context, id int) error
-	//GetBuyerOrders(ctx context.Context, id int) (domain.PurchaseOrders, error)
-	//GetBuyersOrders(ctx context.Context) ([]domain.PurchaseOrders, error)
+	GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error)
+	GetBuyersOrders(ctx context.Context) ([]domain.BuyerOrders, error)
 }
 
 type repository struct {
@@ -28,6 +28,16 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{
 		db: db,
 	}
+}
+
+func (r *repository) GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error) {
+	var buyer domain.BuyerOrders
+	return buyer, nil
+}
+
+func (r *repository) GetBuyersOrders(ctx context.Context) ([]domain.BuyerOrders, error) {
+	var buyer []domain.BuyerOrders
+	return buyer, nil
 }
 
 func (r *repository) ExistsID(ctx context.Context, buyerID int) bool {
