@@ -80,6 +80,7 @@ func (r *router) buildSectionRoutes() {
 	r.rg.POST("/sections", handler.Create())
 	r.rg.DELETE("/sections/:id", handler.Delete())
 	r.rg.PATCH("/sections/:id", handler.Update())
+	r.rg.GET("/sections/reportProducts", handler.ReportProducts())
 }
 
 func (r *router) buildWarehouseRoutes() {

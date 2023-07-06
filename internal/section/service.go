@@ -19,6 +19,8 @@ type Service interface {
 	Get(ctx context.Context, id int) (domain.Section, error)
 	Update(ctx context.Context, s domain.Section) error
 	ExistsById(productID int) error
+	ReportProductsById(ctx context.Context, id int) (domain.ProductBySection, error)
+	ReportProducts(ctx context.Context) ([]domain.ProductBySection, error)
 }
 
 type serviceSection struct {
@@ -62,4 +64,12 @@ func (s *serviceSection) ExistsById(productID int) error {
 		return errors.New("section not exists")
 	}
 	return nil
+}
+
+func (s *serviceSection) ReportProductsById(ctx context.Context, id int) (domain.ProductBySection, error) {
+	return s.repository.SectionProductsReportsBySection(id)
+}
+
+func (s *serviceSection) ReportProducts(ctx context.Context) ([]domain.ProductBySection, error) {
+	return s.repository.SectionProductsReports()
 }
