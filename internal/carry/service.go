@@ -16,6 +16,7 @@ var (
 	ErrAlredyExists = errors.New("carry already exists")
 	ErrInvalidJSON  = errors.New("invalid json")
 	ErrConflictLocalityId  = errors.New("locality_id not found")
+	ErrNotFoundLocalityId  = errors.New("locality_id not found")
 )
 
 type Service interface {
@@ -54,9 +55,12 @@ func (c *CarryService) Create(ctx context.Context, d domain.Carry) (domain.Carry
 }
 
 func (c *CarryService) Read(ctx context.Context, id int) ([]domain.LocalityCarriersReport, error){
-	//VALIDAR LOCALITIES
 	var readReport []domain.LocalityCarriersReport
 	if id != 0 {
+		if !c.repositoryLocality.ExistsById(ctx, id){
+			return []domain.LocalityCarriersReport{}, ErrNotFoundLocalityId
+		}
+
 		reportWithId, err := c.repository.ReadCarriersWithLocalityId(ctx, id)
 		if err != nil {
 			return []domain.LocalityCarriersReport{}, ErrTryAgain

@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/carry"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +34,7 @@ func (s *CarryController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		carryId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			web.Response(c, http.StatusBadRequest, carry.ErrInvalidId.Error())
+			web.Error(c, http.StatusBadRequest, carry.ErrInvalidId.Error())
 			return
 		}
 
@@ -48,5 +49,103 @@ func (s *CarryController) Get() gin.HandlerFunc {
 			return
 		}
 		web.Success(c, http.StatusOK, carryGet)
+	}
+}
+
+// @Summary Read Carriers of Locality
+// @Produce json
+// GET /localities/reportCarries @Summary Returns a list of localities with carriers count
+// @Router /api/v1/localities/reportCarries [get]
+// @Tags LocalityCarriersReport
+// @Accept json
+// @Success 200 {object} []domain.LocalityCarriersReport
+// @Description List all Carriers of a Locality or All Localities
+func (s *CarryController) Read() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		localityIDStr := c.Query("id")
+		
+		var localityID int
+		var err error
+
+		if localityIDStr != "" {
+			localityID, err = strconv.Atoi(localityIDStr)
+			if err != nil {
+				web.Error(c, http.StatusBadRequest, carry.ErrInvalidId.Error())
+				return
+			}
+		}
+
+		report, err := s.carryService.Read(c, localityID)
+		if err != nil {
+			switch err {
+			case carry.ErrNotFoundLocalityId:
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			default:
+				web.Error(c, http.StatusInternalServerError, carry.ErrTryAgain.Error(), err)
+				return
+			}
+		}
+
+		if len(report) == 0 {
+			web.Success(c, http.StatusNoContent, "There are no localities stored")
+			return
+		}
+
+		web.Success(c, http.StatusOK, report)
+	}
+}
+
+// @Summary Create Carry
+// @Produce json
+// POST /carriers @Summary Create a carry
+// @Router /api/v1/carriers [post]
+// @Tags Carry
+// @Accept json
+// @Param carry body domain.Carry true "Carry Data"
+// @Success 201 {object} domain.Carry
+// @Description Create Carriers
+func (s *CarryController) Create() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		carryInput := &domain.Carry{}
+		err := c.ShouldBindJSON(carryInput)
+		if err != nil {
+			web.Error(c, http.StatusUnprocessableEntity, carry.ErrInvalidJSON.Error())
+			return
+		}
+
+		switch {
+		case carryInput.Cid == "":
+			web.Error(c, http.StatusBadRequest, "invalid cid field")
+			return
+		case carryInput.CompanyName == "":
+			web.Error(c, http.StatusBadRequest, "invalid company_name field")
+			return
+		case carryInput.Address == "":
+			web.Error(c, http.StatusBadRequest, "invalid address field")
+			return
+		case carryInput.Telephone == "":
+			web.Error(c, http.StatusBadRequest, "invalid telephone field")
+			return
+		case carryInput.LocalityId == 0:
+			web.Error(c, http.StatusBadRequest, "invalid locality_id field")
+			return
+		}
+
+		carryDomain, err := s.carryService.Create(c, *carryInput)
+		if err != nil {
+			switch err {
+			case carry.ErrAlredyExists:
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			case carry.ErrConflictLocalityId:
+				web.Error(c, http.StatusConflict, err.Error())
+			default:
+				web.Error(c, http.StatusInternalServerError, carry.ErrTryAgain.Error(), err)
+				return
+			}
+		}
+
+		web.Success(c, http.StatusCreated, carryDomain)
 	}
 }
