@@ -41,6 +41,12 @@ func (s *ProductBatchController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, err.Error())
 			return
 		}
+
+		if err := productBatch.Validate(); err != nil {
+			web.Error(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
 		err := s.productService.ExistsById(productBatch.ProductID)
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
