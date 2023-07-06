@@ -11,6 +11,11 @@ type ProductServiceMock struct {
 	mock.Mock
 }
 
+// TODO
+func (*ProductServiceMock) ExistsById(productID int) bool {
+	panic("unimplemented")
+}
+
 type ProductRepositoryMock struct {
 	mock.Mock
 }
