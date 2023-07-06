@@ -49,8 +49,9 @@ func (r *router) setGroup() {
 }
 
 func (r *router) buildSellerRoutes() {
-	repo := seller.NewRepository(r.db)
-	service := seller.NewService(repo)
+	repoSellers := seller.NewRepository(r.db)
+	repoLocalities := locality.NewRepository(r.db)
+	service := seller.NewService(repoSellers, repoLocalities)
 	handler := handler.NewSeller(service)
 	r.rg.GET("/sellers", handler.GetAll())
 	r.rg.GET("/sellers/:id", handler.Get())

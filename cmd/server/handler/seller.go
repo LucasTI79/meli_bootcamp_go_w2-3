@@ -107,12 +107,16 @@ func (s *SellerController) Create() gin.HandlerFunc {
 		}
 
 		sellerSaved, err := s.sellerService.Save(c, *sellerInput)
-		if err != nil {
-			if err == seller.ErrCidAlreadyExists {
-				web.Error(c, http.StatusConflict, err.Error())
-			}else{
-				web.Error(c, http.StatusInternalServerError, err.Error())
-			}
+		switch err{
+		case seller.ErrLocality:
+			web.Error(c, http.StatusConflict, err.Error())
+			return
+		case seller.ErrCidAlreadyExists:
+			web.Error(c, http.StatusConflict, err.Error())
+			return
+		default:
+			web.Error(c, http.StatusInternalServerError, err.Error())
+
 		}
 		web.Success(c, http.StatusCreated, sellerSaved)
 	}

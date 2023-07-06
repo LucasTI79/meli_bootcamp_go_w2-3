@@ -11,7 +11,7 @@ var (
 	ErrProvinceNotFound  = errors.New("province not found")
 	ErrNotFound          = errors.New("locality not found")
 	ErrNoSellersLocality = errors.New("no sellers found in this location")
-	ErrTryAgain     = errors.New("error, try again %s")
+	ErrTryAgain          = errors.New("error, try again %s")
 )
 
 type Service interface {
@@ -50,7 +50,7 @@ func (l *LocalityService) Save(c context.Context, locality domain.Locality) (dom
 
 func (l *LocalityService) ReportSellersByLocality(c context.Context, id int) ([]domain.LocalityReport, error) {
 	var report []domain.LocalityReport
-	
+
 	if id != 0 {
 		if !(l.repository.ExistsById(c, id)) {
 			return []domain.LocalityReport{}, ErrNotFound

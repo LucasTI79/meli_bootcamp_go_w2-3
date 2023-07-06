@@ -5,15 +5,17 @@ import (
 	"errors"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 )
 
 var (
-	ErrNotFound     = errors.New("seller not found")
-	ErrInvalidId    = errors.New("invalid id")
-	ErrInvalidBody  = errors.New("invalid body")
-	ErrTryAgain     = errors.New("error, try again %s")
+	ErrNotFound         = errors.New("seller not found")
+	ErrInvalidId        = errors.New("invalid id")
+	ErrInvalidBody      = errors.New("invalid body")
+	ErrTryAgain         = errors.New("error, try again %s")
 	ErrCidAlreadyExists = errors.New("cid already registered")
 	ErrSaveSeller       = errors.New("error saving seller")
+	ErrLocality         = errors.New("locality does not exist")
 )
 
 type Service interface {
@@ -26,11 +28,13 @@ type Service interface {
 
 type sellerService struct {
 	repository Repository
+	repositoryLocality locality.Repository
 }
 
-func NewService(r Repository) Service {
+func NewService(r Repository, l locality.Repository) Service {
 	return &sellerService{
 		repository: r,
+		repositoryLocality: l,
 	}
 }
 
@@ -45,6 +49,9 @@ func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 func (s *sellerService) Save(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
 	if s.repository.Exists(ctx, seller.CID) {
 		return domain.Seller{}, ErrCidAlreadyExists
+	}
+	if !s.repositoryLocality.ExistsById(ctx, seller.LocalityId) {
+		return domain.Seller{}, ErrLocality
 	}
 	sellerId, err := s.repository.Save(ctx, seller)
 	if err != nil {
