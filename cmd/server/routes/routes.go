@@ -6,7 +6,9 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/docs"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/carry"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
@@ -39,6 +41,7 @@ func (r *router) MapRoutes() {
 	r.buildWarehouseRoutes()
 	r.buildEmployeeRoutes()
 	r.buildBuyerRoutes()
+	r.buildCarryRoutes()
 	r.buildSwagger()
 }
 
@@ -112,6 +115,16 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
 	r.rg.DELETE("/buyers/:id", handler.Delete())
+}
+
+func (r *router) buildCarryRoutes() {
+	repoCarry := carry.NewRepository(r.db)
+	repoLocalities := locality.NewRepository(r.db)
+	service := carry.NewService(repoCarry,repoLocalities)
+	handler := handler.NewCarry(service)
+	r.rg.GET("/carriers/:id", handler.Get())
+	r.rg.GET("/localities/reportCarriers", handler.Read())
+	r.rg.POST("/carriers", handler.Create())
 }
 
 func (r *router) buildSwagger() {

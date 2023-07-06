@@ -12,10 +12,10 @@ import (
 )
 
 type CarryController struct {
-	carryService carry.CarryService
+	carryService carry.Service
 }
 
-func NewCarry(s carry.CarryService) *CarryController {
+func NewCarry(s carry.Service) *CarryController {
 	return &CarryController{
 		carryService: s,
 	}
@@ -54,7 +54,7 @@ func (s *CarryController) Get() gin.HandlerFunc {
 
 // @Summary Read Carriers of Locality
 // @Produce json
-// GET /localities/reportCarries @Summary Returns a list of localities with carriers count
+// GET /localities/reportCarriers @Summary Returns a list of localities with carriers count
 // @Router /api/v1/localities/reportCarries [get]
 // @Tags LocalityCarriersReport
 // @Accept json
