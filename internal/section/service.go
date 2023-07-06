@@ -18,6 +18,7 @@ type Service interface {
 	GetAll(ctx context.Context) ([]domain.Section, error)
 	Get(ctx context.Context, id int) (domain.Section, error)
 	Update(ctx context.Context, s domain.Section) error
+	ExistsById(productID int) error
 }
 
 type serviceSection struct {
@@ -52,4 +53,13 @@ func (s *serviceSection) Delete(ctx context.Context, sectionNumber int) error {
 func (s *serviceSection) Update(ctx context.Context, sect domain.Section) error {
 	err := s.repository.Update(ctx, sect)
 	return err
+}
+
+func (s *serviceSection) ExistsById(productID int) error {
+	sectionExists := s.repository.ExistsById(productID)
+
+	if !sectionExists {
+		return errors.New("section not exists")
+	}
+	return nil
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
+const SectionExists = "SELECT id FROM sections WHERE id=?"
+
 // Repository encapsulates the storage of a section.
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Section, error)
@@ -15,6 +17,7 @@ type Repository interface {
 	Save(ctx context.Context, s domain.Section) (int, error)
 	Update(ctx context.Context, s domain.Section) error
 	Delete(ctx context.Context, id int) error
+	ExistsById(sectionID int) bool
 }
 
 type repository struct {
@@ -129,4 +132,10 @@ func (r *repository) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (r *repository) ExistsById(sectionID int) bool {
+	row := r.db.QueryRow(SectionExists, sectionID)
+	err := row.Scan(&sectionID)
+	return err == nil
 }
