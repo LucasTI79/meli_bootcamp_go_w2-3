@@ -7,6 +7,7 @@ import (
 
 	//"strconv"
 
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/purchase_orders"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
@@ -15,11 +16,13 @@ import (
 
 type PurchaseOrdersController struct {
 	purchaseordersService purchase_orders.Service
+	buyerService          buyer.Service
 }
 
-func NewPurchaseOrders(o purchase_orders.Service) *PurchaseOrdersController {
+func NewPurchaseOrders(o purchase_orders.Service, b buyer.Service) *PurchaseOrdersController {
 	return &PurchaseOrdersController{
 		purchaseordersService: o,
+		buyerService:          b,
 	}
 }
 
@@ -49,6 +52,11 @@ func (po *PurchaseOrdersController) Create() gin.HandlerFunc {
 		err := c.ShouldBindJSON(orderRequest)
 		if err != nil {
 			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			return
+		}
+		err = po.buyerService.ExistsID(c, orderRequest.BuyerID)
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
 		if orderRequest.OrderNumber == "" || orderRequest.OrderDate == "" || orderRequest.TrackingCode == "" || orderRequest.BuyerID == 0 || orderRequest.ProductRecordID == 0 {

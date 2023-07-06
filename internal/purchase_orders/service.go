@@ -2,11 +2,9 @@ package purchase_orders
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
-	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
@@ -16,12 +14,6 @@ var (
 	ErrExists    = errors.New("order already exists")
 	ErrInvalidID = errors.New("invalid ID")
 	ErrConflict  = errors.New("buyer not found")
-)
-
-// Buyer Repository
-var (
-	db              *sql.DB
-	buyerRepository = buyer.NewRepository(db)
 )
 
 type Service interface {
@@ -66,11 +58,7 @@ func (s *purchaseordersService) Create(ctx context.Context, o domain.PurchaseOrd
 		fmt.Println("order exist")
 		return domain.PurchaseOrders{}, ErrExists
 	}
-	if buyerRepository.ExistsID(ctx, o.BuyerID) {
-		err := s.repository.Save(ctx, o)
-		fmt.Println("buyer exist")
-		return o, err
-	}
-
-	return domain.PurchaseOrders{}, ErrConflict
+	err := s.repository.Save(ctx, o)
+	fmt.Println("buyer exist")
+	return o, err
 }

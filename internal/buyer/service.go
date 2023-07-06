@@ -17,6 +17,7 @@ var (
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
+	ExistsID(ctx context.Context, id int) error
 	Create(ctx context.Context, b domain.Buyer) (domain.Buyer, error)
 	Update(ctx context.Context, b domain.Buyer, id int) (domain.Buyer, error)
 	Delete(ctx context.Context, id int) error
@@ -30,6 +31,16 @@ func NewService(r Repository) Service {
 	return &buyerService{
 		repository: r,
 	}
+}
+
+func (b *buyerService) ExistsID(ctx context.Context, id int) error {
+	buyerExists := b.repository.ExistsID(ctx, id)
+
+	if !buyerExists {
+		return errors.New("buyer not exists")
+	}
+
+	return nil
 }
 
 func (b *buyerService) GetAll(ctx context.Context) ([]domain.Buyer, error) {

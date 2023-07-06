@@ -17,10 +17,10 @@ import (
 
 const (
 	GetAllBuyers = "/buyers"
-	Get    = "/buyers/:id"
-	Delete = "/buyers/:id"
-	Create = "/buyers"
-	Update = "/buyers/:id"
+	Get          = "/buyers/:id"
+	Delete       = "/buyers/:id"
+	Create       = "/buyers"
+	Update       = "/buyers/:id"
 )
 
 func TestGetAllBuyers(t *testing.T) {

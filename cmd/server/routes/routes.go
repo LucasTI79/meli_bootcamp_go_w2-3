@@ -126,9 +126,12 @@ func (r *router) buildSwagger() {
 }
 
 func (r *router) buildPurchaseOrdersRoutes() {
+	buyerRepo := buyer.NewRepository(r.db)
+	buyerService := buyer.NewService(buyerRepo)
+
 	repo := purchase_orders.NewRepository(r.db)
 	service := purchase_orders.NewService(repo)
-	handler := handler.NewPurchaseOrders(service)
+	handler := handler.NewPurchaseOrders(service, buyerService)
 	r.rg.GET("/purchaseorders", handler.GetAll())
 	r.rg.GET("/purchaseorders/:id", handler.Get())
 	r.rg.POST("/purchaseorders", handler.Create())
