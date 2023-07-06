@@ -52,7 +52,7 @@ func (b *buyerService) Get(ctx context.Context, id int) (domain.Buyer, error) {
 }
 
 func (b *buyerService) Create(ctx context.Context, d domain.Buyer) (domain.Buyer, error) {
-	userExist := b.repository.Exists(ctx, d.CardNumberID)
+	userExist := b.repository.ExistsBuyer(ctx, d.CardNumberID)
 	if userExist {
 		return domain.Buyer{}, ErrExists
 	}

@@ -65,7 +65,7 @@ func (m *BuyerRepositoryMock) Create(ctx context.Context, b domain.Buyer) (domai
 	return args.Get(0).(domain.Buyer), args.Error(1)
 }
 
-func (m *BuyerRepositoryMock) Exists(ctx context.Context, cardnumber string) bool {
+func (m *BuyerRepositoryMock) ExistsBuyer(ctx context.Context, cardnumber string) bool {
 	args := m.Called(ctx, cardnumber)
 	return args.Get(0).(bool)
 }

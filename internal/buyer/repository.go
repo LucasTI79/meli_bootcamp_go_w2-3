@@ -11,7 +11,7 @@ import (
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
-	Exists(ctx context.Context, cardNumberID string) bool
+	ExistsBuyer(ctx context.Context, cardNumberID string) bool
 	ExistsID(ctx context.Context, buyerID int) bool
 	Save(ctx context.Context, b domain.Buyer) (int, error)
 	Update(ctx context.Context, b domain.Buyer) error
@@ -69,7 +69,7 @@ func (r *repository) Get(ctx context.Context, id int) (domain.Buyer, error) {
 	return b, nil
 }
 
-func (r *repository) Exists(ctx context.Context, cardNumberID string) bool {
+func (r *repository) ExistsBuyer(ctx context.Context, cardNumberID string) bool {
 	query := "SELECT card_number_id FROM buyers WHERE card_number_id=?;"
 	row := r.db.QueryRow(query, cardNumberID)
 	err := row.Scan(&cardNumberID)

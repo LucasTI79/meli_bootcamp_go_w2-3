@@ -18,8 +18,11 @@ var (
 	ErrConflict  = errors.New("buyer not found")
 )
 
-var db *sql.DB
-var buyerRepository = buyer.NewRepository(db)
+// Buyer Repository
+var (
+	db              *sql.DB
+	buyerRepository = buyer.NewRepository(db)
+)
 
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)

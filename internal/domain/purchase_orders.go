@@ -10,6 +10,7 @@ type PurchaseOrders struct {
 	OrderStatusID   int    `json:"order_status_id"`
 }
 
+// move to buyers
 type BuyerOrders struct {
 	ID                  int    `json:"id"`
 	CardNumberID        string `json:"card_number_id"`
