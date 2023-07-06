@@ -41,9 +41,9 @@ func (s *ProductBatchController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, err.Error())
 			return
 		}
-		productExists := s.productService.ExistsById(productBatch.ProductID)
-		if !productExists {
-			web.Error(c, http.StatusConflict, "Product not exists")
+		err := s.productService.ExistsById(productBatch.ProductID)
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
 
