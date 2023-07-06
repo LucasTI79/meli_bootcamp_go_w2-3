@@ -8,6 +8,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
+	productbatch "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_batch"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -40,6 +41,7 @@ func (r *router) MapRoutes() {
 	r.buildEmployeeRoutes()
 	r.buildBuyerRoutes()
 	r.buildSwagger()
+	r.buildProductBatchRoutes()
 }
 
 func (r *router) setGroup() {
@@ -112,6 +114,20 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
 	r.rg.DELETE("/buyers/:id", handler.Delete())
+}
+
+func (r *router) buildProductBatchRoutes() {
+	productRrepo := product.NewRepository(r.db)
+	productService := product.NewService(productRrepo)
+
+	sectionRepo := section.NewRepository(r.db)
+	sectionService := section.NewService(sectionRepo)
+
+	repo := productbatch.NewRepository(r.db)
+	service := productbatch.NewService(repo)
+	handler := handler.NewProductBatch(service, productService, sectionService)
+
+	r.rg.POST("/productBatches", handler.Create())
 }
 
 func (r *router) buildSwagger() {
