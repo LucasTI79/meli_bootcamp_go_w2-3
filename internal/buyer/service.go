@@ -21,6 +21,8 @@ type Service interface {
 	Create(ctx context.Context, b domain.Buyer) (domain.Buyer, error)
 	Update(ctx context.Context, b domain.Buyer, id int) (domain.Buyer, error)
 	Delete(ctx context.Context, id int) error
+	GetBuyerOrders(ctx context.Context, id int) (domain.PurchaseOrders, error)
+	GetBuyersOrders(ctx context.Context) ([]domain.PurchaseOrders, error)
 }
 
 type buyerService struct {
@@ -31,6 +33,16 @@ func NewService(r Repository) Service {
 	return &buyerService{
 		repository: r,
 	}
+}
+
+func (b *buyerService) GetBuyerOrders(ctx context.Context, id int) (domain.PurchaseOrders, error) {
+	var purchaseorders domain.PurchaseOrders
+	return purchaseorders, nil
+}
+
+func (b *buyerService) GetBuyersOrders(ctx context.Context) ([]domain.PurchaseOrders, error) {
+	var purchaseorders []domain.PurchaseOrders
+	return purchaseorders, nil
 }
 
 func (b *buyerService) ExistsID(ctx context.Context, id int) error {

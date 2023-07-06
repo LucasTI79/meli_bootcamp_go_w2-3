@@ -18,8 +18,6 @@ var (
 
 type Service interface {
 	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)
-	Get(ctx context.Context, id int) (domain.PurchaseOrders, error)
-	GetBuyers(ctx context.Context) ([]domain.PurchaseOrders, error)
 	Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error)
 }
 
@@ -33,11 +31,6 @@ func NewService(r Repository) Service {
 	}
 }
 
-func (s *purchaseordersService) GetBuyers(ctx context.Context) ([]domain.PurchaseOrders, error) {
-	var purchaseorders []domain.PurchaseOrders
-	return purchaseorders, nil
-}
-
 func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
 	fmt.Println("CHEGOU SERVICE")
 	orders, err := s.repository.GetAll(ctx)
@@ -45,11 +38,6 @@ func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOr
 		return orders, err
 	}
 	return orders, nil
-}
-
-func (s *purchaseordersService) Get(ctx context.Context, id int) (domain.PurchaseOrders, error) {
-	var purchaseorders domain.PurchaseOrders
-	return purchaseorders, nil
 }
 
 func (s *purchaseordersService) Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error) {

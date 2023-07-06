@@ -16,6 +16,8 @@ type Repository interface {
 	Save(ctx context.Context, b domain.Buyer) (int, error)
 	Update(ctx context.Context, b domain.Buyer) error
 	Delete(ctx context.Context, id int) error
+	//GetBuyerOrders(ctx context.Context, id int) (domain.PurchaseOrders, error)
+	//GetBuyersOrders(ctx context.Context) ([]domain.PurchaseOrders, error)
 }
 
 type repository struct {

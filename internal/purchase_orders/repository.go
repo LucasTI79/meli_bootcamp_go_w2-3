@@ -11,9 +11,6 @@ import (
 // Repository encapsulates the storage of a purchased order.
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.PurchaseOrders, error)
-	//move both methods to buyers
-	Get(ctx context.Context, id int) (domain.PurchaseOrders, error)
-	GetBuyers(ctx context.Context) ([]domain.PurchaseOrders, error)
 	ExistsOrder(ctx context.Context, orderNumber string) bool
 	Save(ctx context.Context, o domain.PurchaseOrders) error
 }
@@ -26,12 +23,6 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{
 		db: db,
 	}
-}
-
-// move to buyers
-func (r *repository) GetBuyers(ctx context.Context) ([]domain.PurchaseOrders, error) {
-	var purchaseorders []domain.PurchaseOrders
-	return purchaseorders, nil
 }
 
 func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error) {
@@ -57,12 +48,6 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrders, error
 	}
 
 	return purchaseOrders, nil
-}
-
-// move to buyers
-func (r *repository) Get(ctx context.Context, id int) (domain.PurchaseOrders, error) {
-	var purchaseorders domain.PurchaseOrders
-	return purchaseorders, nil
 }
 
 func (r *repository) ExistsOrder(ctx context.Context, orderNumber string) bool {
