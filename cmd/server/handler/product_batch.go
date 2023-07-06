@@ -53,6 +53,11 @@ func (s *ProductBatchController) Create() gin.HandlerFunc {
 			return
 		}
 
+		err = s.sectionService.ExistsById(productBatch.SectionID)
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
+			return
+		}
 		productBatchID, err := s.productBatchService.Save(c, productBatch)
 		if err != nil {
 			web.Error(c, http.StatusInternalServerError, err.Error())
