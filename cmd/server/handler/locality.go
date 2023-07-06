@@ -24,14 +24,28 @@ func NewLocality(l locality.Service) *LocalityController {
 // TODO implementar validações
 func (l *LocalityController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		locality := &domain.Locality{}
-		err := c.ShouldBindJSON(locality)
+		domain := &domain.Locality{}
+		err := c.ShouldBindJSON(domain)
 		if err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, err.Error())
 			return
 		}
-		localitySaved, err := l.localityService.Save(c, *locality)
+
+		switch {
+		case domain.LocalityName == "":
+			web.Error(c, http.StatusBadRequest, "locality name is required")
+			return
+		case domain.ProvinceName == "":
+			web.Error(c, http.StatusBadRequest, "province name is required")
+			return
+		}
+
+		localitySaved, err := l.localityService.Save(c, *domain)
 		if err != nil {
+			if errors.Is(err, locality.ErrProvinceNotFound) {
+				web.Error(c, http.StatusNotFound, err.Error())
+				return
+			}
 			web.Error(c, http.StatusInternalServerError, err.Error())
 		}
 		web.Success(c, http.StatusCreated, localitySaved)

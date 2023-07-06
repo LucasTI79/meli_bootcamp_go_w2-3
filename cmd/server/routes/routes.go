@@ -63,6 +63,7 @@ func (r *router) buildLocalityRoutes(){
 	repo := locality.NewRepository(r.db)
 	service := locality.NewService(repo)
 	handler := handler.NewLocality(service)
+	r.rg.POST("/localities", handler.Create())
 	r.rg.GET("/localities/report-sellers", handler.ReportSellersByLocalities())
 }
 

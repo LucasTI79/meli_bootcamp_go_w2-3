@@ -15,6 +15,7 @@ var (
 )
 
 type Service interface {
+	Save(ctx context.Context, locality domain.Locality) (domain.LocalityInput, error)
 	ReportSellersByLocality(ctx context.Context, id int) ([]domain.LocalityReport, error)
 }
 
@@ -26,6 +27,25 @@ func NewService(r Repository) Service {
 	return &LocalityService{
 		repository: r,
 	}
+}
+
+func (l *LocalityService) Save(c context.Context, locality domain.Locality) (domain.LocalityInput, error) {
+	IdProvince, err := l.repository.GetProvinceByName(c, locality.ProvinceName)
+	if err != nil {
+		return domain.LocalityInput{}, ErrProvinceNotFound
+	}
+
+	localityInput := domain.LocalityInput{
+		LocalityName: locality.LocalityName,
+		IdProvince:   IdProvince,
+	}
+
+	localityId, err := l.repository.Save(c, localityInput)
+	if err != nil {
+		return domain.LocalityInput{}, ErrTryAgain
+	}
+	locality.ID = localityId
+	return localityInput, nil
 }
 
 func (l *LocalityService) ReportSellersByLocality(c context.Context, id int) ([]domain.LocalityReport, error) {
