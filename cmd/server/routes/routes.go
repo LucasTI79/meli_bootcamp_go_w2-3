@@ -118,15 +118,6 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.DELETE("/buyers/:id", handler.Delete())
 }
 
-func (r *router) buildSwagger() {
-	docs.SwaggerInfo.BasePath = "/"
-	r.rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	repo := buyer.NewRepository(r.db)
-	service := buyer.NewService(repo)
-	handler := handler.NewBuyer(service)
-	r.rg.GET("/teste", handler.GetAll())
-}
-
 func (r *router) buildPurchaseOrdersRoutes() {
 	buyerRepo := buyer.NewRepository(r.db)
 	buyerService := buyer.NewService(buyerRepo)
@@ -136,4 +127,13 @@ func (r *router) buildPurchaseOrdersRoutes() {
 	handler := handler.NewPurchaseOrders(service, buyerService)
 	r.rg.GET("/purchaseorders", handler.GetAll())
 	r.rg.POST("/purchaseorders", handler.Create())
+}
+
+func (r *router) buildSwagger() {
+	docs.SwaggerInfo.BasePath = "/"
+	r.rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	repo := buyer.NewRepository(r.db)
+	service := buyer.NewService(repo)
+	handler := handler.NewBuyer(service)
+	r.rg.GET("/teste", handler.GetAll())
 }

@@ -26,11 +26,15 @@ func NewPurchaseOrders(o purchase_orders.Service, b buyer.Service) *PurchaseOrde
 	}
 }
 
-func (po *PurchaseOrdersController) Get() gin.HandlerFunc {
-	return func(c *gin.Context) {
-	}
-}
-
+// GetAll gets all purchase orders
+// @Summary Get all purchase orders
+// @Description Get all purchase orders
+// @Tags Purchase Orders
+// @Produce json
+// @Success 200 {array} PurchaseOrder
+// @Failure 500 {string} string "Error listing orders"
+// @Failure 204 {string} string "No content"
+// @Router api/v1/buyers/purchase_orders [get]
 func (po *PurchaseOrdersController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		orders, err := po.purchaseordersService.GetAll(c)
@@ -46,6 +50,18 @@ func (po *PurchaseOrdersController) GetAll() gin.HandlerFunc {
 	}
 }
 
+// Create creates a new purchase order
+// @Summary Create a new purchase order
+// @Description Create a new purchase order
+// @Tags Purchase Orders
+// @Accept json
+// @Produce json
+// @Param order body PurchaseOrderRequest true "Purchase Order Request"
+// @Success 201 {object} PurchaseOrder
+// @Failure 400 {string} string "Bad request"
+// @Failure 409 {string} string "Conflict"
+// @Failure 422 {string} string "Unprocessable entity"
+// @Router api/v1/buyers/purchase_orders [post]
 func (po *PurchaseOrdersController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		orderRequest := &domain.PurchaseOrders{}

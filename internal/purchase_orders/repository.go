@@ -3,7 +3,6 @@ package purchase_orders
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
@@ -49,7 +48,6 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll,
 func (r *repository) ExistsOrder(ctx context.Context, orderNumber string) bool {
 	query := "SELECT order_number FROM purchase_orders WHERE order_number = ?"
 	err := r.db.QueryRow(query, orderNumber).Scan(&orderNumber)
-	fmt.Println("err,", err)
 	return err == nil
 }
 
@@ -72,7 +70,6 @@ func (r *repository) Save(ctx context.Context, o domain.PurchaseOrders) error {
 	}
 
 	o.ID = int(insertedID)
-	fmt.Println(o.ID)
 
 	return nil
 }

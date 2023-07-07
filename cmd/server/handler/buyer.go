@@ -49,6 +49,17 @@ func (b *BuyerController) Get() gin.HandlerFunc {
 	}
 }
 
+// GetBuyerOrders gets the orders for a specific buyer
+// @Summary Get buyer orders
+// @Description Get the orders for a specific buyer
+// @Tags Buyers
+// @Param id path int true "Buyer ID"
+// @Produce json
+// @Success 200 {array} BuyerOrder
+// @Failure 400 {string} string "Invalid ID"
+// @Failure 404 {string} string "Buyer not found"
+// @Failure 500 {string} string "Error listing buyer"
+// @Router /api/v1/buyers/purchase_orders/{id} [get]
 func (b *BuyerController) GetBuyerOrders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerId, errId := strconv.Atoi(c.Param("id"))
@@ -70,6 +81,15 @@ func (b *BuyerController) GetBuyerOrders() gin.HandlerFunc {
 	}
 }
 
+// GetBuyersOrders gets the orders for all buyers
+// @Summary Get buyers orders
+// @Description Get the orders for all buyers
+// @Tags Buyers
+// @Produce json
+// @Success 200 {array} BuyersOrdersResponse
+// @Failure 500 {string} string "Error listing buyers"
+// @Failure 204 {string} string "No content"
+// @Router /api/v1/buyers/purchase_orders [get]
 func (b *BuyerController) GetBuyersOrders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyersOrders, err := b.buyerService.GetBuyersOrders(c)

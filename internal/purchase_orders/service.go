@@ -3,7 +3,6 @@ package purchase_orders
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
@@ -32,7 +31,6 @@ func NewService(r Repository) Service {
 }
 
 func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll, error) {
-	fmt.Println("CHEGOU SERVICE")
 	orders, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return orders, err
@@ -42,13 +40,10 @@ func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOr
 
 func (s *purchaseordersService) Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error) {
 	orderExists := s.repository.ExistsOrder(ctx, o.OrderNumber)
-	fmt.Println(o.OrderNumber)
 	if orderExists {
-		fmt.Println("order exist")
 		return domain.PurchaseOrders{}, ErrExists
 	} else {
-		err := s.repository.Save(ctx, o)
-		fmt.Println("buyer exist")
-		return o, err
+		order := s.repository.Save(ctx, o)
+		return o, order
 	}
 }
