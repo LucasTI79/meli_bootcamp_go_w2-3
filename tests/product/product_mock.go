@@ -17,7 +17,15 @@ type ProductRepositoryMock struct {
 
 // TODO add mock correctly
 func (p *ProductRepositoryMock) ExistsById(productID int) bool {
-	panic("unimplemented")
+	args := p.Called(productID)
+	return args.Get(0).(bool)
+
+}
+
+func (p *ProductServiceMock) ExistsById(productID int) error {
+	args := p.Called(productID)
+	return args.Error(0)
+
 }
 
 // mock do controller Product recebe o mock da service
