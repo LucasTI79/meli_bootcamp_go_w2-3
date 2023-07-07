@@ -28,16 +28,16 @@ func NewRepository(db *sql.DB) Repository {
 }
 
 const (
-	CreateCarry = "INSERT INTO carriers (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
-	GetCarry = "SELECT id, cid, company_name, address, telephone, locality_id FROM carriers WHERE id = ?"
-	ExistsByCidCarry = "SELECT id FROM carriers WHERE cid = ?"
+	CreateCarry                = "INSERT INTO carriers (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
+	GetCarry                   = "SELECT id, cid, company_name, address, telephone, locality_id FROM carriers WHERE id = ?"
+	ExistsByCidCarry           = "SELECT id FROM carriers WHERE cid = ?"
 	ReadCarriersWithLocalityId = "SELECT L.id, L.locality_name, COUNT(C.id) AS carriers_count " +
-	"FROM localities L LEFT JOIN carriers C ON L.id = C.locality_id " +
-	"WHERE L.id = ? " +
-	"GROUP BY L.id, L.locality_name"
+		"FROM localities L LEFT JOIN carriers C ON L.id = C.locality_id " +
+		"WHERE L.id = ? " +
+		"GROUP BY L.id, L.locality_name"
 	ReadAllCarriers = "SELECT L.id, L.locality_name, COUNT(C.id) AS carriers_count " +
-	"FROM localities L LEFT JOIN carriers C ON L.id = C.locality_id " +
-	"GROUP BY L.id, L.locality_name"
+		"FROM localities L LEFT JOIN carriers C ON L.id = C.locality_id " +
+		"GROUP BY L.id, L.locality_name"
 )
 
 func (r *repository) Create(ctx context.Context, c domain.Carry) (int, error) {
@@ -100,8 +100,8 @@ func (r *repository) ReadAllCarriers(ctx context.Context) ([]domain.LocalityCarr
 		}
 
 		carriersReport := domain.LocalityCarriersReport{
-			LocalityID: localityID,
-			LocalityName: localityName,
+			LocalityID:    localityID,
+			LocalityName:  localityName,
 			CarriersCount: carriersCount,
 		}
 		report = append(report, carriersReport)

@@ -52,18 +52,18 @@ func (s *CarryController) Get() gin.HandlerFunc {
 	}
 }
 
-// @Summary Read Carriers of Locality
+// @Summary Read Carriers of a Locality
 // @Produce json
 // GET /localities/reportCarriers @Summary Returns a list of localities with carriers count
 // @Router /api/v1/localities/reportCarries [get]
-// @Tags LocalityCarriersReport
+// @Tags Carriers
 // @Accept json
 // @Success 200 {object} []domain.LocalityCarriersReport
 // @Description List all Carriers of a Locality or All Localities
 func (s *CarryController) Read() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		localityIDStr := c.Query("id")
-		
+
 		var localityID int
 		var err error
 
@@ -88,7 +88,7 @@ func (s *CarryController) Read() gin.HandlerFunc {
 		}
 
 		if len(report) == 0 {
-			web.Success(c, http.StatusNoContent, "There are no localities stored")
+			web.Success(c, http.StatusNoContent, "There are no carriers stored")
 			return
 		}
 
@@ -100,7 +100,7 @@ func (s *CarryController) Read() gin.HandlerFunc {
 // @Produce json
 // POST /carriers @Summary Create a carry
 // @Router /api/v1/carriers [post]
-// @Tags Carry
+// @Tags Carriers
 // @Accept json
 // @Param carry body domain.Carry true "Carry Data"
 // @Success 201 {object} domain.Carry

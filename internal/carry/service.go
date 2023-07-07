@@ -9,14 +9,14 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("carry not found")
-	ErrInvalidId    = errors.New("invalid id")
-	ErrInvalidBody  = errors.New("invalid body")
-	ErrTryAgain     = errors.New("error, try again %s")
-	ErrAlredyExists = errors.New("carry already exists")
-	ErrInvalidJSON  = errors.New("invalid json")
-	ErrConflictLocalityId  = errors.New("locality_id not found")
-	ErrNotFoundLocalityId  = errors.New("locality_id not found")
+	ErrNotFound           = errors.New("carry not found")
+	ErrInvalidId          = errors.New("invalid id")
+	ErrInvalidBody        = errors.New("invalid body")
+	ErrTryAgain           = errors.New("error, try again %s")
+	ErrAlredyExists       = errors.New("carry already exists")
+	ErrInvalidJSON        = errors.New("invalid json")
+	ErrConflictLocalityId = errors.New("locality_id not found")
+	ErrNotFoundLocalityId = errors.New("locality_id not found")
 )
 
 type Service interface {
@@ -26,13 +26,13 @@ type Service interface {
 }
 
 type CarryService struct {
-	repository Repository
+	repository         Repository
 	repositoryLocality locality.Repository
 }
 
 func NewService(r Repository, l locality.Repository) Service {
 	return &CarryService{
-		repository: r,
+		repository:         r,
 		repositoryLocality: l,
 	}
 }
@@ -42,7 +42,7 @@ func (c *CarryService) Create(ctx context.Context, d domain.Carry) (domain.Carry
 		return domain.Carry{}, ErrAlredyExists
 	}
 
-	if !c.repositoryLocality.ExistsById(ctx, d.LocalityId){
+	if !c.repositoryLocality.ExistsById(ctx, d.LocalityId) {
 		return domain.Carry{}, ErrConflictLocalityId
 	}
 
@@ -54,10 +54,10 @@ func (c *CarryService) Create(ctx context.Context, d domain.Carry) (domain.Carry
 	return d, nil
 }
 
-func (c *CarryService) Read(ctx context.Context, id int) ([]domain.LocalityCarriersReport, error){
+func (c *CarryService) Read(ctx context.Context, id int) ([]domain.LocalityCarriersReport, error) {
 	var readReport []domain.LocalityCarriersReport
 	if id != 0 {
-		if !c.repositoryLocality.ExistsById(ctx, id){
+		if !c.repositoryLocality.ExistsById(ctx, id) {
 			return []domain.LocalityCarriersReport{}, ErrNotFoundLocalityId
 		}
 
