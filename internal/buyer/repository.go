@@ -31,13 +31,33 @@ func NewRepository(db *sql.DB) Repository {
 }
 
 func (r *repository) GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error) {
-	var buyer domain.BuyerOrders
-	return buyer, nil
+	query := "SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) AS `purchase_orders_count` FROM buyers b LEFT JOIN purchase_orders po ON b.id = po.buyer_id WHERE b.id = ? GROUP BY b.id, b.card_number_id, b.first_name, b.last_name"
+	row := r.db.QueryRow(query, id)
+	b := domain.BuyerOrders{}
+	err := row.Scan(&b.ID, &b.CardNumberID, &b.FirstName, &b.LastName, &b.PurchaseOrdersCount)
+	if err != nil {
+		return domain.BuyerOrders{}, err
+	}
+
+	return b, nil
 }
 
 func (r *repository) GetBuyersOrders(ctx context.Context) ([]domain.BuyerOrders, error) {
-	var buyer []domain.BuyerOrders
-	return buyer, nil
+	query := "SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) AS `purchase_orders_count` FROM buyers b LEFT JOIN purchase_orders po ON b.id = po.buyer_id GROUP BY b.id, b.card_number_id, b.first_name, b.last_name"
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var buyers []domain.BuyerOrders
+
+	for rows.Next() {
+		b := domain.BuyerOrders{}
+		_ = rows.Scan(&b.ID, &b.CardNumberID, &b.FirstName, &b.LastName, &b.PurchaseOrdersCount)
+		buyers = append(buyers, b)
+	}
+
+	return buyers, nil
 }
 
 func (r *repository) ExistsID(ctx context.Context, buyerID int) bool {
