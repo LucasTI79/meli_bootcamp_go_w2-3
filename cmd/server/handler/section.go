@@ -258,7 +258,7 @@ func (s *SectionController) ReportProducts() gin.HandlerFunc {
 			sections, err = s.sectionService.ReportProducts(c)
 		}
 
-		if (id <= 0 && param != "") || err != nil {
+		if id <= 0 && param != "" {
 			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
 			return
 		}
