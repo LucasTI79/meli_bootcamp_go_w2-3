@@ -64,6 +64,6 @@ func (s *ProductBatchController) Create() gin.HandlerFunc {
 			return
 		}
 		productBatch.ID = productBatchID
-		web.Success(c, http.StatusOK, productBatch)
+		web.Success(c, http.StatusCreated, productBatch)
 	}
 }

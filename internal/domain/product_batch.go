@@ -23,7 +23,7 @@ var (
 	ErrInvalidManufacturingDate = errors.New("invalid manufacturing date")
 )
 
-const layout = "2006-01-02 15:04:05"
+const layout = "2006-01-02"
 
 func (p *ProductBatch) Validate() error {
 	_, err := time.Parse(layout, p.ManufacturingDate)
