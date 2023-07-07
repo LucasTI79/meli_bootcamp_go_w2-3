@@ -111,8 +111,8 @@ func (r *router) buildBuyerRoutes() {
 	handler := handler.NewBuyer(service)
 	r.rg.GET("/buyers", handler.GetAll())
 	r.rg.GET("/buyers/:id", handler.Get())
-	r.rg.GET("/buyers/purchase_orders", handler.GetBuyersOrders())
-	r.rg.GET("/buyers/purchase_orders/:id", handler.GetBuyerOrders())
+	r.rg.GET("/buyers/reportPurchaseOrders", handler.GetBuyersOrders())
+	r.rg.GET("/buyers/reportPurchaseOrders/:id", handler.GetBuyerOrders())
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
 	r.rg.DELETE("/buyers/:id", handler.Delete())
@@ -125,8 +125,8 @@ func (r *router) buildPurchaseOrdersRoutes() {
 	repo := purchase_orders.NewRepository(r.db)
 	service := purchase_orders.NewService(repo)
 	handler := handler.NewPurchaseOrders(service, buyerService)
-	r.rg.GET("/purchaseorders", handler.GetAll())
-	r.rg.POST("/purchaseorders", handler.Create())
+	r.rg.GET("/purchaseOrders", handler.GetAll())
+	r.rg.POST("/purchaseOrders", handler.Create())
 }
 
 func (r *router) buildSwagger() {
