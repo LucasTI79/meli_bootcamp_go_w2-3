@@ -458,6 +458,71 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
+func TestProductBySection(t *testing.T) {
+	t.Run("Should return 200 with a report of products", func(t *testing.T) {
+		expectedProductReports := []domain.ProductBySection{
+			{
+				ProductsCount: 1,
+				SectionID:     1,
+				SectionNumber: "1",
+			},
+			{
+				ProductsCount: 2,
+				SectionID:     2,
+				SectionNumber: "1",
+			},
+		}
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.GET("/sections/reportProducts", handler.ReportProducts())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/reportProducts", "")
+		mockService.On("ReportProducts", mock.AnythingOfType("string")).Return(expectedProductReports, nil)
+		server.ServeHTTP(response, request)
+		responseResult := &domain.ProductBySectionResponse{}
+		err := json.Unmarshal(response.Body.Bytes(), responseResult)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		assert.Equal(t, expectedProductReports, responseResult.Data)
+
+	})
+
+	t.Run("Should return 200 with a report of products when param id is passed", func(t *testing.T) {
+		expectedProductReports := []domain.ProductBySection{
+			{
+				ProductsCount: 1,
+				SectionID:     1,
+				SectionNumber: "1",
+			},
+		}
+		server, mockService, handler := InitServerWithGetSections(t)
+
+		server.GET("/sections/reportProducts", handler.ReportProducts())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/reportProducts?id=1", "")
+		mockService.On("ReportProductsById", 1).Return(expectedProductReports[0], nil)
+
+		server.ServeHTTP(response, request)
+		responseResult := &domain.ProductBySectionResponse{}
+		err := json.Unmarshal(response.Body.Bytes(), responseResult)
+		assert.NoError(t, err)
+	})
+	t.Run("Should return 400 when id is invalid", func(t *testing.T) {
+		server, _, handler := InitServerWithGetSections(t)
+		server.GET("/sections/reportProducts", handler.ReportProducts())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/reportProducts?id='aa'", "")
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+	t.Run("Should return 500 when any error occour", func(t *testing.T) {
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.GET("/sections/reportProducts", handler.ReportProducts())
+		request, response := testutil.MakeRequest(http.MethodGet, "/sections/reportProducts", "")
+		mockService.On("ReportProducts", mock.AnythingOfType("string")).Return([]domain.ProductBySection{}, errors.New("error"))
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+}
+
 func InitServerWithGetSections(t *testing.T) (*gin.Engine, *mocks.SectionServiceMock, *handler.SectionController) {
 	t.Helper()
 	server := testutil.CreateServer()
