@@ -12,7 +12,7 @@ type ProductServiceMock struct {
 }
 
 // TODO
-func (*ProductServiceMock) ExistsById(productID int) bool {
+func (p *ProductServiceMock) ExistsById(productID int) error {
 	panic("unimplemented")
 }
 
