@@ -15,10 +15,14 @@ type LocalityCarriersReport struct {
 	CarriersCount int    `json:"carriers_count"`
 }
 
-type CarrieResponse struct {
+type CarryResponse struct {
 	Data []Carry `json:"data"`
 }
 
-type CarrieResponseId struct {
+type CarryResponseId struct {
 	Data Carry `json:"data"`
+}
+
+type LocalityCarriersResponse struct {
+	Data []LocalityCarriersReport `json: data`
 }

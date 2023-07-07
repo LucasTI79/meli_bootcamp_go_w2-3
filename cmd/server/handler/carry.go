@@ -44,7 +44,6 @@ func (s *CarryController) Get() gin.HandlerFunc {
 				web.Error(c, http.StatusNotFound, carry.ErrNotFound.Error())
 				return
 			}
-
 			web.Error(c, http.StatusInternalServerError, carry.ErrTryAgain.Error(), err)
 			return
 		}

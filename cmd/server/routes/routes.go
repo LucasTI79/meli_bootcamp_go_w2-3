@@ -43,6 +43,7 @@ func (r *router) MapRoutes() {
 	r.buildBuyerRoutes()
 	r.buildCarryRoutes()
 	r.buildSwagger()
+	r.buildLocalityRoutes()
 }
 
 func (r *router) setGroup() {
@@ -50,14 +51,26 @@ func (r *router) setGroup() {
 }
 
 func (r *router) buildSellerRoutes() {
-	repo := seller.NewRepository(r.db)
-	service := seller.NewService(repo)
-	handler := handler.NewSeller(service)
+	repoSellers := seller.NewRepository(r.db)
+	serviceSellers := seller.NewService(repoSellers)
+
+	repoLocalities := locality.NewRepository(r.db)
+	serviceLocalities := locality.NewService(repoLocalities)
+
+	handler := handler.NewSeller(serviceSellers, serviceLocalities)
 	r.rg.GET("/sellers", handler.GetAll())
 	r.rg.GET("/sellers/:id", handler.Get())
 	r.rg.POST("/sellers", handler.Create())
 	r.rg.DELETE("/sellers/:id", handler.Delete())
 	r.rg.PATCH("/sellers/:id", handler.Update())
+}
+
+func (r *router) buildLocalityRoutes() {
+	repo := locality.NewRepository(r.db)
+	service := locality.NewService(repo)
+	handler := handler.NewLocality(service)
+	r.rg.POST("/localities", handler.Create())
+	r.rg.GET("/localities/report-sellers", handler.ReportSellersByLocalities())
 }
 
 func (r *router) buildProductRoutes() {
