@@ -12,11 +12,13 @@ var (
 	ErrNotFound          = errors.New("locality not found")
 	ErrNoSellersLocality = errors.New("no sellers found in this location")
 	ErrTryAgain          = errors.New("error, try again %s")
+	ErrLocalityNotExists = errors.New("locality does not exists")
 )
 
 type Service interface {
 	Save(ctx context.Context, locality domain.Locality) (domain.LocalityInput, error)
 	ReportSellersByLocality(ctx context.Context, id int) ([]domain.LocalityReport, error)
+	ExistsById(c context.Context, idLocality int) error
 }
 
 type LocalityService struct {
@@ -70,4 +72,13 @@ func (l *LocalityService) ReportSellersByLocality(c context.Context, id int) ([]
 		report = append(report, reportAll...)
 	}
 	return report, nil
+}
+
+func (l *LocalityService) ExistsById(c context.Context, idLocality int) error {
+	localityExists := l.repository.ExistsById(c, idLocality)
+
+	if !localityExists {
+		return ErrLocalityNotExists
+	}
+	return nil
 }

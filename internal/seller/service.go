@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
-	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 )
 
 var (
@@ -28,13 +27,11 @@ type Service interface {
 
 type sellerService struct {
 	repository Repository
-	repositoryLocality locality.Repository
 }
 
-func NewService(r Repository, l locality.Repository) Service {
+func NewService(r Repository) Service {
 	return &sellerService{
 		repository: r,
-		repositoryLocality: l,
 	}
 }
 
@@ -49,9 +46,6 @@ func (s *sellerService) GetAll(ctx context.Context) ([]domain.Seller, error) {
 func (s *sellerService) Save(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
 	if s.repository.Exists(ctx, seller.CID) {
 		return domain.Seller{}, ErrCidAlreadyExists
-	}
-	if !s.repositoryLocality.ExistsById(ctx, seller.LocalityId) {
-		return domain.Seller{}, ErrLocality
 	}
 	sellerId, err := s.repository.Save(ctx, seller)
 	if err != nil {

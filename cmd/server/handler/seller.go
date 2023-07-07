@@ -6,18 +6,21 @@ import (
 	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
 type SellerController struct {
-	sellerService seller.Service
+	sellerService      seller.Service
+	repositoryLocality locality.Service
 }
 
-func NewSeller(s seller.Service) *SellerController {
+func NewSeller(s seller.Service, l locality.Service) *SellerController {
 	return &SellerController{
-		sellerService: s,
+		sellerService:      s,
+		repositoryLocality: l,
 	}
 }
 
@@ -85,9 +88,15 @@ func (s *SellerController) Get() gin.HandlerFunc {
 func (s *SellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerInput := &domain.Seller{}
-		err := c.ShouldBindJSON(sellerInput)
-		if err != nil {
+
+		if err := c.ShouldBindJSON(sellerInput); err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, seller.ErrTryAgain.Error())
+			return
+		}
+
+		err := s.repositoryLocality.ExistsById(c, sellerInput.ID)
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
 
@@ -107,7 +116,7 @@ func (s *SellerController) Create() gin.HandlerFunc {
 		}
 
 		sellerSaved, err := s.sellerService.Save(c, *sellerInput)
-		switch err{
+		switch err {
 		case seller.ErrLocality:
 			web.Error(c, http.StatusConflict, err.Error())
 			return

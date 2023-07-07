@@ -50,9 +50,12 @@ func (r *router) setGroup() {
 
 func (r *router) buildSellerRoutes() {
 	repoSellers := seller.NewRepository(r.db)
+	serviceSellers := seller.NewService(repoSellers)
+
 	repoLocalities := locality.NewRepository(r.db)
-	service := seller.NewService(repoSellers, repoLocalities)
-	handler := handler.NewSeller(service)
+	serviceLocalities := locality.NewService(repoLocalities)
+
+	handler := handler.NewSeller(serviceSellers, serviceLocalities)
 	r.rg.GET("/sellers", handler.GetAll())
 	r.rg.GET("/sellers/:id", handler.Get())
 	r.rg.POST("/sellers", handler.Create())
@@ -60,7 +63,7 @@ func (r *router) buildSellerRoutes() {
 	r.rg.PATCH("/sellers/:id", handler.Update())
 }
 
-func (r *router) buildLocalityRoutes(){
+func (r *router) buildLocalityRoutes() {
 	repo := locality.NewRepository(r.db)
 	service := locality.NewService(repo)
 	handler := handler.NewLocality(service)
