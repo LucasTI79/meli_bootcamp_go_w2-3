@@ -8,6 +8,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
+	productrecord "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_record"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -40,6 +41,8 @@ func (r *router) MapRoutes() {
 	r.buildEmployeeRoutes()
 	r.buildBuyerRoutes()
 	r.buildSwagger()
+
+	r.buildProductRecordRoutes()
 }
 
 func (r *router) setGroup() {
@@ -112,6 +115,19 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
 	r.rg.DELETE("/buyers/:id", handler.Delete())
+}
+
+func (r *router) buildProductRecordRoutes() {
+	productRepo := product.NewRepository(r.db)
+	productService := product.NewService(productRepo)
+
+	repo := productrecord.NewRepository(r.db)
+	service := productrecord.NewService(repo)
+	handler := handler.NewProductRecord(service, productService)
+
+	r.rg.POST("/productRecords", handler.Create())
+	// r.rg.GET("/products/reportRecords", )
+	// r.rg.GET("/products/reportRecords:id", )
 }
 
 func (r *router) buildSwagger() {
