@@ -96,7 +96,7 @@ func TestSave(t *testing.T) {
 			ProductTypeID:      1,
 		}
 		mockRepository, service := InitServerWithWarehousesRepository(t)
-		mockRepository.On("Exists", context.TODO(), 0).Return(true)
+		mockRepository.On("Exists", context.TODO(), 0).Return(false)
 		mockRepository.On("Save", mock.AnythingOfType("domain.Section")).Return(1, nil)
 		_, err := service.Save(context.Background(), expectedSection)
 		expectedSection.ID = 1
@@ -136,7 +136,7 @@ func TestSave(t *testing.T) {
 			ProductTypeID:      1,
 		}
 		mockRepository, service := InitServerWithWarehousesRepository(t)
-		mockRepository.On("Exists", context.TODO(), 1).Return(false)
+		mockRepository.On("Exists", context.TODO(), 1).Return(true)
 		mockRepository.On("Save", mock.Anything).Return(false)
 		id, err := service.Save(context.Background(), section)
 		assert.Equal(t, 0, id)
