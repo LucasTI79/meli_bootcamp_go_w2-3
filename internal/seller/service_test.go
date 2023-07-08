@@ -21,6 +21,7 @@ func TestGetAllSelllers(t *testing.T) {
 				CompanyName: "Company Name",
 				Address:     "Address",
 				Telephone:   "88748585",
+				LocalityId: 1,
 			},
 			{
 				ID:          2,
@@ -28,6 +29,7 @@ func TestGetAllSelllers(t *testing.T) {
 				CompanyName: "Company Name2",
 				Address:     "Address2",
 				Telephone:   "12345698",
+				LocalityId: 2,
 			},
 		}
 
@@ -49,6 +51,7 @@ func TestGetByIdSellers(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
+			LocalityId: 1,
 		}
 		repository, service := InitServerRepository(t)
 		repository.On("Get", mock.Anything, expectedSellers.ID).Return(expectedSellers, nil)
@@ -90,6 +93,7 @@ func TestCreateSellers(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
+			LocalityId: 1,
 		}
 		repository, service := InitServerRepository(t)
 		repository.On("Exists", mock.Anything, 1).Return(false)
@@ -102,6 +106,7 @@ func TestCreateSellers(t *testing.T) {
 		assert.Equal(t, "Company Name", seller.CompanyName)
 		assert.Equal(t, "Address", seller.Address)
 		assert.Equal(t, "88748585", seller.Telephone)
+		assert.Equal(t, 1, seller.LocalityId)
 
 		assert.NoError(t, err)
 	})
@@ -140,6 +145,7 @@ func TestDeleteSellers(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
+			LocalityId: 1,
 		}
 
 		repository, service := InitServerRepository(t)
@@ -181,6 +187,7 @@ func TestUpdateSellers(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
+			LocalityId: 1,
 		}
 
 		repository, service := InitServerRepository(t)
@@ -200,6 +207,7 @@ func TestUpdateSellers(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
+			LocalityId: 1,
 		}
 
 		repository, service := InitServerRepository(t)
@@ -220,6 +228,7 @@ func TestUpdateSellers(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
+			LocalityId: 1,
 		}
 		updateSeller := domain.Seller{
 			CID:      2,
@@ -245,6 +254,7 @@ func TestUpdateSellers(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
+			LocalityId: 1,
 		}
 
 		repository, service := InitServerRepository(t)
