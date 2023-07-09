@@ -52,7 +52,7 @@ func (l *LocalityController) Create() gin.HandlerFunc {
 	}
 }
 
-func (l *LocalityController) ReportSellersByLocalities() gin.HandlerFunc {
+func (l *LocalityController) ReportSellersByLocality() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		localityIdStr := c.Query("id")
 

@@ -18,3 +18,10 @@ type LocalityReport struct {
 	SellersCount int `json:"sellers_count"`
 }
 
+type LocalityResponseId struct {
+	Data LocalityInput `json:"data"`
+}
+
+type LocalitySellersResponse struct {
+	Data []LocalityReport `json:"data"`
+}
