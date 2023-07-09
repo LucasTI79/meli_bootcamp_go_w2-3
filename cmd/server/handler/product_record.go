@@ -65,3 +65,15 @@ func (p *ProductRecordController) Create() gin.HandlerFunc {
 		web.Success(c, http.StatusCreated, productRecordItem) //201
 	}
 }
+
+func (p *ProductRecordController) RecordsByAllProductsReport() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		productRecordsReport, err := p.productRecordService.RecordsByAllProductsReport(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, productrecord.ErrTryAgain.Error())
+
+			return
+		}
+		web.Success(c, http.StatusOK, productRecordsReport)
+	}
+}

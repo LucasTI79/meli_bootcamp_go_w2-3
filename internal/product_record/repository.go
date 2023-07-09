@@ -34,7 +34,7 @@ func NewRepository(db *sql.DB) Repository {
 
 // get all product_records by each product
 func (r *repository) RecordsByAllProductsReport(ctx context.Context) ([]domain.RecordByProduct, error) {
-	// query := "SELECT * FROM product_records;" //ajustar
+
 	rows, err := r.db.Query(RecordsByAllProductsQuery)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (r *repository) RecordsByAllProductsReport(ctx context.Context) ([]domain.R
 	defer rows.Close()
 	var recordsByProduct []domain.RecordByProduct
 	for rows.Next() {
-		p := domain.RecordByProduct{} //product_records by one product
+		p := domain.RecordByProduct{}
 		err := rows.Scan(&p.ProductID, &p.Description, &p.RecordsCount)
 		if err != nil {
 			return nil, err

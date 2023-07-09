@@ -126,7 +126,7 @@ func (r *router) buildProductRecordRoutes() {
 	handler := handler.NewProductRecord(service, productService)
 
 	r.rg.POST("/productRecords", handler.Create())
-	// r.rg.GET("/products/reportRecords", )
+	r.rg.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
 	// r.rg.GET("/products/reportRecords:id", )
 }
 

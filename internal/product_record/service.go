@@ -38,11 +38,12 @@ func (s *ProductRecordService) Save(ctx context.Context, p domain.ProductRecord)
 
 func (s *ProductRecordService) RecordsByAllProductsReport(ctx context.Context) ([]domain.RecordByProduct, error) {
 	productRecordsReport, err := s.repository.RecordsByAllProductsReport(ctx)
+	fmt.Println("productRecordsReport service", productRecordsReport)
 	return productRecordsReport, err
-
 }
 
 func (s *ProductRecordService) RecordsByOneProductReport(ctx context.Context, id int) (domain.RecordByProduct, error) {
-	product, err := s.repository.RecordsByOneProductReport(ctx, id)
-	return product, err
+	productRecord, err := s.repository.RecordsByOneProductReport(ctx, id)
+	fmt.Println("productRecord service", productRecord)
+	return productRecord, err
 }
