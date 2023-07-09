@@ -3,6 +3,7 @@ package productrecord
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
@@ -71,8 +72,9 @@ func (r *repository) Save(ctx context.Context, productRecord domain.ProductRecor
 	if err != nil {
 		return 0, err
 	}
-	res, err := stmt.Exec(productRecord.LastUpdateDate, productRecord.LastUpdateDate, productRecord.PurchasePrice, productRecord.SalePrice, productRecord.ProductID)
+	res, err := stmt.Exec(productRecord.LastUpdateDate, productRecord.PurchasePrice, productRecord.SalePrice, productRecord.ProductID)
 	if err != nil {
+		fmt.Println("erro da repository", err)
 		return 0, err
 	}
 
@@ -80,5 +82,6 @@ func (r *repository) Save(ctx context.Context, productRecord domain.ProductRecor
 	if err != nil {
 		return 0, err
 	}
+	fmt.Println("id do obj inserido", id)
 	return int(id), nil
 }
