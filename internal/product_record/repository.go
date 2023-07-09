@@ -52,13 +52,14 @@ func (r *repository) RecordsByAllProductsReport(ctx context.Context) ([]domain.R
 	return recordsByProduct, nil
 }
 
-// get the product_records by one specific product
+// get all product_records by one specific product
 func (r *repository) RecordsByOneProductReport(ctx context.Context, id int) (domain.RecordByProduct, error) {
-	// query := "SELECT * FROM products WHERE id=?;"
+
 	row := r.db.QueryRow(RecordsByOneProductQuery, id)
 	p := domain.RecordByProduct{}
 	err := row.Scan(&p.ProductID, &p.Description, &p.RecordsCount)
 	if err != nil {
+
 		if err.Error() == "sql: no rows in result set" {
 			return domain.RecordByProduct{}, ErrNotFound
 		}

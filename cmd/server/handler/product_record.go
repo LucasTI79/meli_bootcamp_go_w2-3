@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
@@ -75,5 +77,29 @@ func (p *ProductRecordController) RecordsByAllProductsReport() gin.HandlerFunc {
 			return
 		}
 		web.Success(c, http.StatusOK, productRecordsReport)
+	}
+}
+
+func (p *ProductRecordController) RecordsByOneProductReport() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		productId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Response(c, http.StatusBadRequest, product.ErrInvalidId.Error())
+			return
+		}
+
+		productRecord, err := p.productRecordService.RecordsByOneProductReport(c, productId)
+		if err != nil {
+			if errors.Is(err, productrecord.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, productrecord.ErrNotFound.Error())
+
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, product.ErrTryAgain.Error())
+
+			return
+		}
+		web.Success(c, http.StatusOK, productRecord)
 	}
 }

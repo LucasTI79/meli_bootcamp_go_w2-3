@@ -127,7 +127,7 @@ func (r *router) buildProductRecordRoutes() {
 
 	r.rg.POST("/productRecords", handler.Create())
 	r.rg.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
-	// r.rg.GET("/products/reportRecords:id", )
+	r.rg.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
 }
 
 func (r *router) buildSwagger() {
