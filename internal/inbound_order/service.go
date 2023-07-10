@@ -12,6 +12,10 @@ var (
 	ErrNotFound            = errors.New("inbound orders not found")
 	ErrConflict            = errors.New("409 Conflict: inbound orders already exists")
 	ErrUnprocessableEntity = errors.New("all fields are required")
+	ErrInvalidId           = errors.New("invalid id")
+	ErrTryAgain            = errors.New("internal error")
+	ErrAlredyExists        = errors.New("already exists")
+	ErrInvalidJSON         = errors.New("invalid JSON")
 )
 
 type Service interface {
@@ -20,6 +24,7 @@ type Service interface {
 	Save(ctx *context.Context, inboundOrders domain.InboundOrders) (*domain.InboundOrders, error)
 	Update(ctx *context.Context, id int, reqUpdateInboundOrders *domain.RequestUpdateInboundOrders) (*domain.InboundOrders, error)
 	Delete(ctx *context.Context, id int) error
+	Create(ctx context.Context, d domain.InboundOrders) (domain.InboundOrders, error)
 }
 
 type service struct {

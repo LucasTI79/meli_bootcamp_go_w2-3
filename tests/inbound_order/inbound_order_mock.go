@@ -44,8 +44,3 @@ func (m *InboundOrderRepositoryMock) Get(ctx context.Context, id int) (domain.In
 	args := m.Called(ctx, id)
 	return args.Get(0).(domain.InboundOrders), args.Error(1)
 }
-
-func (m *InboundOrderRepositoryMock) ExistsByCidInboundOrder(ctx context.Context, cid string) bool {
-	args := m.Called(ctx, cid)
-	return args.Get(0).(bool)
-}
