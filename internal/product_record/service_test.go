@@ -3,7 +3,7 @@ package productrecord_test
 import (
 	"context"
 	"errors"
-	"fmt"
+
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
@@ -33,7 +33,7 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 		repository.On("RecordsByAllProductsReport", mock.Anything).Return(expectedReport, nil)
 
 		reports, err := service.RecordsByAllProductsReport(context.TODO())
-		fmt.Println("reports mock", reports)
+
 		assert.True(t, len(reports) == 2)
 		assert.NoError(t, err)
 	})
