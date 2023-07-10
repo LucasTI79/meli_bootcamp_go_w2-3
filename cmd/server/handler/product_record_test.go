@@ -107,6 +107,19 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
 
+	t.Run("Should return status 404 when the report of a product is not found", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithProductRecords(t)
+
+		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
+
+		mockService.On("RecordsByOneProductReport", mock.AnythingOfType("int")).Return(domain.ProductRecordReport{}, productrecord.ErrNotFound)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
 }
 
 func InitServerWithProductRecords(t *testing.T) (*gin.Engine, *mocks1.ProductRecordServiceMock, *handler.ProductRecordController) {
