@@ -7,15 +7,10 @@ import (
 )
 
 const (
-	SaveQuery                       = "INSERT INTO product_batches ( batch_number, current_quantity, current_temperature, due_date, initial_quantity, manufacturing_date, manufacturing_hour, minimum_temperature, product_id, section_id) VALUES (?,?,?,?,?,?,?,?,?,?)"
-	SectionExists                   = "SELECT id FROM sections WHERE id=?"
-	SectionProductsReports          = "SELECT count(pb.id) as `products_count`, pb.section_id, s.section_number FROM product_batches pb JOIN sections s ON pb.section_id = s.id GROUP BY pb.section_id"
-	SectionProductsReportsBySection = "SELECT count(pb.id) as `products_count`, pb.section_id, s.section_number FROM product_batches pb JOIN sections s ON pb.section_id = s.id WHERE pb.section_id = ? GROUP BY pb.section_id"
+	SaveQuery = "INSERT INTO product_batches ( batch_number, current_quantity, current_temperature, due_date, initial_quantity, manufacturing_date, manufacturing_hour, minimum_temperature, product_id, section_id) VALUES (?,?,?,?,?,?,?,?,?,?)"
 )
 
 type Repository interface {
-	SectionProductsReports() ([]domain.ProductBySection, error)
-	SectionProductsReportsBySection() (domain.ProductBySection, error)
 	Save(produsctBatch domain.ProductBatch) (int, error)
 }
 
@@ -27,38 +22,6 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{
 		db,
 	}
-}
-
-func (r *repository) SectionProductsReports() ([]domain.ProductBySection, error) {
-	rows, err := r.db.Query(SectionProductsReports)
-	if err != nil {
-		return nil, err
-	}
-	var productsBySection []domain.ProductBySection
-	for rows.Next() {
-		var productBySection domain.ProductBySection
-		err := rows.Scan(&productBySection.ProductsCount, &productBySection.SectionID, &productBySection.SectionNumber)
-		if err != nil {
-			return nil, err
-		}
-		productsBySection = append(productsBySection, productBySection)
-	}
-	return productsBySection, nil
-}
-
-func (r *repository) SectionProductsReportsBySection() (domain.ProductBySection, error) {
-	rows, err := r.db.Query(SectionProductsReportsBySection)
-	if err != nil {
-		return domain.ProductBySection{}, err
-	}
-	var productBySection domain.ProductBySection
-	for rows.Next() {
-		err := rows.Scan(&productBySection.ProductsCount, &productBySection.SectionID, &productBySection.SectionNumber)
-		if err != nil {
-			return domain.ProductBySection{}, err
-		}
-	}
-	return productBySection, nil
 }
 
 func (r *repository) Save(produsctBatch domain.ProductBatch) (int, error) {
