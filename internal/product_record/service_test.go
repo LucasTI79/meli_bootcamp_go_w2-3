@@ -66,6 +66,30 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func TestCreateProducts(t *testing.T) {
+
+	expectedProductRecord := domain.ProductRecord{
+		ID:             1,
+		LastUpdateDate: "2021-04-04",
+		PurchasePrice:  10,
+		SalePrice:      15,
+		ProductID:      1,
+	}
+	id := 1
+	t.Run("Should create a product record when it contains the necessary fields", func(t *testing.T) {
+
+		service, repository := CreateProductRecordService(t)
+		repository.On("Save", mock.Anything).Return(id, nil)
+
+		productReportId, err := service.Save(context.TODO(), expectedProductRecord)
+
+		assert.Equal(t, expectedProductRecord.ID, productReportId)
+
+		assert.NoError(t, err)
+	})
+}
+
 func CreateProductRecordService(t *testing.T) (productrecord.Service, *mocks.ProductRecordRepositoryMock) {
 	mockRepository := new(mocks.ProductRecordRepositoryMock)
 	mockService := productrecord.NewService(mockRepository)
