@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	BaseEndpointInboundOrders       = "/InboundOrders"
-	BaseEndpointWithIdInboundOrders = "/InboundOrders/:id"
+	BaseEndpointInboundOrders       = "/inbound-orders"
+	BaseEndpointWithIdInboundOrders = "/inbound-orders/:id"
 )
 
 var expectedInboundOrder = domain.InboundOrders{

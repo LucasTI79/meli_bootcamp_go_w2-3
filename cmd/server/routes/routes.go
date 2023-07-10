@@ -8,11 +8,13 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/carry"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
+
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -44,10 +46,20 @@ func (r *router) MapRoutes() {
 	r.buildCarryRoutes()
 	r.buildSwagger()
 	r.buildLocalityRoutes()
+	r.buildInboundOrderRoutes()
+
 }
 
 func (r *router) setGroup() {
 	r.rg = r.eng.Group("/api/v1")
+}
+
+func (r *router) buildInboundOrderRoutes() {
+	repoInboundOrder := inbound_order.NewRepository(r.db)
+	service := inbound_order.NewService(repoInboundOrder)
+	handler := handler.NewInboundOrders(service)
+	r.rg.GET("/inbound-orders/:id", handler.Get())
+	r.rg.POST("/inbound-orders", handler.Create())
 }
 
 func (r *router) buildSellerRoutes() {
@@ -133,7 +145,7 @@ func (r *router) buildBuyerRoutes() {
 func (r *router) buildCarryRoutes() {
 	repoCarry := carry.NewRepository(r.db)
 	repoLocalities := locality.NewRepository(r.db)
-	service := carry.NewService(repoCarry,repoLocalities)
+	service := carry.NewService(repoCarry, repoLocalities)
 	handler := handler.NewCarry(service)
 	r.rg.GET("/carriers/:id", handler.Get())
 	r.rg.GET("/localities/reportCarriers", handler.Read())
