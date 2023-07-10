@@ -67,7 +67,7 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 }
 
 func TestRecordsByOneProductReport(t *testing.T) {
-	//case find_by_id_existent
+
 	t.Run("Should return status 200 with the product record report", func(t *testing.T) {
 		expectedProductRecordReport := domain.ProductRecordReport{
 			ProductID:    1,
@@ -91,6 +91,20 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		assert.Equal(t, expectedProductRecordReport, responseResult.Data)
 		assert.Equal(t, http.StatusOK, response.Code)
 
+	})
+
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		ExpectedEmpityProductReport := domain.ProductRecordReport{}
+
+		server, mockService, handler := InitServerWithProductRecords(t)
+
+		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+		mockService.On("RecordsByOneProductReport", mock.Anything).Return(ExpectedEmpityProductReport, productrecord.ErrTryAgain)
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
 
 }
