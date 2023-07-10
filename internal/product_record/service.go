@@ -17,8 +17,8 @@ var (
 
 type Service interface {
 	Save(ctx context.Context, p domain.ProductRecord) (int, error)
-	RecordsByAllProductsReport(ctx context.Context) ([]domain.RecordByProduct, error)
-	RecordsByOneProductReport(ctx context.Context, id int) (domain.RecordByProduct, error)
+	RecordsByAllProductsReport(ctx context.Context) ([]domain.ProductRecordReport, error)
+	RecordsByOneProductReport(ctx context.Context, id int) (domain.ProductRecordReport, error)
 }
 
 type ProductRecordService struct {
@@ -36,13 +36,13 @@ func (s *ProductRecordService) Save(ctx context.Context, p domain.ProductRecord)
 	return productReportId, err
 }
 
-func (s *ProductRecordService) RecordsByAllProductsReport(ctx context.Context) ([]domain.RecordByProduct, error) {
+func (s *ProductRecordService) RecordsByAllProductsReport(ctx context.Context) ([]domain.ProductRecordReport, error) {
 	productRecordsReport, err := s.repository.RecordsByAllProductsReport(ctx)
 	fmt.Println("productRecordsReport service", productRecordsReport)
 	return productRecordsReport, err
 }
 
-func (s *ProductRecordService) RecordsByOneProductReport(ctx context.Context, id int) (domain.RecordByProduct, error) {
+func (s *ProductRecordService) RecordsByOneProductReport(ctx context.Context, id int) (domain.ProductRecordReport, error) {
 	productRecord, err := s.repository.RecordsByOneProductReport(ctx, id)
 	fmt.Println("productRecord service", productRecord)
 	return productRecord, err

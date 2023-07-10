@@ -18,8 +18,8 @@ const (
 type Repository interface {
 	// ProductExists(ctx context.Context, productID int) bool
 	Save(ctx context.Context, p domain.ProductRecord) (int, error)
-	RecordsByOneProductReport(ctx context.Context, id int) (domain.RecordByProduct, error)
-	RecordsByAllProductsReport(ctx context.Context) ([]domain.RecordByProduct, error)
+	RecordsByOneProductReport(ctx context.Context, id int) (domain.ProductRecordReport, error)
+	RecordsByAllProductsReport(ctx context.Context) ([]domain.ProductRecordReport, error)
 }
 
 type repository struct {
@@ -33,16 +33,16 @@ func NewRepository(db *sql.DB) Repository {
 }
 
 // get all product_records by each product
-func (r *repository) RecordsByAllProductsReport(ctx context.Context) ([]domain.RecordByProduct, error) {
+func (r *repository) RecordsByAllProductsReport(ctx context.Context) ([]domain.ProductRecordReport, error) {
 
 	rows, err := r.db.Query(RecordsByAllProductsQuery)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var recordsByProduct []domain.RecordByProduct
+	var recordsByProduct []domain.ProductRecordReport
 	for rows.Next() {
-		p := domain.RecordByProduct{}
+		p := domain.ProductRecordReport{}
 		err := rows.Scan(&p.ProductID, &p.Description, &p.RecordsCount)
 		if err != nil {
 			return nil, err
@@ -53,17 +53,17 @@ func (r *repository) RecordsByAllProductsReport(ctx context.Context) ([]domain.R
 }
 
 // get all product_records by one specific product
-func (r *repository) RecordsByOneProductReport(ctx context.Context, id int) (domain.RecordByProduct, error) {
+func (r *repository) RecordsByOneProductReport(ctx context.Context, id int) (domain.ProductRecordReport, error) {
 
 	row := r.db.QueryRow(RecordsByOneProductQuery, id)
-	p := domain.RecordByProduct{}
+	p := domain.ProductRecordReport{}
 	err := row.Scan(&p.ProductID, &p.Description, &p.RecordsCount)
 	if err != nil {
 
 		if err.Error() == "sql: no rows in result set" {
-			return domain.RecordByProduct{}, ErrNotFound
+			return domain.ProductRecordReport{}, ErrNotFound
 		}
-		return domain.RecordByProduct{}, err
+		return domain.ProductRecordReport{}, err
 	}
 	return p, nil
 }
