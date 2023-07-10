@@ -7,6 +7,7 @@ import (
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	productrecord "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_record"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
 	mocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/product"
@@ -119,6 +120,20 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("Should return 400 when an product Id is invalid", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithProductRecords(t)
+		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+
+		mockService.On("RecordsByOneProductReport", mock.Anything).Return(domain.ProductRecordReport{}, product.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/invalidId", "")
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 }
 
