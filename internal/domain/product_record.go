@@ -14,3 +14,7 @@ type ProductRecordRequest struct {
 	SalePrice      int    `json:"sale_price"`
 	ProductID      int    `json:"product_id"`
 }
+
+type ProductRecordResponseById struct {
+	Data ProductRecord `json:"data"`
+}
