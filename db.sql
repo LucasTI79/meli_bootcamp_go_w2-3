@@ -2,31 +2,27 @@
 -- Wed Jul  6 10:01:09 2022
 -- Model: New Model    Version: 1.0
 -- MySQL Workbench Forward Engineering
-
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-
 -- -----------------------------------------------------
 -- Schema melisprint
 -- -----------------------------------------------------
-
 -- -----------------------------------------------------
 -- Schema melisprint
 -- -----------------------------------------------------
+DROP DATABASE IF EXISTS `melisprint` ;
 CREATE SCHEMA IF NOT EXISTS `melisprint` DEFAULT CHARACTER SET utf8 ;
 USE `melisprint` ;
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`countries`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `melisprint`.`countries` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `country_name` VARCHAR(255) NOT NULL,
+  CONSTRAINT `country_name_UNIQUE` UNIQUE (`country_name`),
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`provinces`
 -- -----------------------------------------------------
@@ -36,14 +32,13 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`provinces` (
   `country_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `country_id_idx` (`country_id` ASC) VISIBLE,
+  CONSTRAINT `province_UNIQUE` UNIQUE (`province_name`, `country_id`),
   CONSTRAINT `fk_country_provinces`
     FOREIGN KEY (`country_id`)
     REFERENCES `melisprint`.`countries` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`localities`
 -- -----------------------------------------------------
@@ -53,14 +48,13 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`localities` (
   `province_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `province_id_idx` (`province_id` ASC) VISIBLE,
+  CONSTRAINT `locality_UNIQUE` UNIQUE (`locality_name`, `province_id`),
   CONSTRAINT `fk_province_localities`
     FOREIGN KEY (`province_id`)
     REFERENCES `melisprint`.`provinces` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`sellers`
 -- -----------------------------------------------------
@@ -80,8 +74,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`sellers` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`product_types`
 -- -----------------------------------------------------
@@ -90,8 +82,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`product_types` (
   `description` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`products`
 -- -----------------------------------------------------
@@ -123,8 +113,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`products` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`warehouses`
 -- -----------------------------------------------------
@@ -133,8 +121,8 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`warehouses` (
   `address` VARCHAR(255) NOT NULL,
   `telephone` VARCHAR(255) NOT NULL,
   `warehouse_code` VARCHAR(255) NOT NULL,
-  `minimun_capacity` INT NOT NULL,
-  `minimun_temperature` DECIMAL(19,2) NOT NULL,
+  `minimum_capacity` INT NOT NULL,
+  `minimum_temperature` DECIMAL(19,2) NOT NULL,
   `locality_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `locality_id_idx` (`locality_id` ASC) VISIBLE,
@@ -145,8 +133,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`warehouses` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`sections`
 -- -----------------------------------------------------
@@ -175,8 +161,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`sections` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`product_batches`
 -- -----------------------------------------------------
@@ -206,8 +190,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`product_batches` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`product_records`
 -- -----------------------------------------------------
@@ -225,8 +207,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`product_records` (
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`buyers`
 -- -----------------------------------------------------
@@ -238,8 +218,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`buyers` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `card_number_id_UNIQUE` (`card_number_id` ASC) VISIBLE)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`carriers`
 -- -----------------------------------------------------
@@ -258,8 +236,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`carriers` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`order_status`
 -- -----------------------------------------------------
@@ -268,8 +244,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`order_status` (
   `description` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`purchase_orders`
 -- -----------------------------------------------------
@@ -315,8 +289,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`purchase_orders` (
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`order_details`
 -- -----------------------------------------------------
@@ -341,8 +313,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`order_details` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`employees`
 -- -----------------------------------------------------
@@ -361,8 +331,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`employees` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`inbound_orders`
 -- -----------------------------------------------------
@@ -373,6 +341,7 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`inbound_orders` (
   `employee_id` INT NOT NULL,
   `product_batch_id` INT NOT NULL,
   `warehouse_id` INT NOT NULL,
+  CONSTRAINT `order_number` UNIQUE (`order_number`),
   PRIMARY KEY (`id`),
   INDEX `employee_id_idx` (`employee_id` ASC) VISIBLE,
   INDEX `product_batch_id_idx` (`product_batch_id` ASC) VISIBLE,
@@ -393,8 +362,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`inbound_orders` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`roles`
 -- -----------------------------------------------------
@@ -404,8 +371,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`roles` (
   `rol_name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`users`
 -- -----------------------------------------------------
@@ -415,8 +380,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`users` (
   `username` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `melisprint`.`user_rol`
 -- -----------------------------------------------------
@@ -436,8 +399,6 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`user_rol` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `logs`
 -- -----------------------------------------------------
@@ -451,9 +412,52 @@ CREATE TABLE IF NOT EXISTS `melisprint`.`logs` (
     `insert_date` DATETIME(6) NOT NULL,
     PRIMARY KEY (`id`))
     ENGINE = InnoDB;
-
-
-
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+INSERT INTO `melisprint`.`countries` (`country_name`) VALUES ('Brazil');
+INSERT INTO `melisprint`.`countries` (`country_name`) VALUES ('United States');
+INSERT INTO `melisprint`.`provinces` (`province_name`, `country_id`) VALUES ('São Paulo', 1);
+INSERT INTO `melisprint`.`provinces` (`province_name`, `country_id`) VALUES ('California', 2);
+INSERT INTO `melisprint`.`localities` (`locality_name`, `province_id`) VALUES ('São Paulo City', 1);
+INSERT INTO `melisprint`.`localities` (`locality_name`, `province_id`) VALUES ('Los Angeles', 2);
+INSERT INTO `melisprint`.`sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES ('123456789', 'Seller 1', 'Address 1', '123456789', 1);
+INSERT INTO `melisprint`.`sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES ('987654321', 'Seller 2', 'Address 2', '987654321', 2);
+INSERT INTO `melisprint`.`product_types` (`description`) VALUES ('Type 1');
+INSERT INTO `melisprint`.`product_types` (`description`) VALUES ('Type 2');
+INSERT INTO `melisprint`.`product_types` (`description`) VALUES ('Type 3');
+INSERT INTO `melisprint`.`product_types` (`description`) VALUES ('Type 4');
+INSERT INTO `melisprint`.`product_types` (`description`) VALUES ('Type 5');
+INSERT INTO `melisprint`.`products` (`product_code`, `description`, `width`, `height`, `length`, `net_weight`, `expiration_rate`, `recommended_freezing_temperature`, `freezing_rate`, `product_type_id`, `seller_id`) VALUES ('P001', 'Product 1', '10', 5.5, 8.2, 100.25, 0.8, -18, 0.5, 1, 1);
+INSERT INTO `melisprint`.`products` (`product_code`, `description`, `width`, `height`, `length`, `net_weight`, `expiration_rate`, `recommended_freezing_temperature`, `freezing_rate`, `product_type_id`, `seller_id`) VALUES ('P002', 'Product 2', '7.5', 3.2, 6.7, 75.5, 0.9, -15, 0.3, 2, 2);
+INSERT INTO `melisprint`.`warehouses` (`address`, `telephone`, `warehouse_code`, `minimum_capacity`, `minimum_temperature`, `locality_id`) VALUES ('Warehouse 1 Address', '111111111', 'W001', 100, -20, 1);
+INSERT INTO `melisprint`.`warehouses` (`address`, `telephone`, `warehouse_code`, `minimum_capacity`, `minimum_temperature`, `locality_id`) VALUES ('Warehouse 2 Address', '222222222', 'W002', 150, -18, 2);
+INSERT INTO `melisprint`.`sections` (`section_number`, `current_temperature`, `minimum_temperature`, `current_capacity`, `minimum_capacity`, `maximum_capacity`, `warehouse_id`, `product_type_id`) VALUES (1, -18, -20, 50, 20, 100, 1, 1);
+INSERT INTO `melisprint`.`sections` (`section_number`, `current_temperature`, `minimum_temperature`, `current_capacity`, `minimum_capacity`, `maximum_capacity`, `warehouse_id`, `product_type_id`) VALUES (2, -15, -18, 60, 30, 150, 2, 2);
+INSERT INTO `melisprint`.`product_batches` (`batch_number`, `current_quantity`, `current_temperature`, `due_date`, `initial_quantity`, `manufacturing_date`, `manufacturing_hour`, `minimum_temperature`, `product_id`, `section_id`) VALUES (1, 200, -18, '2023-07-31 00:00:00', 300, '2023-07-01 00:00:00', 8, -20, 1, 1);
+INSERT INTO `melisprint`.`product_batches` (`batch_number`, `current_quantity`, `current_temperature`, `due_date`, `initial_quantity`, `manufacturing_date`, `manufacturing_hour`, `minimum_temperature`, `product_id`, `section_id`) VALUES (2, 150, -15, '2023-08-15 00:00:00', 200, '2023-07-10 00:00:00', 9, -18, 2, 2);
+INSERT INTO `melisprint`.`product_records` (`last_update_date`, `purchase_price`, `sale_price`, `product_id`) VALUES ('2023-07-05 10:00:00', 10.50, 15.00, 1);
+INSERT INTO `melisprint`.`product_records` (`last_update_date`, `purchase_price`, `sale_price`, `product_id`) VALUES ('2023-07-05 10:00:00', 8.75, 12.50, 2);
+INSERT INTO `melisprint`.`buyers` (`card_number_id`, `first_name`, `last_name`) VALUES ('987654321', 'John', 'Doe');
+INSERT INTO `melisprint`.`buyers` (`card_number_id`, `first_name`, `last_name`) VALUES ('123456789', 'Jane', 'Smith');
+INSERT INTO `melisprint`.`carriers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES ('111111', 'Carrier 1', 'Carrier Address 1', '111111111', 1);
+INSERT INTO `melisprint`.`carriers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES ('222222', 'Carrier 2', 'Carrier Address 2', '222222222', 2);
+INSERT INTO `melisprint`.`order_status` (`description`) VALUES ('Completed');
+INSERT INTO `melisprint`.`order_status` (`description`) VALUES ('Pending');
+INSERT INTO `melisprint`.`order_status` (`description`) VALUES ('Processing');
+INSERT INTO `melisprint`.`purchase_orders` (`order_number`, `order_date`, `tracking_code`, `buyer_id`, `carrier_id`, `order_status_id`, `warehouse_id`, `product_record_id`) VALUES ('PO001', '2023-07-01 10:00:00', 'TRACK001', 1, 1, 1, 1, 1);
+INSERT INTO `melisprint`.`purchase_orders` (`order_number`, `order_date`, `tracking_code`, `buyer_id`, `carrier_id`, `order_status_id`, `warehouse_id`, `product_record_id`) VALUES ('PO002', '2023-07-02 11:00:00', 'TRACK002', 2, 2, 2, 2, 2);
+INSERT INTO `melisprint`.`order_details` (`clean_liness_status`, `quantity`, `temperature`, `product_record_id`, `purchase_order_id`) VALUES ('Clean', 10, -18, 1, 1);
+INSERT INTO `melisprint`.`order_details` (`clean_liness_status`, `quantity`, `temperature`, `product_record_id`, `purchase_order_id`) VALUES ('Not clean', 20, -15, 2, 2);
+INSERT INTO `melisprint`.`employees` (`card_number_id`, `first_name`, `last_name`, `warehouse_id`) VALUES ('123456', 'John', 'Smith', 1);
+INSERT INTO `melisprint`.`employees` (`card_number_id`, `first_name`, `last_name`, `warehouse_id`) VALUES ('654321', 'Jane', 'Doe', 2);
+INSERT INTO `melisprint`.`inbound_orders` (`order_date`, `order_number`, `employee_id`, `product_batch_id`, `warehouse_id`) VALUES ('2023-07-05 14:00:00', 'INB001', 1, 1, 1);
+INSERT INTO `melisprint`.`inbound_orders` (`order_date`, `order_number`, `employee_id`, `product_batch_id`, `warehouse_id`) VALUES ('2023-07-06 15:00:00', 'INB002', 2, 2, 2);
+INSERT INTO `melisprint`.`roles` (`description`, `rol_name`) VALUES ('Administrator', 'admin');
+INSERT INTO `melisprint`.`roles` (`description`, `rol_name`) VALUES ('Employee', 'employee');
+INSERT INTO `melisprint`.`users` (`passoword`, `username`) VALUES ('password1', 'user1');
+INSERT INTO `melisprint`.`users` (`passoword`, `username`) VALUES ('password2', 'user2');
+INSERT INTO `melisprint`.`user_rol` (`usuario_id`, `rol_id`) VALUES (1, 1);
+INSERT INTO `melisprint`.`user_rol` (`usuario_id`, `rol_id`) VALUES (2, 2);
+INSERT INTO `melisprint`.`logs` (`method`, `label`, `level`, `message`, `status`, `insert_date`) VALUES ('GET', 'API Request', 'Info', 'API request received', 200, '2023-07-05 16:00:00');
+INSERT INTO `melisprint`.`logs` (`method`, `label`, `level`, `message`, `status`, `insert_date`) VALUES ('POST', 'Data Update', 'Warning', 'Data update failed', 500, '2023-07-05 17:00:00');

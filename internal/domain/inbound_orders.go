@@ -1,6 +1,6 @@
 package domain
 
-type InboundOrders struct {
+type InboundOrder struct {
 	ID             int    `json:"id"`
 	OrderDate      string `json:"order_date"`
 	OrderNumber    string `json:"order_number"`
