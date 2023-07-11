@@ -137,6 +137,46 @@ func TestRecordsByOneProductReport(t *testing.T) {
 	})
 }
 
+func TestSave(t *testing.T) {
+	var productRecordJson = `{
+		"last_update_date": "2021-04-04",
+		"purchase_price": 10,
+		"sale_price": 15,
+		"product_id": 1
+	}`
+	t.Run("Should return 201 when a product record is created", func(t *testing.T) {
+
+		expectedProductRecord := domain.ProductRecord{
+			ID:             1,
+			LastUpdateDate: "2021-04-04",
+			PurchasePrice:  10,
+			SalePrice:      15,
+			ProductID:      1,
+		}
+
+		server, mockService, handler := InitServerWithProductRecords(t)
+
+		server.POST("/productRecords", handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", productRecordJson)
+
+		mockService.On("Save", mock.Anything).Return(1, nil)
+		mockService.On("ExistsById", productRecordJson).Return(nil)
+
+		server.ServeHTTP(response, request)
+
+		responseResult := domain.ProductRecordResponseById{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+
+		assert.Equal(t, expectedProductRecord, responseResult.Data)
+
+		assert.Equal(t, http.StatusCreated, response.Code)
+
+	})
+
+}
+
 func InitServerWithProductRecords(t *testing.T) (*gin.Engine, *mocks1.ProductRecordServiceMock, *handler.ProductRecordController) {
 	t.Helper()
 	server := testutil.CreateServer()

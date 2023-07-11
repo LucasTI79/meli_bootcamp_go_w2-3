@@ -7,12 +7,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// type Service interface {
-// 	Save(ctx context.Context, p domain.ProductRecord) (int, error)
-// 	RecordsByAllProductsReport(ctx context.Context) ([]domain.RecordByProduct, error)
-// 	RecordsByOneProductReport(ctx context.Context, id int) (domain.RecordByProduct, error)
-// }
-
 type ProductRecordServiceMock struct {
 	mock.Mock
 }
