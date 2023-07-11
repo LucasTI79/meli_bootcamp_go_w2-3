@@ -334,7 +334,7 @@ func TestCreateSeller(t *testing.T) {
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
 	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
-		server, mockService, _, handler := InitServer(t)
+		server, mockService, mockLocality, handler := InitServer(t)
 		server.POST(BaseRouteSeller, handler.Create())
 
 		requestBody := domain.Seller{
@@ -348,6 +348,7 @@ func TestCreateSeller(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPost, BaseRouteSeller, string(jsonSeller))
 		mockService.On("Save", mock.Anything, mock.Anything).Return(domain.Seller{}, seller.ErrSaveSeller)
+		mockLocality.On("ExistsById", mock.Anything, requestBody.LocalityId).Return(nil)
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)

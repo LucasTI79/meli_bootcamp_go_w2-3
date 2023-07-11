@@ -124,7 +124,7 @@ func (s *SellerController) Create() gin.HandlerFunc {
 				web.Error(c, http.StatusConflict, err.Error())
 				return
 			}
-			web.Error(c, http.StatusInternalServerError, seller.ErrTryAgain.Error())
+			web.Error(c, http.StatusInternalServerError, seller.ErrSaveSeller.Error())
 		}
 		web.Success(c, http.StatusCreated, sellerSaved)
 	}

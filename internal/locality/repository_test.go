@@ -151,6 +151,50 @@ func TestReportLocality(t *testing.T) {
     })
 }
 
+func TestAllEndpointsRepositoryWithErrorDatabaseClosed(t *testing.T) {
+	db.Close()
+	t.Run("Should return error when there is an Save database error", func(t *testing.T) {
+		repository := locality.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.Save(ctx, localityInputExpected)
+		assert.Error(t, err)
+	})
+	t.Run("Should return error when there is an GetProvinceByName database error", func(t *testing.T) {
+		repository := locality.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.GetProvinceByName(ctx, "aaa")
+		assert.Error(t, err)
+	})
+	t.Run("Should return error when there is an ExistsById database error", func(t *testing.T) {
+		repository := locality.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		exists:= repository.ExistsById(ctx, 001)
+		assert.False(t, exists)
+	})
+	t.Run("Should return error when there is an ReportLocalityId database error", func(t *testing.T) {
+		repository := locality.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.ReportLocalityId(ctx, 001)
+		assert.Error(t, err)
+	})
+	t.Run("Should return error when there is an ReportLocality database error", func(t *testing.T) {
+		repository := locality.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.ReportLocality(ctx)
+		assert.Error(t, err)
+	})
+}
+
 func InitDatabase() *sql.DB {
 	txdb.Register("txdb", "mysql", "root:@/melisprint")
 	db, _ := sql.Open("txdb", uuid.New().String())
