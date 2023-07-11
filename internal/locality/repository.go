@@ -19,7 +19,7 @@ type Repository interface {
 	Save(ctx context.Context, l domain.LocalityInput) (int, error)
 	GetProvinceByName(ctx context.Context, name string) (int, error)
 	ExistsById(ctx context.Context, id int) bool
-	ReportLocalityId(ctx context.Context, id int) (domain.LocalityReport, error)
+	ReportLocalityId(ctx context.Context, idLocality int) (domain.LocalityReport, error)
 	ReportLocality(ctx context.Context) ([]domain.LocalityReport, error)
 }
 
@@ -67,12 +67,12 @@ func (r *repository) ReportLocality(ctx context.Context) ([]domain.LocalityRepor
 	return report, nil
 }
 
-func (r *repository) ReportLocalityId(ctx context.Context, id int) (domain.LocalityReport, error) {
-	row := r.db.QueryRow(ReportSellersByLocality, id)
+func (r *repository) ReportLocalityId(ctx context.Context, idLocality int) (domain.LocalityReport, error) {
+	row := r.db.QueryRow(ReportSellersByLocality, idLocality)
 	l := domain.LocalityReport{}
 	err := row.Scan(&l.IdLocality, &l.LocalityName, &l.SellersCount)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err.Error() == "sql: no rows in result set" {
 			return domain.LocalityReport{}, err
 		}
 		return domain.LocalityReport{}, err
