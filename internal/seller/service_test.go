@@ -41,6 +41,16 @@ func TestGetAllSelllers(t *testing.T) {
 		assert.True(t, len(sellers) == 2)
 		assert.NoError(t, err)
 	})
+	t.Run("Should return all sellers when repository is called", func(t *testing.T) {
+		expectedMessage := "error, try again %s"
+		repository, service := InitServerRepository(t)
+		repository.On("GetAll", mock.Anything).Return([]domain.Seller{}, seller.ErrTryAgain)
+
+		_, err := service.GetAll(context.TODO())
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedMessage, err.Error())
+	})
 }
 
 func TestGetByIdSellers(t *testing.T) {
