@@ -10,8 +10,9 @@ import (
 var (
 	ErrNotFound     = errors.New("product not found")
 	ErrInvalidJson  = errors.New("invalid json")
-	ErrTryAgain     = errors.New("error, try again %s")
+	ErrTryAgain     = errors.New("error, try again")
 	ErrInvalidField = errors.New("invalid field")
+	ErrInvalidDate  = errors.New("invalid date")
 )
 
 type Service interface {
@@ -31,7 +32,6 @@ func NewService(r Repository) Service {
 }
 func (s *ProductRecordService) Save(ctx context.Context, p domain.ProductRecord) (int, error) {
 	productReportId, err := s.repository.Save(ctx, p)
-
 	return productReportId, err
 }
 

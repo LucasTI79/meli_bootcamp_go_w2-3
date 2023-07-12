@@ -36,10 +36,19 @@ func (p *ProductRecordController) Create() gin.HandlerFunc {
 			return
 		}
 
-		const layout = "2006-01-02"
-		_, err = time.Parse(layout, productRecordImput.LastUpdateDate)
+		const layout = "2006-01-02" // modelo da data
+		currentDate := time.Now()   //obtem a data atual
+
+		//transforma data de tipo string para tipo data
+		imputDate, err := time.Parse(layout, productRecordImput.LastUpdateDate)
 		if err != nil {
 			web.Error(c, http.StatusBadRequest, productrecord.ErrInvalidField.Error())
+			return
+		}
+
+		// se a lastUpdateDate for menor que a data do sistema, não poderá ser criado
+		if imputDate.Before(currentDate) {
+			web.Error(c, http.StatusBadRequest, productrecord.ErrInvalidDate.Error())
 			return
 		}
 
