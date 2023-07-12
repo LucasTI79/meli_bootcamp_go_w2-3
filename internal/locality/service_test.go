@@ -3,7 +3,6 @@ package locality_test
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
@@ -48,7 +47,6 @@ func TestSave(t *testing.T) {
 		repository.On("Save", mock.Anything, localityInput).Return(1, nil)
 
 		locality, err := service.Save(context.TODO(), expectedLocality)
-		fmt.Println(locality)
 
 		assert.Equal(t, 1, locality.ID)
 		assert.Equal(t, "Florianopolis", locality.LocalityName)
