@@ -23,32 +23,47 @@ const (
 	RouteLocalityReport   = "/localities/report-sellers"
 )
 
+var localityDomain = domain.Locality{
+	ID:           1,
+	LocalityName: "Florianopolis",
+	ProvinceName: "Santa Catarina",
+}
+
+var localityiInput = domain.LocalityInput{
+	ID:           1,
+	LocalityName: "Florianopolis",
+	IdProvince:   1,
+}
+
+var listReportExpected = []domain.LocalityReport{
+	{
+		IdLocality:   1,
+		LocalityName: "Florianopolis",
+		SellersCount: 33,
+	},
+	{
+		IdLocality:   2,
+		LocalityName: "Blumenau",
+		SellersCount: 45,
+	},
+}
+
 func TestCreateLocality(t *testing.T) {
 	t.Run("Should return status 201 with all locality", func(t *testing.T) {
 		server, mockService, handler := InitServerLocality(t)
 		server.POST(BaseRouteLocality, handler.Create())
 
-		requestBody := domain.Locality{
-			ID:           1,
-			LocalityName: "Florianopolis",
-			ProvinceName: "Santa Catarina",
-		}
-		responseBody := domain.LocalityInput{
-			ID:           1,
-			LocalityName: "Florianopolis",
-			IdProvince:   1,
-		}
-		jsonLocality, _ := json.Marshal(requestBody)
+		jsonLocality, _ := json.Marshal(localityDomain)
 
 		request, response := testutil.MakeRequest(http.MethodPost, BaseRouteLocality, string(jsonLocality))
-		mockService.On("Save", mock.Anything, mock.Anything).Return(responseBody, nil)
+		mockService.On("Save", mock.Anything, mock.Anything).Return(localityiInput, nil)
 		server.ServeHTTP(response, request)
 
 		responseResult := domain.LocalityResponseId{}
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 
 		assert.Equal(t, http.StatusCreated, response.Code)
-		assert.Equal(t, responseBody, responseResult.Data)
+		assert.Equal(t, localityiInput, responseResult.Data)
 	})
 	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
 		server, _, handler := InitServerLocality(t)
@@ -119,12 +134,7 @@ func TestCreateLocality(t *testing.T) {
 		server, mockService, handler := InitServerLocality(t)
 		server.POST(BaseRouteLocality, handler.Create())
 
-		requestBody := domain.Locality{
-			ID:           1,
-			LocalityName: "Florianopolis",
-			ProvinceName: "Santa Catarina",
-		}
-		jsonSeller, _ := json.Marshal(requestBody)
+		jsonSeller, _ := json.Marshal(localityDomain)
 
 		request, response := testutil.MakeRequest(http.MethodPost, BaseRouteLocality, string(jsonSeller))
 		mockService.On("Save", mock.Anything, mock.Anything).Return(domain.LocalityInput{}, errors.New("error"))
@@ -137,22 +147,9 @@ func TestCreateLocality(t *testing.T) {
 func TestReportSellersByLocality(t *testing.T) {
 	t.Run("Should return status 200 when report created", func(t *testing.T) {
 
-		reportExpected := []domain.LocalityReport{
-			{
-				IdLocality:   1,
-				LocalityName: "Florianopolis",
-				SellersCount: 33,
-			},
-			{
-				IdLocality:   2,
-				LocalityName: "Blumenau",
-				SellersCount: 45,
-			},
-		}
-
 		server, mockService, handler := InitServerLocality(t)
 
-		mockService.On("ReportSellersByLocality", mock.Anything, 1).Return(reportExpected, nil)
+		mockService.On("ReportSellersByLocality", mock.Anything, 1).Return(listReportExpected, nil)
 
 		request, response := testutil.MakeRequest(http.MethodGet, RouteLocalityReportId, "")
 
@@ -163,7 +160,7 @@ func TestReportSellersByLocality(t *testing.T) {
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
 
 		assert.Equal(t, http.StatusOK, response.Code)
-		assert.Equal(t, reportExpected, responseResult.Data)
+		assert.Equal(t, listReportExpected, responseResult.Data)
 	})
 	t.Run("Should return status 400 when the locality id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerLocality(t)
