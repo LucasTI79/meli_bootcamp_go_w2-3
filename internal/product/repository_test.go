@@ -3,6 +3,7 @@ package product_test
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"testing"
 	"time"
 
@@ -70,8 +71,31 @@ func TestProductsGetAll(t *testing.T) {
 		defer cancel()
 
 		products, err := repository.GetAll(ctx)
+		fmt.Println("products get all", products)
 		assert.NoError(t, err)
 		assert.True(t, len(products) > 1)
+	})
+}
+
+func TestProductGet(t *testing.T) {
+	t.Run("It should get one product by it's id", func(t *testing.T) {
+		id := 3
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+		product, err := repository.Get(ctx, id)
+		fmt.Println("product get", product)
+		assert.NoError(t, err)
+		assert.Equal(t, "PROD08", product.ProductCode)
+	})
+	t.Run("It should return an error when there is no product in the database.", func(t *testing.T) {
+		expectedMessage := product.ErrNotFound.Error()
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+		_, err := repository.Get(ctx, 50000000)
+		assert.Error(t, err)
+		assert.Equal(t, expectedMessage, err.Error())
 	})
 }
 
