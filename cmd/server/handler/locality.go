@@ -21,7 +21,15 @@ func NewLocality(l locality.Service) *LocalityController {
 	}
 }
 
-// TODO implementar validações
+// Create creates a new locality.
+// POST /localities @Summary Create a new locality
+// @Description Create a new locality with the provided data
+// @Tags Locality
+// @Accept json
+// @Produce json
+// @Param locality body Locality true "Locality object to be created"
+// @Success 201 {object} Locality "Locality created successfully"
+// @Router /locality [post]
 func (l *LocalityController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		domain := &domain.Locality{}
@@ -52,6 +60,15 @@ func (l *LocalityController) Create() gin.HandlerFunc {
 	}
 }
 
+// ReportSellersByLocality generates a report of sellers by locality.
+// POST /localities/report-sellers @Summary Generate a report of sellers by locality
+// @Description Generates a report of sellers based on the provided locality ID
+// @Tags Locality
+// @Accept json
+// @Produce json
+// @Param id query integer true "Locality ID"
+// @Success 200 {array} SellerReport "Report of sellers by locality"
+// @Router /locality/report [get]
 func (l *LocalityController) ReportSellersByLocality() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		localityIdStr := c.Query("id")
