@@ -27,17 +27,17 @@ type Service interface {
 	Create(ctx context.Context, d domain.InboundOrders) (domain.InboundOrders, error)
 }
 
-type service struct {
+type inboundOrderService struct {
 	repository Repository
 }
 
 func NewService(r Repository) Service {
-	return &service{
+	return &inboundOrderService{
 		repository: r,
 	}
 }
 
-func (s *service) Get(ctx *context.Context, id int) (*domain.InboundOrders, error) {
+func (s *inboundOrderService) Get(ctx *context.Context, id int) (*domain.InboundOrders, error) {
 	inboundOrders, err := s.repository.Get(*ctx, id)
 	if err != nil {
 		return nil, ErrNotFound
@@ -45,7 +45,7 @@ func (s *service) Get(ctx *context.Context, id int) (*domain.InboundOrders, erro
 	return &inboundOrders, nil
 }
 
-func (s *service) GetAll(ctx *context.Context) (*[]domain.InboundOrders, error) {
+func (s *inboundOrderService) GetAll(ctx *context.Context) (*[]domain.InboundOrders, error) {
 	inboundOrders := []domain.InboundOrders{}
 
 	inboundOrders, err := s.repository.GetAll(*ctx)
@@ -55,7 +55,7 @@ func (s *service) GetAll(ctx *context.Context) (*[]domain.InboundOrders, error) 
 	return &inboundOrders, nil
 }
 
-func (s *service) Save(ctx *context.Context, inboundOrders domain.InboundOrders) (*domain.InboundOrders, error) {
+func (s *inboundOrderService) Save(ctx *context.Context, inboundOrders domain.InboundOrders) (*domain.InboundOrders, error) {
 	id, err := s.repository.Save(*ctx, inboundOrders)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (s *service) Save(ctx *context.Context, inboundOrders domain.InboundOrders)
 	return &inboundOrders, nil
 }
 
-func (s *service) Update(ctx *context.Context, id int, reqUpdateInboundOrders *domain.RequestUpdateInboundOrders) (*domain.InboundOrders, error) {
+func (s *inboundOrderService) Update(ctx *context.Context, id int, reqUpdateInboundOrders *domain.RequestUpdateInboundOrders) (*domain.InboundOrders, error) {
 	existingInboundOrders, err := s.repository.Get(*ctx, id)
 	if err != nil {
 		return nil, ErrNotFound
@@ -96,7 +96,7 @@ func (s *service) Update(ctx *context.Context, id int, reqUpdateInboundOrders *d
 	return &existingInboundOrders, nil
 }
 
-func (s *service) Delete(ctx *context.Context, id int) error {
+func (s *inboundOrderService) Delete(ctx *context.Context, id int) error {
 	_, err := s.repository.Get(*ctx, id)
 	if err != nil {
 		return ErrNotFound
