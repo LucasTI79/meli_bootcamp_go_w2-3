@@ -3,7 +3,7 @@ package product_test
 import (
 	"context"
 	"database/sql"
-	"fmt"
+
 	"testing"
 	"time"
 
@@ -31,37 +31,6 @@ var expectedProductResult = domain.Product{
 	SellerID:       1,
 }
 
-var expectedProducts = []domain.Product{
-	{
-		ID:             1,
-		Description:    "milk",
-		ExpirationRate: 1,
-		FreezingRate:   2,
-		Height:         6.4,
-		Length:         4.5,
-		Netweight:      3.4,
-		ProductCode:    "PROD01",
-		RecomFreezTemp: 1.3,
-		Width:          1.2,
-		ProductTypeID:  1,
-		SellerID:       1,
-	},
-	{
-		ID:             2,
-		Description:    "milk",
-		ExpirationRate: 1,
-		FreezingRate:   2,
-		Height:         6.4,
-		Length:         4.5,
-		Netweight:      3.4,
-		ProductCode:    "PROD02",
-		RecomFreezTemp: 1.3,
-		Width:          1.2,
-		ProductTypeID:  2,
-		SellerID:       2,
-	},
-}
-
 func TestProductsGetAll(t *testing.T) {
 	t.Run("Should get all products", func(t *testing.T) {
 		repository := product.NewRepository(db)
@@ -70,7 +39,7 @@ func TestProductsGetAll(t *testing.T) {
 
 		// busca um array de produtos e espera que seu tamanho seja maior que 1
 		products, err := repository.GetAll(ctx)
-		fmt.Println("products get all", products)
+
 		assert.NoError(t, err)
 		assert.True(t, len(products) > 1)
 	})
@@ -84,7 +53,7 @@ func TestProductGet(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		// Salva um produto (cujo productCode = "PROD03" ) e espera não obter erro
+		// Salva um produto
 		productId, err := repository.Save(ctx, expectedProductResult)
 		assert.NoError(t, err)
 
@@ -130,9 +99,12 @@ func TestProductDelete(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		//Deleta um produto
-		expectedProductResult.ID = 3
-		err := repository.Delete(ctx, expectedProductResult.ID)
+		// Salva um produto
+		productId, err := repository.Save(ctx, expectedProductResult)
+		assert.NoError(t, err)
+
+		//Deleta o produto que foi criado
+		err = repository.Delete(ctx, productId)
 		assert.NoError(t, err)
 
 		//Busca o produto que foi deletado, e verifica se não o encontra,
@@ -155,58 +127,34 @@ func TestProductDelete(t *testing.T) {
 }
 
 func TestProductUpdate(t *testing.T) {
-	expectedProducts := []domain.Product{
-		{
-			ID:             1,
-			Description:    "milk",
-			ExpirationRate: 1,
-			FreezingRate:   2,
-			Height:         6.4,
-			Length:         4.5,
-			Netweight:      3.4,
-			ProductCode:    "PROD01",
-			RecomFreezTemp: 1.3,
-			Width:          1.2,
-			ProductTypeID:  1,
-			SellerID:       1,
-		},
-		{
-			ID:             2,
-			Description:    "milk",
-			ExpirationRate: 1,
-			FreezingRate:   2,
-			Height:         6.4,
-			Length:         4.5,
-			Netweight:      3.4,
-			ProductCode:    "PROD02",
-			RecomFreezTemp: 1.3,
-			Width:          1.2,
-			ProductTypeID:  2,
-			SellerID:       2,
-		},
-	}
+
 	t.Run("should update a product", func(t *testing.T) {
 		repository := product.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		// update a product and expect no error
-		err := repository.Update(ctx, expectedProducts[0])
+		// Salva um produto
+		id, err := repository.Save(ctx, expectedProductResult)
+		assert.NoError(t, err)
+		expectedProductResult.ID = id
+		expectedProductResult.Description = "teste"
 
+		// update a product and expect no error
+		err = repository.Update(ctx, expectedProductResult)
 		assert.NoError(t, err)
 
 		// busca o produto atualizado e verifica o campo product_code
-		product, err := repository.Get(ctx, expectedProducts[0].ID)
+		product, err := repository.Get(ctx, expectedProductResult.ID)
 		assert.NoError(t, err)
 		assert.NotNil(t, product)
-		assert.Equal(t, expectedProducts[0].ID, product.ID)
+		assert.Equal(t, expectedProductResult.ProductCode, product.ProductCode)
 	})
 	t.Run("It should return an error when update a product that does not exist", func(t *testing.T) {
 
 		repository := product.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
-		expectedProducts[0].ID = 50000000
+		expectedProductResult.ID = 50000000
 
 		// atualiaza um  produto cujo id não existe e espera receber erro not found
 		expectedErrorMessage := product.ErrNotFound.Error()
@@ -254,7 +202,6 @@ func TestExistsByIdProduct(t *testing.T) {
 
 		// verifica se o produto criado existe pelo seu Id, espera receber true
 		exists := repository.ExistsById(productId)
-		fmt.Println("exists", exists)
 		assert.True(t, exists)
 	})
 	t.Run("Should return false if a product does not exists", func(t *testing.T) {
@@ -298,7 +245,8 @@ func TestAllEndpointsWithClosedDataBase(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		err := repository.Update(ctx, expectedProducts[0])
+		err := repository.Update(ctx, expectedProductResult)
+
 		assert.Error(t, err)
 	})
 	t.Run("Should return error when there is an Delete database error", func(t *testing.T) {
@@ -306,7 +254,8 @@ func TestAllEndpointsWithClosedDataBase(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		err := repository.Delete(ctx, expectedProducts[0].ID)
+		err := repository.Delete(ctx, expectedProductResult.ID)
+
 		assert.Error(t, err)
 	})
 }
