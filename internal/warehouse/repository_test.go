@@ -86,6 +86,11 @@ func TestExistsRepository(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
+		warehouseExpected.WarehouseCode = "AEXA"
+
+		_, err := repository.Save(ctx, warehouseExpected)
+		assert.NoError(t, err)
+
 		existsResult := repository.Exists(ctx, "AEXA")
 		assert.True(t, existsResult)
 	})
@@ -93,16 +98,19 @@ func TestExistsRepository(t *testing.T) {
 
 func TestGetWarehousesRepository(t *testing.T) {
 	t.Run("Should get the warehouse when it exists in database", func(t *testing.T) {
-		id := 5
-
 		repository := warehouse.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		warehouseResult, err := repository.Get(ctx, id)
+		warehouseExpected.WarehouseCode = "AAAA"
+
+		resultId, err := repository.Save(ctx, warehouseExpected)
 		assert.NoError(t, err)
-		assert.Equal(t, "AEXA", warehouseResult.WarehouseCode)
+
+		warehouseResult, err := repository.Get(ctx, resultId)
+		assert.NoError(t, err)
+		assert.Equal(t, "AAAA", warehouseResult.WarehouseCode)
 	})
 	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
 		expectedMessage := warehouse.ErrNotFound.Error()
@@ -155,12 +163,15 @@ func TestDeleteWarehousesRepository(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		warehouseExpected.ID = 5
+		warehouseExpected.WarehouseCode = "AAAB"
 
-		err := repository.Delete(ctx, warehouseExpected.ID)
+		resultId, err := repository.Save(ctx, warehouseExpected)
 		assert.NoError(t, err)
 
-		_, err = repository.Get(ctx, warehouseExpected.ID)
+		err = repository.Delete(ctx, resultId)
+		assert.NoError(t, err)
+
+		_, err = repository.Get(ctx, expectedWarehouses[0].ID)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
 	})

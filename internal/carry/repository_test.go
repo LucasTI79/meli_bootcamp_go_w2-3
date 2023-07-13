@@ -67,14 +67,15 @@ func TestExistsByCidCarryRepository(t *testing.T) {
 
 func TestGetCarriersRepository(t *testing.T) {
 	t.Run("Should get the carry when it exists in database", func(t *testing.T) {
-		id := 1
-
 		repository := carry.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		carryResult, err := repository.Get(ctx, id)
+		resultId, err := repository.Create(ctx, carryExpected)
+		assert.NoError(t, err)
+
+		carryResult, err := repository.Get(ctx, resultId)
 		assert.NoError(t, err)
 		assert.Equal(t, carryExpected.Cid, carryResult.Cid)
 	})
