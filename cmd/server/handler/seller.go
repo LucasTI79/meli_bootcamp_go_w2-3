@@ -6,18 +6,21 @@ import (
 	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
 type SellerController struct {
-	sellerService seller.Service
+	sellerService      seller.Service
+	localityService locality.Service
 }
 
-func NewSeller(s seller.Service) *SellerController {
+func NewSeller(s seller.Service, l locality.Service) *SellerController {
 	return &SellerController{
-		sellerService: s,
+		sellerService:      s,
+		localityService: l,
 	}
 }
 
@@ -85,9 +88,15 @@ func (s *SellerController) Get() gin.HandlerFunc {
 func (s *SellerController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sellerInput := &domain.Seller{}
-		err := c.ShouldBindJSON(sellerInput)
-		if err != nil {
+
+		if err := c.ShouldBindJSON(sellerInput); err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, seller.ErrTryAgain.Error())
+			return
+		}
+
+		err := s.localityService.ExistsById(c, sellerInput.LocalityId)
+		if err != nil {
+			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
 
@@ -104,15 +113,18 @@ func (s *SellerController) Create() gin.HandlerFunc {
 		case sellerInput.Telephone == "":
 			web.Error(c, http.StatusBadRequest, "phone is required")
 			return
+		case sellerInput.LocalityId == 0:
+			web.Error(c, http.StatusBadRequest, "locality id is required")
+			return
 		}
 
 		sellerSaved, err := s.sellerService.Save(c, *sellerInput)
 		if err != nil {
-			if err == seller.ErrCidAlreadyExists {
+			if errors.Is(err, seller.ErrCidAlreadyExists){
 				web.Error(c, http.StatusConflict, err.Error())
-			}else{
-				web.Error(c, http.StatusInternalServerError, err.Error())
+				return
 			}
+			web.Error(c, http.StatusInternalServerError, seller.ErrSaveSeller.Error())
 		}
 		web.Success(c, http.StatusCreated, sellerSaved)
 	}

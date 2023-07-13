@@ -8,12 +8,13 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("seller not found")
-	ErrInvalidId    = errors.New("invalid id")
-	ErrInvalidBody  = errors.New("invalid body")
-	ErrTryAgain     = errors.New("error, try again %s")
+	ErrNotFound         = errors.New("seller not found")
+	ErrInvalidId        = errors.New("invalid id")
+	ErrInvalidBody      = errors.New("invalid body")
+	ErrTryAgain         = errors.New("error, try again %s")
 	ErrCidAlreadyExists = errors.New("cid already registered")
 	ErrSaveSeller       = errors.New("error saving seller")
+	ErrLocality         = errors.New("locality does not exist")
 )
 
 type Service interface {
@@ -86,6 +87,9 @@ func (s *sellerService) Update(ctx context.Context, id int, newSeller domain.Sel
 	}
 	if newSeller.Telephone != "" {
 		seller.Telephone = newSeller.Telephone
+	}
+	if newSeller.LocalityId != 0 {
+		seller.LocalityId = newSeller.LocalityId
 	}
 
 	errUpdate := s.repository.Update(ctx, seller)

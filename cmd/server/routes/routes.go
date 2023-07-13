@@ -6,7 +6,9 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/docs"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/carry"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	productbatch "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_batch"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
@@ -40,8 +42,10 @@ func (r *router) MapRoutes() {
 	r.buildWarehouseRoutes()
 	r.buildEmployeeRoutes()
 	r.buildBuyerRoutes()
+	r.buildCarryRoutes()
 	r.buildSwagger()
 	r.buildProductBatchRoutes()
+	r.buildLocalityRoutes()
 }
 
 func (r *router) setGroup() {
@@ -49,14 +53,26 @@ func (r *router) setGroup() {
 }
 
 func (r *router) buildSellerRoutes() {
-	repo := seller.NewRepository(r.db)
-	service := seller.NewService(repo)
-	handler := handler.NewSeller(service)
+	repoSellers := seller.NewRepository(r.db)
+	serviceSellers := seller.NewService(repoSellers)
+
+	repoLocalities := locality.NewRepository(r.db)
+	serviceLocalities := locality.NewService(repoLocalities)
+
+	handler := handler.NewSeller(serviceSellers, serviceLocalities)
 	r.rg.GET("/sellers", handler.GetAll())
 	r.rg.GET("/sellers/:id", handler.Get())
 	r.rg.POST("/sellers", handler.Create())
 	r.rg.DELETE("/sellers/:id", handler.Delete())
 	r.rg.PATCH("/sellers/:id", handler.Update())
+}
+
+func (r *router) buildLocalityRoutes() {
+	repo := locality.NewRepository(r.db)
+	service := locality.NewService(repo)
+	handler := handler.NewLocality(service)
+	r.rg.POST("/localities", handler.Create())
+	r.rg.GET("/localities/report-sellers", handler.ReportSellersByLocality())
 }
 
 func (r *router) buildProductRoutes() {
@@ -129,6 +145,14 @@ func (r *router) buildProductBatchRoutes() {
 	handler := handler.NewProductBatch(service, productService, sectionService)
 
 	r.rg.POST("/productBatches", handler.Create())
+func (r *router) buildCarryRoutes() {
+	repoCarry := carry.NewRepository(r.db)
+	repoLocalities := locality.NewRepository(r.db)
+	service := carry.NewService(repoCarry,repoLocalities)
+	handler := handler.NewCarry(service)
+	r.rg.GET("/carriers/:id", handler.Get())
+	r.rg.GET("/localities/reportCarriers", handler.Read())
+	r.rg.POST("/carriers", handler.Create())
 }
 
 func (r *router) buildSwagger() {
