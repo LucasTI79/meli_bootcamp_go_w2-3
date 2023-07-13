@@ -117,6 +117,68 @@ func TestProductDelete(t *testing.T) {
 	})
 }
 
+func TestProductUpdate(t *testing.T) {
+	expectedProducts := []domain.Product{
+		{
+			ID:             1,
+			Description:    "milk",
+			ExpirationRate: 1,
+			FreezingRate:   2,
+			Height:         6.4,
+			Length:         4.5,
+			Netweight:      3.4,
+			ProductCode:    "PROD01",
+			RecomFreezTemp: 1.3,
+			Width:          1.2,
+			ProductTypeID:  1,
+			SellerID:       1,
+		},
+		{
+			ID:             2,
+			Description:    "milk",
+			ExpirationRate: 1,
+			FreezingRate:   2,
+			Height:         6.4,
+			Length:         4.5,
+			Netweight:      3.4,
+			ProductCode:    "PROD02",
+			RecomFreezTemp: 1.3,
+			Width:          1.2,
+			ProductTypeID:  2,
+			SellerID:       2,
+		},
+	}
+	t.Run("should update a product", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+
+		// update a product and expect no error
+		err := repository.Update(ctx, expectedProducts[0])
+
+		assert.NoError(t, err)
+
+		// busca o produto atualizado e verifica o campo product_code
+		product, err := repository.Get(ctx, expectedProducts[0].ID)
+		assert.NoError(t, err)
+		assert.NotNil(t, product)
+		assert.Equal(t, expectedProducts[0].ID, product.ID)
+	})
+	t.Run("It should return an error when update a product that does not exist", func(t *testing.T) {
+
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+		expectedProducts[0].ID = 50000000
+
+		// atualiaza um  produto cujo id não existe e espera receber erro not found
+		expectedErrorMessage := product.ErrNotFound.Error()
+		err := repository.Update(ctx, expectedProductResult)
+		assert.Error(t, err)
+		assert.Equal(t, expectedErrorMessage, err.Error())
+	})
+}
+
 func InitDatabase() *sql.DB {
 	txdb.Register("txdb", "mysql", "root:@/melisprint")
 	db, _ := sql.Open("txdb", uuid.New().String())
