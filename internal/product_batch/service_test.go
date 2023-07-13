@@ -27,7 +27,7 @@ func TestCreateProductBatch(t *testing.T) {
 			DueDate:            "2021-01-01",
 			InitialQuantity:    1,
 			ManufacturingDate:  "2021-01-01",
-			ManufacturingHour:  "10:00",
+			ManufacturingHour:  1,
 		}
 		mockRepository, service := InitProductBatchService(t)
 		mockRepository.On("Save", mock.Anything).Return(1, nil)
@@ -50,7 +50,7 @@ func TestCreateProductBatch(t *testing.T) {
 			DueDate:            "2021-01-01",
 			InitialQuantity:    1,
 			ManufacturingDate:  "2021-01-01",
-			ManufacturingHour:  "10:00",
+			ManufacturingHour:  1,
 		}
 		mockRepository, service := InitProductBatchService(t)
 		mockRepository.On("Save", mock.Anything).Return(0, errors.New("error"))

@@ -13,7 +13,7 @@ type ProductBatch struct {
 	DueDate            string `json:"due_date" binding:"required"`
 	InitialQuantity    int    `json:"initial_quantity" binding:"required"`
 	ManufacturingDate  string `json:"manufacturing_date" binding:"required"`
-	ManufacturingHour  string `json:"manufacturing_hour" binding:"required"`
+	ManufacturingHour  int    `json:"manufacturing_hour" binding:"required"`
 	MinimumTemperature int    `json:"minimum_temperature" binding:"required"`
 	ProductID          int    `json:"product_id" binding:"required" min:"1"`
 	SectionID          int    `json:"section_id" binding:"required" min:"1"`

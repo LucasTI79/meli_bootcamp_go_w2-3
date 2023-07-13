@@ -36,7 +36,7 @@ func TestCreateProductBatch(t *testing.T) {
 		CurrentTemperature: 1,
 		MinimumTemperature: 1,
 		DueDate:            "2021-01-01",
-		ManufacturingHour:  "00:00:00",
+		ManufacturingHour:  1,
 	}
 
 	t.Run("Should create a new product batch", func(t *testing.T) {
@@ -133,7 +133,7 @@ func TestCreateProductBatch(t *testing.T) {
 			CurrentTemperature: 1,
 			MinimumTemperature: 1,
 			DueDate:            "INVALID DATE",
-			ManufacturingHour:  "00:00:00",
+			ManufacturingHour:  1,
 		})
 		request, response := testutil.MakeRequest("POST", "/productBatches", string(jsonProductBatch))
 
