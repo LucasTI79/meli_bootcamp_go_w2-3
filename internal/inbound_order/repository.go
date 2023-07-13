@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.InboundOrders, error)
+	Create(ctx context.Context, c domain.InboundOrders) (int, error)
 	Get(ctx context.Context, id int) (domain.InboundOrders, error)
 	Exists(ctx context.Context, cardNumberID string) bool
 	Save(ctx context.Context, e domain.InboundOrders) (int, error)
@@ -42,6 +43,13 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.InboundOrders, error)
 	}
 
 	return inboundOrders, nil
+}
+
+func (r *repository) Create(ctx context.Context, i domain.InboundOrders) (int, error) {
+	query := "SELECT * FROM inbound_orders"
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return 0, er
 }
 
 func (r *repository) Get(ctx context.Context, id int) (domain.InboundOrders, error) {
