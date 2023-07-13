@@ -15,6 +15,16 @@ type ProductRepositoryMock struct {
 	mock.Mock
 }
 
+func (p *ProductServiceMock) ExistsById(productID int) error {
+	args := p.Called(productID)
+	return args.Error(0)
+}
+
+func (p *ProductRepositoryMock) ExistsById(sectionID int) bool {
+	args := p.Called(sectionID)
+	return args.Get(0).(bool)
+}
+
 // mock do controller Product recebe o mock da service
 func (p *ProductServiceMock) GetAll(ctx context.Context) ([]domain.Product, error) {
 	args := p.Called()

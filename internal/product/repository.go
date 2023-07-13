@@ -7,6 +7,8 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
+const ProductExists = "SELECT id FROM products WHERE id=?"
+
 // Repository encapsulates the storage of a Product.
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Product, error)
@@ -15,6 +17,7 @@ type Repository interface {
 	Save(ctx context.Context, p domain.Product) (int, error)
 	Update(ctx context.Context, p domain.Product) error
 	Delete(ctx context.Context, id int) error
+	ExistsById(productID int) bool
 }
 
 type repository struct {
@@ -132,4 +135,10 @@ func (r *repository) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (r *repository) ExistsById(productID int) bool {
+	row := r.db.QueryRow(ProductExists, productID)
+	err := row.Scan(&productID)
+	return err == nil
 }

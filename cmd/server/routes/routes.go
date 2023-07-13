@@ -10,6 +10,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
+	productbatch "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_batch"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -43,6 +44,7 @@ func (r *router) MapRoutes() {
 	r.buildBuyerRoutes()
 	r.buildCarryRoutes()
 	r.buildSwagger()
+	r.buildProductBatchRoutes()
 	r.buildLocalityRoutes()
 }
 
@@ -94,6 +96,7 @@ func (r *router) buildSectionRoutes() {
 	r.rg.POST("/sections", handler.Create())
 	r.rg.DELETE("/sections/:id", handler.Delete())
 	r.rg.PATCH("/sections/:id", handler.Update())
+	r.rg.GET("/sections/reportProducts", handler.ReportProducts())
 }
 
 func (r *router) buildWarehouseRoutes() {
@@ -130,6 +133,18 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.DELETE("/buyers/:id", handler.Delete())
 }
 
+func (r *router) buildProductBatchRoutes() {
+	productRrepo := product.NewRepository(r.db)
+	productService := product.NewService(productRrepo)
+
+	sectionRepo := section.NewRepository(r.db)
+	sectionService := section.NewService(sectionRepo)
+
+	repo := productbatch.NewRepository(r.db, productbatch.Querys{})
+	service := productbatch.NewService(repo)
+	handler := handler.NewProductBatch(service, productService, sectionService)
+
+	r.rg.POST("/productBatches", handler.Create())
 func (r *router) buildCarryRoutes() {
 	repoCarry := carry.NewRepository(r.db)
 	repoLocalities := locality.NewRepository(r.db)
