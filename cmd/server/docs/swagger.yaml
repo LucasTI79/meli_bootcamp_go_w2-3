@@ -19,6 +19,21 @@ definitions:
       last_name:
         type: string
     type: object
+  domain.Carry:
+    properties:
+      address:
+        type: string
+      cid:
+        type: string
+      company_name:
+        type: string
+      id:
+        type: integer
+      locality_id:
+        type: integer
+      telephone:
+        type: string
+    type: object
   domain.Employee:
     properties:
       card_number_id:
@@ -31,6 +46,15 @@ definitions:
         type: string
       warehouse_id:
         type: integer
+    type: object
+  domain.LocalityCarriersReport:
+    properties:
+      carriers_count:
+        type: integer
+      locality_id:
+        type: integer
+      locality_name:
+        type: string
     type: object
   domain.Product:
     properties:
@@ -98,6 +122,8 @@ definitions:
       address:
         type: string
       id:
+        type: integer
+      locality_id:
         type: integer
       minimum_capacity:
         type: integer
@@ -206,6 +232,49 @@ paths:
             $ref: '#/definitions/domain.Buyer'
       tags:
       - Buyers
+  /api/v1/carriers:
+    post:
+      consumes:
+      - application/json
+      description: Create Carriers
+      parameters:
+      - description: Carry Data
+        in: body
+        name: carry
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Carry'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Carry'
+      summary: Create Carry
+      tags:
+      - Carriers
+  /api/v1/carriers/{id}:
+    get:
+      consumes:
+      - application/json
+      description: List one by Carry id
+      parameters:
+      - description: Carry ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Carry'
+      summary: Get Carry by ID
+      tags:
+      - Carriers
   /api/v1/employees:
     get:
       consumes:
@@ -309,6 +378,23 @@ paths:
       summary: Update Employee
       tags:
       - Employees
+  /api/v1/localities/reportCarries:
+    get:
+      consumes:
+      - application/json
+      description: List all Carriers of a Locality or All Localities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.LocalityCarriersReport'
+            type: array
+      summary: Read Carriers of a Locality
+      tags:
+      - Carriers
   /api/v1/products:
     get:
       consumes:
