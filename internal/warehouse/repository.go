@@ -68,7 +68,7 @@ func (r *repository) Exists(ctx context.Context, warehouseCode string) bool {
 }
 
 func (r *repository) Save(ctx context.Context, w domain.Warehouse) (int, error) {
-	query := "INSERT INTO warehouses (address, telephone, warehouse_code, minimun_capacity, minimun_temperature, locality_id) VALUES (?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO warehouses (address, telephone, warehouse_code, minimum_capacity, minimum_temperature, locality_id) VALUES (?, ?, ?, ?, ?, ?)"
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		return 0, err
@@ -88,7 +88,7 @@ func (r *repository) Save(ctx context.Context, w domain.Warehouse) (int, error) 
 }
 
 func (r *repository) Update(ctx context.Context, w domain.Warehouse) error {
-	query := "UPDATE warehouses SET address=?, telephone=?, warehouse_code=?, minimun_capacity=?, minimun_temperature=?, locality_id=? WHERE id=?"
+	query := "UPDATE warehouses SET address=?, telephone=?, warehouse_code=?, minimum_capacity=?, minimum_temperature=?, locality_id=? WHERE id=?"
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		return err
