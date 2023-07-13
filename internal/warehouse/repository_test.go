@@ -17,42 +17,24 @@ import (
 
 var db = InitDatabase()
 
-var warehouseExpected = domain.Warehouse{
-	Address:            "Rua Pedro Dias",
-	Telephone:          "3712291281",
-	WarehouseCode:      "AEXA",
-	MinimumCapacity:    10,
-	MinimumTemperature: 10.0,
-	LocalityId:         1,
-}
-
-var expectedWarehouses = []domain.Warehouse{
-	{
-		ID:                 1,
-		Address:            "Rua Pedro Dias",
-		Telephone:          "3712291281",
-		WarehouseCode:      "DAE",
-		MinimumCapacity:    10,
-		MinimumTemperature: 10.0,
-		LocalityId:         1,
-	},
-	{
-		ID:                 2,
-		Address:            "Rua Maria das Dores",
-		Telephone:          "1722919394",
-		WarehouseCode:      "EWQ",
-		MinimumCapacity:    10,
-		MinimumTemperature: 10.0,
-		LocalityId:         1,
-	},
-}
-
 func TestGetAllWarehousesRepository(t *testing.T) {
 	t.Run("Should get all warehouses in database", func(t *testing.T) {
+		var warehouseExpected = domain.Warehouse{
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "AAWA",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
+		}
+
 		repository := warehouse.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
+
+		_, err := repository.Save(ctx, warehouseExpected)
+		assert.NoError(t, err)
 
 		warehouseResult, err := repository.GetAll(ctx)
 		assert.NoError(t, err)
@@ -62,12 +44,19 @@ func TestGetAllWarehousesRepository(t *testing.T) {
 
 func TestSaveWarehousesRepository(t *testing.T) {
 	t.Run("should create a warehouse and test", func(t *testing.T) {
+		var warehouseExpected = domain.Warehouse{
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "AEXA",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
+		}
+
 		repository := warehouse.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
-
-		warehouseExpected.WarehouseCode = "AS12"
 
 		result, err := repository.Save(ctx, warehouseExpected)
 		assert.NoError(t, err)
@@ -81,29 +70,43 @@ func TestSaveWarehousesRepository(t *testing.T) {
 
 func TestExistsRepository(t *testing.T) {
 	t.Run("should test if exists a specific warehouseCode", func(t *testing.T) {
+		var warehouseExpected = domain.Warehouse{
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "AEXD",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
+		}
+
 		repository := warehouse.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		warehouseExpected.WarehouseCode = "AEXA"
-
 		_, err := repository.Save(ctx, warehouseExpected)
 		assert.NoError(t, err)
 
-		existsResult := repository.Exists(ctx, "AEXA")
+		existsResult := repository.Exists(ctx, "AEXD")
 		assert.True(t, existsResult)
 	})
 }
 
 func TestGetWarehousesRepository(t *testing.T) {
 	t.Run("Should get the warehouse when it exists in database", func(t *testing.T) {
+		var warehouseExpected = domain.Warehouse{
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "AAAA",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
+		}
+
 		repository := warehouse.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
-
-		warehouseExpected.WarehouseCode = "AAAA"
 
 		resultId, err := repository.Save(ctx, warehouseExpected)
 		assert.NoError(t, err)
@@ -127,29 +130,53 @@ func TestGetWarehousesRepository(t *testing.T) {
 
 func TestUpdateWarehousesRepository(t *testing.T) {
 	t.Run("should update a warehouse and test", func(t *testing.T) {
+		var warehouseExpected = domain.Warehouse{
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "AADA",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
+		}
+
 		repository := warehouse.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		err := repository.Update(ctx, expectedWarehouses[0])
+		result, err := repository.Save(ctx, warehouseExpected)
 		assert.NoError(t, err)
 
-		getResult, err := repository.Get(ctx, expectedWarehouses[0].ID)
+		warehouseExpected.ID = result
+		warehouseExpected.Address = "Rua Maria"
+
+		err = repository.Update(ctx, warehouseExpected)
+		assert.NoError(t, err)
+
+		getResult, err := repository.Get(ctx, warehouseExpected.ID)
 		assert.NoError(t, err)
 		assert.NotNil(t, getResult)
-		assert.Equal(t, expectedWarehouses[0].WarehouseCode, getResult.WarehouseCode)
+		assert.Equal(t, warehouseExpected.WarehouseCode, getResult.WarehouseCode)
 	})
 	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
 		expectedMessage := warehouse.ErrNotFound.Error()
+
+		var warehouseExpected = domain.Warehouse{
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "BASA",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
+		}
 
 		repository := warehouse.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		expectedWarehouses[0].ID = 200000
+		warehouseExpected.ID = 200000
 
-		err := repository.Update(ctx, expectedWarehouses[0])
+		err := repository.Update(ctx, warehouseExpected)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
 	})
@@ -157,13 +184,20 @@ func TestUpdateWarehousesRepository(t *testing.T) {
 
 func TestDeleteWarehousesRepository(t *testing.T) {
 	t.Run("should delete a warehouse and test", func(t *testing.T) {
+		var warehouseExpected = domain.Warehouse{
+			Address:            "Rua Pedro Dias",
+			Telephone:          "3712291281",
+			WarehouseCode:      "BASD",
+			MinimumCapacity:    10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
+		}
+
 		expectedMessage := warehouse.ErrNotFound.Error()
 		repository := warehouse.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
-
-		warehouseExpected.WarehouseCode = "AAAB"
 
 		resultId, err := repository.Save(ctx, warehouseExpected)
 		assert.NoError(t, err)
@@ -171,7 +205,7 @@ func TestDeleteWarehousesRepository(t *testing.T) {
 		err = repository.Delete(ctx, resultId)
 		assert.NoError(t, err)
 
-		_, err = repository.Get(ctx, expectedWarehouses[0].ID)
+		_, err = repository.Get(ctx, warehouseExpected.ID)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
 	})
@@ -190,6 +224,14 @@ func TestDeleteWarehousesRepository(t *testing.T) {
 
 func TestAllEndpointsRepositoryWithErrorDatabaseClosed(t *testing.T) {
 	db.Close()
+	var warehouseExpected = domain.Warehouse{
+		Address:            "Rua Pedro Dias",
+		Telephone:          "3712291281",
+		WarehouseCode:      "BASA",
+		MinimumCapacity:    10,
+		MinimumTemperature: 10.0,
+		LocalityId:         1,
+	}
 	t.Run("Should return error when there is an GetAll database error", func(t *testing.T) {
 		repository := warehouse.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
@@ -219,7 +261,7 @@ func TestAllEndpointsRepositoryWithErrorDatabaseClosed(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		err := repository.Update(ctx, expectedWarehouses[0])
+		err := repository.Update(ctx, warehouseExpected)
 		assert.Error(t, err)
 	})
 	t.Run("Should return error when there is an Delete database error", func(t *testing.T) {
@@ -227,7 +269,7 @@ func TestAllEndpointsRepositoryWithErrorDatabaseClosed(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		err := repository.Delete(ctx, expectedWarehouses[0].ID)
+		err := repository.Delete(ctx, warehouseExpected.ID)
 		assert.Error(t, err)
 	})
 }
