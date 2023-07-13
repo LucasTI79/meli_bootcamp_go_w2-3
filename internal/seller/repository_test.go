@@ -15,15 +15,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var db = InitDatabase()
+
 var sellerExpected = domain.Seller{
-	CID:         11,
+	CID:         99,
 	CompanyName: "Mercado Livre",
 	Address:     "Rua Feliz",
 	Telephone:   "123456",
 	LocalityId:  1,
 }
 
-var db = InitDatabase()
 
 func TestGetAll(t *testing.T) {
 	t.Run("should look for all sellers", func(t *testing.T) {
@@ -31,6 +32,29 @@ func TestGetAll(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
+
+		sellersCreated := []domain.Seller{
+			{
+				CID:         11,
+				CompanyName: "Mercado Livre",
+				Address:     "Rua Feliz",
+				Telephone:   "123456",
+				LocalityId:  1,
+			},
+			{
+				CID:         12,
+				CompanyName: "Mercado Livre",
+				Address:     "Rua Feliz",
+				Telephone:   "123456",
+				LocalityId:  1,
+			},
+		}
+
+		_, err1 := repository.Save(ctx, sellersCreated[0])
+		assert.NoError(t, err1)
+
+		_, err2 := repository.Save(ctx, sellersCreated[1])
+		assert.NoError(t, err2)
 
 		SellersResult, err := repository.GetAll(ctx)
 		assert.NoError(t, err)
@@ -40,15 +64,25 @@ func TestGetAll(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Run("should look for the seller corresponding to the last id", func(t *testing.T) {
-		id := 6
 		repository := seller.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		sellersResult, err := repository.Get(ctx, id)
+		sellerCreated := domain.Seller{
+			CID:         13,
+			CompanyName: "Mercado Livre",
+			Address:     "Rua Feliz",
+			Telephone:   "123456",
+			LocalityId:  1,
+		}
+
+		sellerId, err1 := repository.Save(ctx, sellerCreated)
+		assert.NoError(t, err1)
+
+		sellersResult, err := repository.Get(ctx, sellerId)
 		assert.NoError(t, err)
-		assert.Equal(t, 6, sellersResult.ID)
+		assert.Equal(t, sellerId, sellersResult.ID)
 	})
 }
 
@@ -58,9 +92,17 @@ func TestExists(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		cid := 1
+		sellerCreated := domain.Seller{
+			CID:         14,
+			CompanyName: "Mercado Livre",
+			Address:     "Rua Feliz",
+			Telephone:   "123456",
+			LocalityId:  1,
+		}
+		_, err1 := repository.Save(ctx, sellerCreated)
+		assert.NoError(t, err1)
 
-		exists := repository.Exists(ctx, cid)
+		exists := repository.Exists(ctx, sellerCreated.CID)
 		assert.True(t, exists)
 	})
 }
@@ -86,8 +128,20 @@ func TestUpdate(t *testing.T) {
 		repository := seller.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
+
+		sellerCreated := domain.Seller{
+			CID:         15,
+			CompanyName: "Mercado Livre",
+			Address:     "Rua Feliz",
+			Telephone:   "123456",
+			LocalityId:  1,
+		}
+
+		sellerId, err1 := repository.Save(ctx, sellerCreated)
+		assert.NoError(t, err1)
+
 		sellerUpdate := domain.Seller{
-			ID:          6,
+			ID:          sellerId,
 			CID:         22,
 			CompanyName: "Mercado Livre",
 			Address:     "Rua Feliz",
@@ -115,12 +169,22 @@ func TestDelete(t *testing.T) {
 		defer cancel()
 
 		expectedMessage := seller.ErrNotFound.Error()
-		sellerExpected.ID = 6
 
-		err := repository.Delete(ctx, sellerExpected.ID)
+		sellerCreated := domain.Seller{
+			CID:         33,
+			CompanyName: "Mercado Livre",
+			Address:     "Rua Feliz",
+			Telephone:   "123456",
+			LocalityId:  1,
+		}
+
+		sellerId, err1 := repository.Save(ctx, sellerCreated)
+		assert.NoError(t, err1)
+
+		err := repository.Delete(ctx, sellerId)
 		assert.NoError(t, err)
 
-		_, err = repository.Get(ctx, sellerExpected.ID)
+		_, err = repository.Get(ctx, sellerId)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
 	})
@@ -131,7 +195,7 @@ func TestDelete(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		err := repository.Delete(ctx, 0001)
+		err := repository.Delete(ctx, 12357654432)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
 	})
