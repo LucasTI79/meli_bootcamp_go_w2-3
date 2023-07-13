@@ -3,8 +3,6 @@ package section_test
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"math/rand"
 	"testing"
 	"time"
 
@@ -12,6 +10,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -211,7 +210,6 @@ func TestSectionProductsReportsBySectionRepository(t *testing.T) {
 
 func initDatabase() *sql.DB {
 	txdb.Register("txdb", "mysql", "root:@/melisprint")
-	id := fmt.Sprintf("txdb%f", rand.Float64()*5)
-	db, _ := sql.Open("txdb", id)
+	db, _ := sql.Open("txdb", uuid.New().String())
 	return db
 }
