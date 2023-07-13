@@ -33,12 +33,11 @@ var expectedProductResult = domain.Product{
 
 func TestProductsGetAll(t *testing.T) {
 	t.Run("Should get all products", func(t *testing.T) {
-
 		repository := product.NewRepository(db)
-
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
+		// busca um array de produtos e espera que seu tamanho seja maior que 1
 		products, err := repository.GetAll(ctx)
 		fmt.Println("products get all", products)
 		assert.NoError(t, err)
@@ -48,20 +47,26 @@ func TestProductsGetAll(t *testing.T) {
 
 func TestProductGet(t *testing.T) {
 	t.Run("It should get one product by it's id", func(t *testing.T) {
-		id := 3
+
 		repository := product.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
-		product, err := repository.Get(ctx, id)
-		fmt.Println("product get", product)
+
+		// Salva um produto (cujo productCode = "PROD03" ) e espera não obter erro
+		productId, err := repository.Save(ctx, expectedProductResult)
 		assert.NoError(t, err)
-		assert.Equal(t, "PROD08", product.ProductCode)
+
+		// Busca o produto que foi salvo pelo seu Id e verifica seu productCode
+		product, err := repository.Get(ctx, productId)
+		assert.NoError(t, err)
+		assert.Equal(t, "PROD03", product.ProductCode)
 	})
 	t.Run("It should return an error when there is no product in the database.", func(t *testing.T) {
 		expectedMessage := product.ErrNotFound.Error()
 		repository := product.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
+		// busca um produto de Id que inexistente
 		_, err := repository.Get(ctx, 50000000)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
@@ -179,6 +184,55 @@ func TestProductUpdate(t *testing.T) {
 	})
 }
 
+func TestExistsProduct(t *testing.T) {
+	t.Run("Is should return true if a product exist by it's productCode", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+
+		// Salva um produto
+		_, err := repository.Save(ctx, expectedProductResult)
+		assert.NoError(t, err)
+
+		// verifica se o produto salvo existe pelo seu productCode, espera receber true
+		existsResult := repository.Exists(ctx, "PROD03")
+		assert.True(t, existsResult)
+	})
+
+	t.Run("Should return error if the product does not exist", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+
+		// verifica se o produto  existe, passa o productCode vazio e espera receber falso
+		existsResult := repository.Exists(ctx, "")
+		assert.False(t, existsResult)
+	})
+}
+
+func TestExistsByIdSectionRepository(t *testing.T) {
+	t.Run("Is should return true if a product exist by it's Id", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+
+		// Salva um produto
+		productId, err := repository.Save(ctx, expectedProductResult)
+		assert.NoError(t, err)
+
+		// verifica se o produto criado existe pelo seu Id, espera receber true
+		exists := repository.ExistsById(productId)
+		fmt.Println("exists", exists)
+		assert.True(t, exists)
+	})
+	t.Run("Should return false if section does not exists", func(t *testing.T) {
+		repository := product.NewRepository(db)
+
+		// verifica se um produto de Id 0 existe, espera receber false
+		exists := repository.ExistsById(0)
+		assert.False(t, exists)
+	})
+}
 func InitDatabase() *sql.DB {
 	txdb.Register("txdb", "mysql", "root:@/melisprint")
 	db, _ := sql.Open("txdb", uuid.New().String())
