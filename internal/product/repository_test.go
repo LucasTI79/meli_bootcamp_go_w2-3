@@ -31,6 +31,37 @@ var expectedProductResult = domain.Product{
 	SellerID:       1,
 }
 
+var expectedProducts = []domain.Product{
+	{
+		ID:             1,
+		Description:    "milk",
+		ExpirationRate: 1,
+		FreezingRate:   2,
+		Height:         6.4,
+		Length:         4.5,
+		Netweight:      3.4,
+		ProductCode:    "PROD01",
+		RecomFreezTemp: 1.3,
+		Width:          1.2,
+		ProductTypeID:  1,
+		SellerID:       1,
+	},
+	{
+		ID:             2,
+		Description:    "milk",
+		ExpirationRate: 1,
+		FreezingRate:   2,
+		Height:         6.4,
+		Length:         4.5,
+		Netweight:      3.4,
+		ProductCode:    "PROD02",
+		RecomFreezTemp: 1.3,
+		Width:          1.2,
+		ProductTypeID:  2,
+		SellerID:       2,
+	},
+}
+
 func TestProductsGetAll(t *testing.T) {
 	t.Run("Should get all products", func(t *testing.T) {
 		repository := product.NewRepository(db)
@@ -43,6 +74,7 @@ func TestProductsGetAll(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, len(products) > 1)
 	})
+
 }
 
 func TestProductGet(t *testing.T) {
@@ -210,7 +242,7 @@ func TestExistsProduct(t *testing.T) {
 	})
 }
 
-func TestExistsByIdSectionRepository(t *testing.T) {
+func TestExistsByIdProduct(t *testing.T) {
 	t.Run("Is should return true if a product exist by it's Id", func(t *testing.T) {
 		repository := product.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
@@ -225,12 +257,57 @@ func TestExistsByIdSectionRepository(t *testing.T) {
 		fmt.Println("exists", exists)
 		assert.True(t, exists)
 	})
-	t.Run("Should return false if section does not exists", func(t *testing.T) {
+	t.Run("Should return false if a product does not exists", func(t *testing.T) {
 		repository := product.NewRepository(db)
 
 		// verifica se um produto de Id 0 existe, espera receber false
 		exists := repository.ExistsById(0)
 		assert.False(t, exists)
+	})
+}
+
+func TestAllEndpointsWithClosedDataBase(t *testing.T) {
+	db.Close()
+
+	t.Run("Should return error when there is an GetAll database error", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.GetAll(ctx)
+		assert.Error(t, err)
+	})
+	t.Run("Should return error when there is an Get database error", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.Get(ctx, 200)
+		assert.Error(t, err)
+	})
+	t.Run("Should return error when there is an Save database error", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.Save(ctx, expectedProduct)
+		assert.Error(t, err)
+	})
+	t.Run("Should return error when there is an Update database error", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		err := repository.Update(ctx, expectedProducts[0])
+		assert.Error(t, err)
+	})
+	t.Run("Should return error when there is an Delete database error", func(t *testing.T) {
+		repository := product.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		err := repository.Delete(ctx, expectedProducts[0].ID)
+		assert.Error(t, err)
 	})
 }
 func InitDatabase() *sql.DB {
