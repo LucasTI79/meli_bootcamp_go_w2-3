@@ -124,7 +124,7 @@ func (r *router) buildProductBatchRoutes() {
 	sectionRepo := section.NewRepository(r.db)
 	sectionService := section.NewService(sectionRepo)
 
-	repo := productbatch.NewRepository(r.db)
+	repo := productbatch.NewRepository(r.db, productbatch.Querys{})
 	service := productbatch.NewService(repo)
 	handler := handler.NewProductBatch(service, productService, sectionService)
 
