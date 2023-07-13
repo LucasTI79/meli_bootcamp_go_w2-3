@@ -14,13 +14,13 @@ import (
 
 type SellerController struct {
 	sellerService      seller.Service
-	repositoryLocality locality.Service
+	localityService locality.Service
 }
 
 func NewSeller(s seller.Service, l locality.Service) *SellerController {
 	return &SellerController{
 		sellerService:      s,
-		repositoryLocality: l,
+		localityService: l,
 	}
 }
 
@@ -94,7 +94,7 @@ func (s *SellerController) Create() gin.HandlerFunc {
 			return
 		}
 
-		err := s.repositoryLocality.ExistsById(c, sellerInput.ID)
+		err := s.localityService.ExistsById(c, sellerInput.LocalityId)
 		if err != nil {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
@@ -113,19 +113,18 @@ func (s *SellerController) Create() gin.HandlerFunc {
 		case sellerInput.Telephone == "":
 			web.Error(c, http.StatusBadRequest, "phone is required")
 			return
+		case sellerInput.LocalityId == 0:
+			web.Error(c, http.StatusBadRequest, "locality id is required")
+			return
 		}
 
 		sellerSaved, err := s.sellerService.Save(c, *sellerInput)
-		switch err {
-		case seller.ErrLocality:
-			web.Error(c, http.StatusConflict, err.Error())
-			return
-		case seller.ErrCidAlreadyExists:
-			web.Error(c, http.StatusConflict, err.Error())
-			return
-		default:
-			web.Error(c, http.StatusInternalServerError, err.Error())
-
+		if err != nil {
+			if errors.Is(err, seller.ErrCidAlreadyExists){
+				web.Error(c, http.StatusConflict, err.Error())
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, seller.ErrSaveSeller.Error())
 		}
 		web.Success(c, http.StatusCreated, sellerSaved)
 	}

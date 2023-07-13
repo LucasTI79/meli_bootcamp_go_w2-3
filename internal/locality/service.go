@@ -46,7 +46,7 @@ func (l *LocalityService) Save(c context.Context, locality domain.Locality) (dom
 	if err != nil {
 		return domain.LocalityInput{}, ErrTryAgain
 	}
-	locality.ID = localityId
+	localityInput.ID = localityId
 	return localityInput, nil
 }
 
