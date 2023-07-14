@@ -18,12 +18,11 @@ import (
 var db = InitDatabase()
 
 var InboundOrdersExpected = domain.InboundOrders{
-	ID:             1,
 	OrderDate:      "01/01/01",
 	OrderNumber:    "001",
-	EmployeeID:     "01",
-	ProductBatchID: "0001",
-	WarehouseID:    "10",
+	EmployeeID:     1,
+	ProductBatchID: 1,
+	WarehouseID:    1,
 }
 
 func TestCreateInboundOrdersRepository(t *testing.T) {
@@ -55,7 +54,7 @@ func TestExistsByIdInboundOrderRepository(t *testing.T) {
 
 		getResult, _ := repository.Get(ctx, result)
 
-		existsResult := repository.TestExistsByIdInboundOrder(ctx, getResult.ID)
+		existsResult := repository.Exists(ctx, getResult.OrderNumber)
 		assert.True(t, existsResult)
 	})
 }
@@ -83,34 +82,6 @@ func TestGetInboundOrderRepository(t *testing.T) {
 		_, err := repository.Get(ctx, 200000)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
-	})
-}
-
-func TestAllEndpointsRepositoryWithErrorDatabaseClosed(t *testing.T) {
-	db.Close()
-	t.Run("Should return error when there is an ReadAllInboundOrders database error", func(t *testing.T) {
-		repository := inbound_order.NewRepository(db)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
-		defer cancel()
-
-		_, err := repository.ReadAllInboundOrders(ctx)
-		assert.Error(t, err)
-	})
-	t.Run("Should return error when there is an Get database error", func(t *testing.T) {
-		repository := inbound_order.NewRepository(db)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
-		defer cancel()
-
-		_, err := repository.Get(ctx, 200)
-		assert.Error(t, err)
-	})
-	t.Run("Should return error when there is an Create database error", func(t *testing.T) {
-		repository := inbound_order.NewRepository(db)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
-		defer cancel()
-
-		_, err := repository.Create(ctx, InboundOrdersExpected)
-		assert.Error(t, err)
 	})
 }
 

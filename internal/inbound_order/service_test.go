@@ -15,12 +15,11 @@ import (
 var id = 2
 
 var expectedInboundOrder = domain.InboundOrders{
-	ID:             1,
 	OrderDate:      "01/01/01",
 	OrderNumber:    "001",
-	EmployeeID:     "01",
-	ProductBatchID: "0001",
-	WarehouseID:    "10",
+	EmployeeID:     1,
+	ProductBatchID: 1,
+	WarehouseID:    1,
 }
 
 func TestCreateInboundOrders(t *testing.T) {
