@@ -24,5 +24,5 @@ type CarryResponseId struct {
 }
 
 type LocalityCarriersResponse struct {
-	Data []LocalityCarriersReport `json: data`
+	Data []LocalityCarriersReport `json:"data"`
 }
