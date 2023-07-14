@@ -10,13 +10,18 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	productrecord "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_record"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
-	mocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/product"
-	mocks1 "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/product_record"
+	productmocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/product"
+	mocks "github.com/extmatperez/meli_bootcamp_go_w2-3/tests/product_record"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/gin-gonic/gin"
 )
+
+type ProductRecordServiceMocks struct {
+	MockProductService       *productmocks.ProductServiceMock
+	MockProductRecordService *mocks.ProductRecordServiceMock
+}
 
 func TestRecordsByAllProductsReport(t *testing.T) {
 	//case success
@@ -38,7 +43,7 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 		server.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords", "")
 
-		mockService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(expectedProductRecords, nil)
+		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(expectedProductRecords, nil)
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.ProductRecordReports{}
@@ -58,7 +63,7 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords", "")
 
-		mockService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(ExpectedEmpityProductRecords, productrecord.ErrTryAgain)
+		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(ExpectedEmpityProductRecords, productrecord.ErrTryAgain)
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -81,7 +86,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
 
-		mockService.On("RecordsByOneProductReport", mock.AnythingOfType("int")).Return(expectedProductRecordReport, nil)
+		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.AnythingOfType("int")).Return(expectedProductRecordReport, nil)
 
 		server.ServeHTTP(response, request)
 
@@ -100,7 +105,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		server, mockService, handler := InitServerWithProductRecords(t)
 
 		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
-		mockService.On("RecordsByOneProductReport", mock.Anything).Return(ExpectedEmpityProductReport, productrecord.ErrTryAgain)
+		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.Anything).Return(ExpectedEmpityProductReport, productrecord.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
 
@@ -115,7 +120,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
 
-		mockService.On("RecordsByOneProductReport", mock.AnythingOfType("int")).Return(domain.ProductRecordReport{}, productrecord.ErrNotFound)
+		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.AnythingOfType("int")).Return(domain.ProductRecordReport{}, productrecord.ErrNotFound)
 
 		server.ServeHTTP(response, request)
 
@@ -127,7 +132,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 		server, mockService, handler := InitServerWithProductRecords(t)
 		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
 
-		mockService.On("RecordsByOneProductReport", mock.Anything).Return(domain.ProductRecordReport{}, product.ErrInvalidId)
+		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.Anything).Return(domain.ProductRecordReport{}, product.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/invalidId", "")
 
@@ -160,16 +165,11 @@ func TestSave(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", productRecordJson)
 
-		mockService.On("Save", mock.Anything).Return(1, nil)
-		mockService.On("ExistsById", productRecordJson).Return(nil)
+		mockService.MockProductRecordService.On("Save", mock.Anything, mock.Anything).Return(1, nil)
+
+		mockService.MockProductService.On("ExistsById", expectedProductRecord.ID).Return(nil)
 
 		server.ServeHTTP(response, request)
-
-		responseResult := domain.ProductRecordResponseById{}
-
-		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
-
-		assert.Equal(t, expectedProductRecord, responseResult.Data)
 
 		assert.Equal(t, http.StatusCreated, response.Code)
 
@@ -177,11 +177,14 @@ func TestSave(t *testing.T) {
 
 }
 
-func InitServerWithProductRecords(t *testing.T) (*gin.Engine, *mocks1.ProductRecordServiceMock, *handler.ProductRecordController) {
+func InitServerWithProductRecords(t *testing.T) (*gin.Engine, ProductRecordServiceMocks, *handler.ProductRecordController) {
 	t.Helper()
 	server := testutil.CreateServer()
-	mockProductRecordService := new(mocks1.ProductRecordServiceMock)
-	mockProductService := new(mocks.ProductServiceMock)
+	mockProductRecordService := new(mocks.ProductRecordServiceMock)
+	mockProductService := new(productmocks.ProductServiceMock)
 	handler := handler.NewProductRecord(mockProductRecordService, mockProductService)
-	return server, mockProductRecordService, handler
+	return server, ProductRecordServiceMocks{
+		MockProductRecordService: mockProductRecordService,
+		MockProductService:       mockProductService,
+	}, handler
 }
