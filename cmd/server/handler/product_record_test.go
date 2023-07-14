@@ -57,14 +57,15 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 	})
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
-		var ExpectedEmpityProductReports = []domain.ProductRecordReports{}
+		var ExpectedEmpityReports = []domain.ProductRecordReport{}
 
 		server, mockService, handler := InitServerWithProductRecords(t)
+
 		server.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords", "")
 
-		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(ExpectedEmpityProductReports, productrecord.ErrTryAgain)
+		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(ExpectedEmpityReports, productrecord.ErrTryAgain)
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
