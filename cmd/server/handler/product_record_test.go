@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"testing"
 
@@ -200,6 +201,20 @@ func TestSave(t *testing.T) {
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
 
+	// Should not save if any error occurs
+	t.Run("Should not save if any error occurs", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithProductRecords(t)
+		server.POST("/productRecords", handler.Create())
+		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", productRecordJson)
+
+		mockService.MockProductRecordService.On("Save", mock.Anything, mock.Anything).Return(0, errors.New("error"))
+
+		mockService.MockProductService.On("ExistsById", expectedProductRecord.ID).Return(nil)
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	})
 }
 
 func InitServerWithProductRecords(t *testing.T) (*gin.Engine, ProductRecordServiceMocks, *handler.ProductRecordController) {
