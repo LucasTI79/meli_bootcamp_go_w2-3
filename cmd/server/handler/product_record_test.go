@@ -149,15 +149,14 @@ func TestSave(t *testing.T) {
 		"sale_price": 15,
 		"product_id": 1
 	}`
+	expectedProductRecord := domain.ProductRecord{
+		ID:             1,
+		LastUpdateDate: "2021-04-04",
+		PurchasePrice:  10,
+		SalePrice:      15,
+		ProductID:      1,
+	}
 	t.Run("Should return 201 when a product record is created", func(t *testing.T) {
-
-		expectedProductRecord := domain.ProductRecord{
-			ID:             1,
-			LastUpdateDate: "2021-04-04",
-			PurchasePrice:  10,
-			SalePrice:      15,
-			ProductID:      1,
-		}
 
 		server, mockService, handler := InitServerWithProductRecords(t)
 
@@ -176,17 +175,29 @@ func TestSave(t *testing.T) {
 	})
 
 	t.Run("Should return 422 when Json is invalid", func(t *testing.T) {
-		// server, _, handler := InitServerWithProducts(t)
-		server, _, handler := InitServerWithProductRecords(t)
 
-		// server.POST("/products", handler.Create())
+		server, _, handler := InitServerWithProductRecords(t)
 		server.POST("/productRecords", handler.Create())
 
-		// request, response := testutil.MakeRequest(http.MethodPost, "/products", string(`{"ExpirationRate":}`))
 		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", string(`{"sale_price":}`))
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("It Should not save a product record if the  product do not exist", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithProductRecords(t)
+		server.POST("/productRecords", handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", productRecordJson)
+
+		mockService.MockProductRecordService.On("Save", mock.Anything, mock.Anything).Return(0, nil)
+
+		mockService.MockProductService.On("ExistsById", expectedProductRecord.ID).Return(productrecord.ErrNotFound)
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusConflict, response.Code)
 	})
 
 }
