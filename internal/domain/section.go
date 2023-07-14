@@ -32,6 +32,10 @@ type ProductBySection struct {
 	SectionNumber string `json:"section_number"`
 }
 
+type ProductBySectionResponse struct {
+	Data []ProductBySection `json:"data"`
+}
+
 type SectionResponse struct {
 	Data Section `json:"data"`
 }

@@ -234,3 +234,39 @@ func (s *SectionController) Delete() gin.HandlerFunc {
 		web.Response(c, http.StatusNoContent, "")
 	}
 }
+
+// @Summary Report Products by Section or All Sections
+// @Produce json
+// GET /sections/report @Summary Returns a list of Products by Section or All Sections
+// @Router /api/v1/sections/reportProducts [get]
+// @Tags Section
+// @Accept json
+// @Param id query int false "Section ID"
+// @Success 200 {object} []domain.Product
+// @Description Report Products by Section or All Sections
+func (s *SectionController) ReportProducts() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var sections []domain.ProductBySection
+		var section domain.ProductBySection
+		param := c.Query("id")
+		id, err := strconv.Atoi(param)
+		if id > 0 {
+			section, err = s.sectionService.ReportProductsById(c, id)
+			sections = append(sections, section)
+		}
+		if param == "" {
+			sections, err = s.sectionService.ReportProducts(c)
+		}
+
+		if id <= 0 && param != "" {
+			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
+			return
+		}
+
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, "error listing sections")
+			return
+		}
+		web.Success(c, http.StatusOK, sections)
+	}
+}

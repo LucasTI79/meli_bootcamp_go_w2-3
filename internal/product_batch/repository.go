@@ -7,25 +7,49 @@ import (
 )
 
 const (
-	SaveQuery         = "INSERT INTO product_batches ( batch_number, current_quantity, current_temperature, due_date, initial_quantity, manufacturing_date, manufacturing_hour, minimum_temperature, product_id, section_id) VALUES (?,?,?,?,?,?,?,?,?,?)"
-	ProductExists     = "SELECT id FROM products WHERE id=?"
-	SectionExists     = "SELECT id FROM sections WHERE id=?"
-	ProductsBySection = "SELECT count(pb.id) as `products_count`,pb.section_id, s.section_number FROM product_batches pb JOIN section ON pb.section_id = s.id GROUP BY pb.section_id"
+	SaveQuery = "INSERT INTO product_batches ( batch_number, current_quantity, current_temperature, due_date, initial_quantity, manufacturing_date, manufacturing_hour, minimum_temperature, product_id, section_id) VALUES (?,?,?,?,?,?,?,?,?,?)"
 )
 
+type Querys struct {
+	SaveQuery string
+}
 type Repository interface {
-	GetProductsBySection() ([]domain.ProductBySection, error)
 	Save(produsctBatch domain.ProductBatch) (int, error)
-	ProductExists(productID int) bool
-	SectionExists(sectionID int) bool
 }
 
 type repository struct {
 	db *sql.DB
+	Querys
 }
 
-func NewRepository(db *sql.DB) Repository {
-	return &repository{
-		db,
+func buildQuerys(Querys Querys) Querys {
+	if Querys.SaveQuery == "" {
+		Querys.SaveQuery = SaveQuery
 	}
+	return Querys
+}
+
+func NewRepository(db *sql.DB, Querys Querys) Repository {
+	RepoQuery := buildQuerys(Querys)
+	return &repository{
+		db:     db,
+		Querys: RepoQuery,
+	}
+}
+
+func (r *repository) Save(produsctBatch domain.ProductBatch) (int, error) {
+	stmt, err := r.db.Prepare(r.Querys.SaveQuery)
+	if err != nil {
+		return 0, err
+	}
+	res, err := stmt.Exec(produsctBatch.BatchNumber, produsctBatch.CurrentQuantity, produsctBatch.CurrentTemperature, produsctBatch.DueDate, produsctBatch.InitialQuantity, produsctBatch.ManufacturingDate, produsctBatch.ManufacturingHour, produsctBatch.MinimumTemperature, produsctBatch.ProductID, produsctBatch.SectionID)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
 }

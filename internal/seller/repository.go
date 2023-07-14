@@ -48,7 +48,7 @@ func (r *repository) Get(ctx context.Context, id int) (domain.Seller, error) {
 	query := "SELECT * FROM sellers WHERE id=?;"
 	row := r.db.QueryRow(query, id)
 	s := domain.Seller{}
-	err := row.Scan(&s.ID, &s.CID, &s.CompanyName, &s.Address, &s.Telephone)
+	err := row.Scan(&s.ID, &s.CID, &s.CompanyName, &s.Address, &s.Telephone, &s.LocalityId)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return domain.Seller{}, ErrNotFound
@@ -87,13 +87,13 @@ func (r *repository) Save(ctx context.Context, s domain.Seller) (int, error) {
 }
 
 func (r *repository) Update(ctx context.Context, s domain.Seller) error {
-	query := "UPDATE sellers SET cid=?, company_name=?, address=?, telephone=? WHERE id=?"
+	query := "UPDATE sellers SET cid=?, company_name=?, address=?, telephone=?, locality_id=? WHERE id=?"
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		return err
 	}
 
-	res, err := stmt.Exec(s.CID, s.CompanyName, s.Address, s.Telephone, s.ID)
+	res, err := stmt.Exec(s.CID, s.CompanyName, s.Address, s.Telephone, s.LocalityId, s.ID)
 	if err != nil {
 		return err
 	}

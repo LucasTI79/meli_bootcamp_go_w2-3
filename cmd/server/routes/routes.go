@@ -11,6 +11,8 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
+	productbatch "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_batch"
+	productrecord "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_record"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -45,9 +47,10 @@ func (r *router) MapRoutes() {
 	r.buildBuyerRoutes()
 	r.buildCarryRoutes()
 	r.buildSwagger()
+	r.buildProductBatchRoutes()
 	r.buildLocalityRoutes()
 	r.buildInboundOrderRoutes()
-
+	r.buildProductRecordRoutes()
 }
 
 func (r *router) setGroup() {
@@ -82,7 +85,7 @@ func (r *router) buildLocalityRoutes() {
 	service := locality.NewService(repo)
 	handler := handler.NewLocality(service)
 	r.rg.POST("/localities", handler.Create())
-	r.rg.GET("/localities/report-sellers", handler.ReportSellersByLocalities())
+	r.rg.GET("/localities/report-sellers", handler.ReportSellersByLocality())
 }
 
 func (r *router) buildProductRoutes() {
@@ -106,6 +109,7 @@ func (r *router) buildSectionRoutes() {
 	r.rg.POST("/sections", handler.Create())
 	r.rg.DELETE("/sections/:id", handler.Delete())
 	r.rg.PATCH("/sections/:id", handler.Update())
+	r.rg.GET("/sections/reportProducts", handler.ReportProducts())
 }
 
 func (r *router) buildWarehouseRoutes() {
@@ -142,6 +146,19 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.DELETE("/buyers/:id", handler.Delete())
 }
 
+func (r *router) buildProductBatchRoutes() {
+	productRrepo := product.NewRepository(r.db)
+	productService := product.NewService(productRrepo)
+
+	sectionRepo := section.NewRepository(r.db)
+	sectionService := section.NewService(sectionRepo)
+
+	repo := productbatch.NewRepository(r.db, productbatch.Querys{})
+	service := productbatch.NewService(repo)
+	handler := handler.NewProductBatch(service, productService, sectionService)
+
+	r.rg.POST("/productBatches", handler.Create())
+}
 func (r *router) buildCarryRoutes() {
 	repoCarry := carry.NewRepository(r.db)
 	repoLocalities := locality.NewRepository(r.db)
@@ -150,6 +167,18 @@ func (r *router) buildCarryRoutes() {
 	r.rg.GET("/carriers/:id", handler.Get())
 	r.rg.GET("/localities/reportCarriers", handler.Read())
 	r.rg.POST("/carriers", handler.Create())
+}
+func (r *router) buildProductRecordRoutes() {
+	productRepo := product.NewRepository(r.db)
+	productService := product.NewService(productRepo)
+
+	repo := productrecord.NewRepository(r.db)
+	service := productrecord.NewService(repo)
+	handler := handler.NewProductRecord(service, productService)
+
+	r.rg.POST("/productRecords", handler.Create())
+	r.rg.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
+	r.rg.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
 }
 
 func (r *router) buildSwagger() {

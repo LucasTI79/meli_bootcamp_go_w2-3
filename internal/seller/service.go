@@ -88,6 +88,9 @@ func (s *sellerService) Update(ctx context.Context, id int, newSeller domain.Sel
 	if newSeller.Telephone != "" {
 		seller.Telephone = newSeller.Telephone
 	}
+	if newSeller.LocalityId != 0 {
+		seller.LocalityId = newSeller.LocalityId
+	}
 
 	errUpdate := s.repository.Update(ctx, seller)
 	if errUpdate != nil {
