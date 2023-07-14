@@ -4,25 +4,17 @@ type InboundOrders struct {
 	ID             int    `json:"id"`
 	OrderDate      string `json:"order_date"`
 	OrderNumber    string `json:"order_number"`
-	EmployeeID     string `json:"employee_id"`
-	ProductBatchID string `json:"product_batch_id"`
-	WarehouseID    string `json:"warehouse_id"`
+	EmployeeID     int    `json:"employee_id"`
+	ProductBatchID int    `json:"product_batch_id"`
+	WarehouseID    int    `json:"warehouse_id"`
 }
 
 type RequestCreateInboundOrders struct {
-	OrderDate      string `json:"order_date"`
+	OrderName      string `json:"order_date"`
 	OrderNumber    string `json:"order_number"`
-	EmployeeID     string `json:"employee_id"`
-	ProductBatchID string `json:"product_batch_id"`
-	WarehouseID    string `json:"warehouse_id"`
-}
-
-type RequestUpdateInboundOrders struct {
-	OrderDate      *string `json:"order_date"`
-	OrderNumber    *string `json:"order_number"`
-	EmployeeID     *string `json:"employee_id"`
-	ProductBatchID *string `json:"product_batch_id"`
-	WarehouseID    *string `json:"warehouse_id"`
+	EmployeeID     int    `json:"employee_id"`
+	ProductBatchID int    `json:"product_batch_id"`
+	WarehouseID    int    `json:"warehouse_id"`
 }
 
 type InboundOrdersResponseId struct {

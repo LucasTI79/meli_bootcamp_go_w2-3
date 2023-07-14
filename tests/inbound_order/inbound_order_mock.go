@@ -15,16 +15,6 @@ type InboundOrderRepositoryMock struct {
 	mock.Mock
 }
 
-func (m *InboundOrderServiceMock) Read(ctx context.Context, id int) ([]domain.Employee, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).([]domain.Employee), args.Error(1)
-}
-
-func (m *InboundOrderRepositoryMock) ReadAllInboundOrders(ctx context.Context) ([]domain.Employee, error) {
-	args := m.Called(ctx)
-	return args.Get(0).([]domain.Employee), args.Error(1)
-}
-
 func (m *InboundOrderServiceMock) Create(ctx context.Context, c domain.InboundOrders) (domain.InboundOrders, error) {
 	args := m.Called(ctx, c)
 	return args.Get(0).(domain.InboundOrders), args.Error(1)
@@ -43,4 +33,9 @@ func (m *InboundOrderServiceMock) Get(ctx context.Context, id int) (domain.Inbou
 func (m *InboundOrderRepositoryMock) Get(ctx context.Context, id int) (domain.InboundOrders, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(domain.InboundOrders), args.Error(1)
+}
+
+func (m *InboundOrderRepositoryMock) Exists(ctx context.Context, orderNumber string) bool {
+	args := m.Called(ctx, orderNumber)
+	return args.Get(0).(bool)
 }

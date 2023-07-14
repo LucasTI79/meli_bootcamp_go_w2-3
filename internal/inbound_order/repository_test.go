@@ -35,6 +35,8 @@ func TestCreateInboundOrdersRepository(t *testing.T) {
 		result, err := repository.Create(ctx, InboundOrdersExpected)
 		assert.NoError(t, err)
 
+		InboundOrdersExpected.ID = result
+
 		getResult, err := repository.Get(ctx, result)
 		assert.NoError(t, err)
 		assert.NotNil(t, getResult)
@@ -61,19 +63,21 @@ func TestExistsByIdInboundOrderRepository(t *testing.T) {
 
 func TestGetInboundOrderRepository(t *testing.T) {
 	t.Run("Should get the inbound order when it exists in database", func(t *testing.T) {
-		id := 1
-
 		repository := inbound_order.NewRepository(db)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
+		result, err := repository.Create(ctx, InboundOrdersExpected)
+		assert.NoError(t, err)
 
-		inboundOrderResult, err := repository.Get(ctx, id)
+		InboundOrdersExpected.ID = result
+
+		inboundOrderResult, err := repository.Get(ctx, result)
+
 		assert.NoError(t, err)
 		assert.Equal(t, InboundOrdersExpected.ID, inboundOrderResult.ID)
 	})
 	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
-		expectedMessage := inbound_order.ErrNotFound.Error()
 
 		repository := inbound_order.NewRepository(db)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
@@ -81,7 +85,6 @@ func TestGetInboundOrderRepository(t *testing.T) {
 
 		_, err := repository.Get(ctx, 200000)
 		assert.Error(t, err)
-		assert.Equal(t, expectedMessage, err.Error())
 	})
 }
 

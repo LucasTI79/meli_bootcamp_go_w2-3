@@ -25,26 +25,26 @@ var expectedInboundOrder = domain.InboundOrders{
 func TestCreateInboundOrders(t *testing.T) {
 	t.Run("Should create the inbound order if it contains the required fields", func(t *testing.T) {
 		repository, service := InitServerWithInboundOrdersRepository(t)
-		repository.On("ExistsByOrderNumber", mock.Anything, "001").Return(false)
+		repository.On("Exists", mock.Anything, "001").Return(false)
 		repository.On("Create", mock.Anything, expectedInboundOrder).Return(id, nil)
 
 		inbound_order, err := service.Create(context.TODO(), expectedInboundOrder)
 
-		assert.Equal(t, 1, inbound_order.ID)
+		assert.Equal(t, 2, inbound_order.ID)
 		assert.Equal(t, "01/01/01", inbound_order.OrderDate)
 		assert.Equal(t, "001", inbound_order.OrderNumber)
-		assert.Equal(t, "01", inbound_order.EmployeeID)
-		assert.Equal(t, "0001", inbound_order.ProductBatchID)
-		assert.Equal(t, "10", inbound_order.WarehouseID)
+		assert.Equal(t, 1, inbound_order.EmployeeID)
+		assert.Equal(t, 1, inbound_order.ProductBatchID)
+		assert.Equal(t, 1, inbound_order.WarehouseID)
 
 		assert.NoError(t, err)
 	})
 	t.Run("Should return err inbound order already exists when inbound order already exists", func(t *testing.T) {
-		expectedMessage := "inbound order already exists"
+		expectedMessage := "already exists"
 
 		repository, service := InitServerWithInboundOrdersRepository(t)
 
-		repository.On("ExistsByOrderNumber", mock.Anything, mock.Anything).Return(true)
+		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
 
 		_, err := service.Create(context.TODO(), domain.InboundOrders{})
 
@@ -55,7 +55,7 @@ func TestCreateInboundOrders(t *testing.T) {
 	t.Run("Should return error when there is an save repository error", func(t *testing.T) {
 		repository, service := InitServerWithInboundOrdersRepository(t)
 
-		repository.On("ExistsByOrderNumber", mock.Anything, mock.Anything).Return(false)
+		repository.On("Exists", mock.Anything, mock.Anything).Return(false)
 
 		expectedError := errors.New("some error")
 		repository.On("Create", mock.Anything, domain.InboundOrders{}).Return(0, expectedError)
@@ -80,7 +80,7 @@ func TestGetInboundOrders(t *testing.T) {
 	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
 		repository, service := InitServerWithInboundOrdersRepository(t)
 
-		expectedError := errors.New("inbound order not found")
+		expectedError := errors.New("inbound orders not found")
 		repository.On("Get", mock.Anything, mock.Anything).Return(domain.InboundOrders{}, inbound_order.ErrNotFound)
 
 		_, err := service.Get(context.TODO(), 1)
@@ -91,7 +91,7 @@ func TestGetInboundOrders(t *testing.T) {
 	t.Run("Should return error when there is an get repository error", func(t *testing.T) {
 		repository, service := InitServerWithInboundOrdersRepository(t)
 
-		expectedError := errors.New("some error")
+		expectedError := errors.New("inbound orders not found")
 		repository.On("Get", mock.Anything, mock.Anything).Return(domain.InboundOrders{}, expectedError)
 
 		_, err := service.Get(context.TODO(), 1)

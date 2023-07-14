@@ -76,10 +76,10 @@ func (s *InboundOrdersController) Create() gin.HandlerFunc {
 		case inboundOrdersInput.OrderNumber == "":
 			web.Error(c, http.StatusBadRequest, "invalid order_number field")
 			return
-		case inboundOrdersInput.EmployeeID == "":
+		case inboundOrdersInput.EmployeeID == 0:
 			web.Error(c, http.StatusBadRequest, "invalid employee_id field")
 			return
-		case inboundOrdersInput.ProductBatchID == "":
+		case inboundOrdersInput.ProductBatchID == 0:
 			web.Error(c, http.StatusBadRequest, "invalid product_batch_id field")
 			return
 		}
