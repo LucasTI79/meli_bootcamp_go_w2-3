@@ -7,7 +7,7 @@ Verificar estado de MySQL: Ejecutar el comando 'make build-database' desde el ro
 Correr el comando de creación de la BD: Chequear con 'mysql.server' status para verificar que el servicio se encuentra inicializado. Caso contrario ejecutar comando 'mysql.server start'
 
 EN NINGÚN CASO DEBERÁN PONER PASSWORD
- 
+
 
 # Considerações relacionadas ao Banco de Dados
 

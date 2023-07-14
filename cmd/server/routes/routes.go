@@ -8,6 +8,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/carry"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	productbatch "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_batch"
@@ -15,6 +16,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
+
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -47,12 +49,20 @@ func (r *router) MapRoutes() {
 	r.buildSwagger()
 	r.buildProductBatchRoutes()
 	r.buildLocalityRoutes()
-
+	r.buildInboundOrderRoutes()
 	r.buildProductRecordRoutes()
 }
 
 func (r *router) setGroup() {
 	r.rg = r.eng.Group("/api/v1")
+}
+
+func (r *router) buildInboundOrderRoutes() {
+	repoInboundOrder := inbound_order.NewRepository(r.db)
+	service := inbound_order.NewService(repoInboundOrder)
+	handler := handler.NewInboundOrders(service)
+	r.rg.GET("/inbound-orders/:id", handler.Get())
+	r.rg.POST("/inbound-orders", handler.Create())
 }
 
 func (r *router) buildSellerRoutes() {

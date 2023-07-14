@@ -1,4 +1,4 @@
-DROP DATABASE melisprint; 
+DROP DATABASE IF EXISTS melisprint; 
 CREATE DATABASE melisprint;
 USE melisprint;
 
@@ -263,4 +263,3 @@ INSERT INTO `melisprint`.`employees` (`card_number_id`, `first_name`, `last_name
 INSERT INTO `melisprint`.`employees` (`card_number_id`, `first_name`, `last_name`, `warehouse_id`) VALUES ('654321', 'Jane', 'Doe', 2);
 
 INSERT INTO `melisprint`.`inbound_orders` (`order_date`, `order_number`, `employee_id`, `product_batch_id`, `warehouse_id`) VALUES ('2023-07-05 14:00:00', 'INB001', 1, 1, 1);
-INSERT INTO `melisprint`.`inbound_orders` (`order_date`, `order_number`, `employee_id`, `product_batch_id`, `warehouse_id`) VALUES ('2023-07-06 15:00:00', 'INB002', 2, 2, 2);
