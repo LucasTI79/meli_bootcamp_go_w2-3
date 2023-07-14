@@ -86,12 +86,21 @@ func TestGetInboundOrders(t *testing.T) {
 }
 
 func TestCreateInboundOrders(t *testing.T) {
-	t.Run("Should return status 200 and the inbound order created", func(t *testing.T) {
+	newInboudOrders := &domain.InboundOrders{
+		ID:             1,
+		OrderDate:      "2020-01-02",
+		OrderNumber:    "1",
+		EmployeeID:     1,
+		ProductBatchID: 1,
+		WarehouseID:    1,
+	}
+
+	t.Run("Should return status 201 and the inbound order created", func(t *testing.T) {
 		server, mockService, handler := InitServerWithInboundOrders(t)
 
 		mockService.On("Create", mock.Anything, mock.Anything).Return(expectedInboundOrder, nil)
-
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
+		jsonProductBatch, _ := json.Marshal(newInboudOrders)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatch))
 
 		server.POST(BaseEndpointInboundOrders, handler.Create())
 		server.ServeHTTP(response, request)
@@ -115,18 +124,35 @@ func TestCreateInboundOrders(t *testing.T) {
 	})
 	t.Run("Should return status 400 when Order Date is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithInboundOrders(t)
-
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
+		newInboudOrdersInvalid := domain.InboundOrders{
+			ID:             1,
+			OrderDate:      "1",
+			OrderNumber:    "1",
+			EmployeeID:     1,
+			ProductBatchID: 1,
+			WarehouseID:    1,
+		}
+		jsonProductBatchInvalid, _ := json.Marshal(newInboudOrdersInvalid)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatchInvalid))
 
 		server.POST(BaseEndpointInboundOrders, handler.Create())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
-	t.Run("Should return status 400 when OrderName is invalid", func(t *testing.T) {
+	t.Run("Should return status 400 when OrderNumber is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithInboundOrders(t)
+		newInboudOrdersInvalid := &domain.InboundOrders{
+			ID:             1,
+			OrderDate:      "2020-01-02",
+			OrderNumber:    "",
+			EmployeeID:     1,
+			ProductBatchID: 1,
+			WarehouseID:    1,
+		}
+		jsonProductBatchInvalid, _ := json.Marshal(newInboudOrdersInvalid)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatchInvalid))
 
 		server.POST(BaseEndpointInboundOrders, handler.Create())
 		server.ServeHTTP(response, request)
@@ -135,8 +161,16 @@ func TestCreateInboundOrders(t *testing.T) {
 	})
 	t.Run("Should return status 400 when Employee ID is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithInboundOrders(t)
-
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
+		newInboudOrdersInvalid := &domain.InboundOrders{
+			ID:             1,
+			OrderDate:      "2020-01-02",
+			OrderNumber:    "1",
+			EmployeeID:     0,
+			ProductBatchID: 1,
+			WarehouseID:    1,
+		}
+		jsonProductBatchInvalid, _ := json.Marshal(newInboudOrdersInvalid)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatchInvalid))
 
 		server.POST(BaseEndpointInboundOrders, handler.Create())
 		server.ServeHTTP(response, request)
@@ -145,8 +179,16 @@ func TestCreateInboundOrders(t *testing.T) {
 	})
 	t.Run("Should return status 400 when ProductBatchID is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithInboundOrders(t)
-
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
+		newInboudOrdersInvalid := &domain.InboundOrders{
+			ID:             1,
+			OrderDate:      "2020-01-02",
+			OrderNumber:    "1",
+			EmployeeID:     1,
+			ProductBatchID: 0,
+			WarehouseID:    1,
+		}
+		jsonProductBatchInvalid, _ := json.Marshal(newInboudOrdersInvalid)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatchInvalid))
 
 		server.POST(BaseEndpointInboundOrders, handler.Create())
 		server.ServeHTTP(response, request)
@@ -156,8 +198,16 @@ func TestCreateInboundOrders(t *testing.T) {
 	t.Run("Should return status 400 when WarehouseID is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithInboundOrders(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
-
+		newInboudOrdersInvalid := &domain.InboundOrders{
+			ID:             1,
+			OrderDate:      "2020-01-02",
+			OrderNumber:    "1",
+			EmployeeID:     1,
+			ProductBatchID: 1,
+			WarehouseID:    0,
+		}
+		jsonProductBatchInvalid, _ := json.Marshal(newInboudOrdersInvalid)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatchInvalid))
 		server.POST(BaseEndpointInboundOrders, handler.Create())
 		server.ServeHTTP(response, request)
 
@@ -166,7 +216,8 @@ func TestCreateInboundOrders(t *testing.T) {
 	t.Run("Should return status 409 when inbound order already exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithInboundOrders(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
+		jsonProductBatch, _ := json.Marshal(newInboudOrders)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatch))
 
 		mockService.On("Create", mock.Anything, mock.AnythingOfType("domain.InboundOrders")).Return(domain.InboundOrders{}, inbound_order.ErrAlredyExists)
 
@@ -179,7 +230,8 @@ func TestCreateInboundOrders(t *testing.T) {
 	t.Run("Should return status 500 when there is an internal error", func(t *testing.T) {
 		server, mockService, handler := InitServerWithInboundOrders(t)
 
-		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, `{"order_date":"01/01/01","order_name":"name one","employee_id":"001","product_batch_id":"01010101","warehouse_id":"01"}`)
+		jsonProductBatch, _ := json.Marshal(newInboudOrders)
+		request, response := testutil.MakeRequest(http.MethodPost, BaseEndpointInboundOrders, string(jsonProductBatch))
 
 		mockService.On("Create", mock.Anything, mock.AnythingOfType("domain.InboundOrders")).Return(domain.InboundOrders{}, inbound_order.ErrTryAgain)
 
