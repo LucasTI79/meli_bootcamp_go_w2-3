@@ -141,4 +141,5 @@ func (r *repository) ExistsById(productID int) bool {
 	row := r.db.QueryRow(ProductExists, productID)
 	err := row.Scan(&productID)
 	return err == nil
+
 }
