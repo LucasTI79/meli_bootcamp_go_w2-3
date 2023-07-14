@@ -18,5 +18,5 @@ type RequestCreateInboundOrders struct {
 }
 
 type InboundOrdersResponseId struct {
-	Data Carry `json:"data"`
+	Data InboundOrders `json:"data"`
 }
