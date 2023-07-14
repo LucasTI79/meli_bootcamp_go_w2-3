@@ -215,6 +215,19 @@ func TestSave(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 
 	})
+
+	t.Run("Should not save if product lastUpdateDate is invalid", func(t *testing.T) {
+
+		server, _, handler := InitServerWithProductRecords(t)
+
+		server.POST("/productRecords", handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", string(`{"last_update_date": "x"}`))
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
 }
 
 func InitServerWithProductRecords(t *testing.T) (*gin.Engine, ProductRecordServiceMocks, *handler.ProductRecordController) {
