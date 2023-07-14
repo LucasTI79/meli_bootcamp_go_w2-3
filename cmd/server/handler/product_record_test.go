@@ -56,14 +56,14 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 	})
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
-		var ExpectedEmpityProductRecords = []domain.ProductRecord{}
+		var ExpectedEmpityProductReports = []domain.ProductRecordReports{}
 
 		server, mockService, handler := InitServerWithProductRecords(t)
 		server.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords", "")
 
-		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(ExpectedEmpityProductRecords, productrecord.ErrTryAgain)
+		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(ExpectedEmpityProductReports, productrecord.ErrTryAgain)
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -173,6 +173,20 @@ func TestSave(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, response.Code)
 
+	})
+
+	t.Run("Should return 422 when Json is invalid", func(t *testing.T) {
+		// server, _, handler := InitServerWithProducts(t)
+		server, _, handler := InitServerWithProductRecords(t)
+
+		// server.POST("/products", handler.Create())
+		server.POST("/productRecords", handler.Create())
+
+		// request, response := testutil.MakeRequest(http.MethodPost, "/products", string(`{"ExpirationRate":}`))
+		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", string(`{"sale_price":}`))
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 
 }
