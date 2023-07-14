@@ -145,10 +145,11 @@ func (r *router) buildProductBatchRoutes() {
 	handler := handler.NewProductBatch(service, productService, sectionService)
 
 	r.rg.POST("/productBatches", handler.Create())
+}
 func (r *router) buildCarryRoutes() {
 	repoCarry := carry.NewRepository(r.db)
 	repoLocalities := locality.NewRepository(r.db)
-	service := carry.NewService(repoCarry,repoLocalities)
+	service := carry.NewService(repoCarry, repoLocalities)
 	handler := handler.NewCarry(service)
 	r.rg.GET("/carriers/:id", handler.Get())
 	r.rg.GET("/localities/reportCarriers", handler.Read())
