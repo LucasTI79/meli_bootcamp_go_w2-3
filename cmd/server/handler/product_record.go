@@ -25,6 +25,14 @@ func NewProductRecord(s productrecord.Service, ps product.Service) *ProductRecor
 	}
 }
 
+// @Summary Create ProductRecord
+// @Produce json
+// @Router /api/v1/productRecords [post]
+// @Tags ProductRecord
+// @Accept json
+// @Param product body domain.ProductRecordt true "ProductRecord Data"
+// @Success 201 {object} domain.ProductRecord
+// @Description Create ProductRecord
 func (p *ProductRecordController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productRecordImput := &domain.ProductRecordRequest{}
@@ -77,6 +85,13 @@ func (p *ProductRecordController) Create() gin.HandlerFunc {
 	}
 }
 
+// @Summary Get All product record reports
+// @Produce json
+// @Router /api/v1/products/reportRecords [get]
+// @Tags ProductRecord
+// @Accept json
+// @Success 200 {object}  []domain.ProductRecordReport
+// @Description List product record reports of All Products
 func (p *ProductRecordController) RecordsByAllProductsReport() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productRecordsReport, err := p.productRecordService.RecordsByAllProductsReport(c)
@@ -89,6 +104,14 @@ func (p *ProductRecordController) RecordsByAllProductsReport() gin.HandlerFunc {
 	}
 }
 
+// @Summary Get Product Record Report by Product ID
+// @Produce json
+// @Router /api/v1/products/reportRecords/{id} [get]
+// @Param   id     path    int     true        "Product ID"
+// @Tags ProductRecord
+// @Accept json
+// @Success 200 {object}  domain.ProductRecordReport
+// @Description List the product record report of one  product by it's Product id
 func (p *ProductRecordController) RecordsByOneProductReport() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productId, err := strconv.Atoi(c.Param("id"))

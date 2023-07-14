@@ -202,7 +202,6 @@ func TestSave(t *testing.T) {
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
 
-	// Should not save if any error occurs
 	t.Run("Should not save if any error occurs", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProductRecords(t)
@@ -230,7 +229,7 @@ func TestSave(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
-	t.Run("Should not save if product lastUpdateDate is invalid", func(t *testing.T) {
+	t.Run("It Should not save a product lastUpdateDate is less than system date", func(t *testing.T) {
 
 		server, _, handler := InitServerWithProductRecords(t)
 
