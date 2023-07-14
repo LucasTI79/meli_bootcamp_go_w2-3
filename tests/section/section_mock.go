@@ -71,3 +71,31 @@ func (m *SectionRepositoryMock) Exists(ctx context.Context, sectionNumber int) b
 	args := m.Called(ctx, sectionNumber)
 	return args.Get(0).(bool)
 }
+
+func (m *SectionServiceMock) ExistsById(productID int) error {
+	args := m.Called(productID)
+	return args.Error(0)
+}
+
+func (m *SectionRepositoryMock) ExistsById(sectionID int) bool {
+	args := m.Called(sectionID)
+	return args.Get(0).(bool)
+}
+
+func (m *SectionServiceMock) ReportProducts(ctx context.Context) ([]domain.ProductBySection, error) {
+	args := m.Called()
+	return args.Get(0).([]domain.ProductBySection), args.Error(1)
+}
+func (m *SectionRepositoryMock) SectionProductsReports() ([]domain.ProductBySection, error) {
+	args := m.Called()
+	return args.Get(0).([]domain.ProductBySection), args.Error(1)
+}
+
+func (m *SectionServiceMock) ReportProductsById(ctx context.Context, id int) (domain.ProductBySection, error) {
+	args := m.Called(id)
+	return args.Get(0).(domain.ProductBySection), args.Error(1)
+}
+func (m *SectionRepositoryMock) SectionProductsReportsBySection(id int) (domain.ProductBySection, error) {
+	args := m.Called(id)
+	return args.Get(0).(domain.ProductBySection), args.Error(1)
+}

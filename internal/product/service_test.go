@@ -174,6 +174,24 @@ func TestUpdateProducts(t *testing.T) {
 
 }
 
+func TestExistsById(t *testing.T) {
+	t.Run("should return an error if a product di not exist", func(t *testing.T) {
+		service, repository := CreateProductService(t)
+
+		repository.On("ExistsById", mock.Anything).Return(false)
+		err := service.ExistsById(1)
+		assert.Error(t, err)
+	})
+
+	t.Run("should return nil if a product do not exist", func(t *testing.T) {
+		service, repository := CreateProductService(t)
+
+		repository.On("ExistsById", mock.Anything).Return(true)
+		err := service.ExistsById(1)
+		assert.NoError(t, err)
+	})
+}
+
 func CreateProductService(t *testing.T) (product.Service, *mocks.ProductRepositoryMock) {
 	mockRepository := new(mocks.ProductRepositoryMock)
 	mockService := product.NewService(mockRepository)

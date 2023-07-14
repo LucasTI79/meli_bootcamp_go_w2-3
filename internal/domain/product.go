@@ -37,3 +37,18 @@ type ProductResponse struct {
 type ProductResponseById struct {
 	Data Product `json:"data"`
 }
+
+// product record report
+type ProductRecordReport struct {
+	ProductID    int    `json:"product_id"`
+	Description  string `json:"description"`
+	RecordsCount int    `json:"records_count"`
+}
+
+type ProductRecordReports struct {
+	Data []ProductRecordReport `json:"data"`
+}
+
+type ProductRecordReportResponse struct {
+	Data ProductRecordReport `json:"data"`
+}
