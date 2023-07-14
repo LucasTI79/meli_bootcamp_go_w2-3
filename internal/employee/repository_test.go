@@ -59,6 +59,8 @@ func TestSaveEmployeesRepository(t *testing.T) {
 		result, err := repository.Save(ctx, employeeExpected)
 		assert.NoError(t, err)
 
+		employeeExpected.ID = result
+
 		getResult, err := repository.Get(ctx, result)
 		assert.NoError(t, err)
 		assert.NotNil(t, getResult)
@@ -107,9 +109,11 @@ func TestGetEmployeesRepository(t *testing.T) {
 		resultId, err := repository.Save(ctx, employeeExpected)
 		assert.NoError(t, err)
 
+		employeeExpected.ID = resultId
+
 		employeeResult, err := repository.Get(ctx, resultId)
 		assert.NoError(t, err)
-		assert.Equal(t, 01, employeeResult.ID)
+		assert.Equal(t, employeeExpected.ID, employeeResult.ID)
 	})
 	t.Run("Should return error when there is not exists in database", func(t *testing.T) {
 		expectedMessage := employee.ErrNotFound.Error()
@@ -198,7 +202,7 @@ func TestDeleteEmployeesRepository(t *testing.T) {
 		err = repository.Delete(ctx, resultId)
 		assert.NoError(t, err)
 
-		_, err = repository.Get(ctx, employeeExpected.ID)
+		_, err = repository.Get(ctx, resultId)
 		assert.Error(t, err)
 		assert.Equal(t, expectedMessage, err.Error())
 	})
