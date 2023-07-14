@@ -4,12 +4,15 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
 )
+
+const layout = "2006-01-02"
 
 type InboundOrdersController struct {
 	InboundOrdersService inbound_order.Service
@@ -68,11 +71,12 @@ func (s *InboundOrdersController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusUnprocessableEntity, inbound_order.ErrInvalidJSON.Error())
 			return
 		}
-
-		switch {
-		case inboundOrdersInput.OrderDate == "":
-			web.Error(c, http.StatusBadRequest, "invalid order_date field")
+		_, err = time.Parse(layout, inboundOrdersInput.OrderDate)
+		if err != nil {
+			web.Error(c, http.StatusBadRequest, "invalid date")
 			return
+		}
+		switch {
 		case inboundOrdersInput.OrderNumber == "":
 			web.Error(c, http.StatusBadRequest, "invalid order_number field")
 			return
@@ -80,6 +84,9 @@ func (s *InboundOrdersController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusBadRequest, "invalid employee_id field")
 			return
 		case inboundOrdersInput.ProductBatchID == 0:
+			web.Error(c, http.StatusBadRequest, "invalid product_batch_id field")
+			return
+		case inboundOrdersInput.WarehouseID == 0:
 			web.Error(c, http.StatusBadRequest, "invalid product_batch_id field")
 			return
 		}
@@ -91,8 +98,9 @@ func (s *InboundOrdersController) Create() gin.HandlerFunc {
 				web.Error(c, http.StatusConflict, err.Error())
 				return
 			}
+			web.Error(c, http.StatusInternalServerError, err.Error())
 
-			web.Success(c, http.StatusCreated, inboundOrdersDomain)
 		}
+		web.Success(c, http.StatusCreated, inboundOrdersDomain)
 	}
 }
