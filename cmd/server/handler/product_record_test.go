@@ -146,7 +146,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 
 func TestSave(t *testing.T) {
 	var productRecordJson = `{
-		"last_update_date": "2021-04-04",
+		"last_update_date": "5050-08-04",
 		"purchase_price": 10,
 		"sale_price": 15,
 		"product_id": 1
@@ -228,6 +228,19 @@ func TestSave(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+	t.Run("Should not save if product lastUpdateDate is invalid", func(t *testing.T) {
+
+		server, _, handler := InitServerWithProductRecords(t)
+
+		server.POST("/productRecords", handler.Create())
+
+		request, response := testutil.MakeRequest(http.MethodPost, "/productRecords", string(`{"last_update_date": "2000-01-01"}`))
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusConflict, response.Code)
 	})
 }
 

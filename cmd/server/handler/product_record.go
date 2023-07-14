@@ -48,7 +48,8 @@ func (p *ProductRecordController) Create() gin.HandlerFunc {
 
 		// se a lastUpdateDate for menor que a data do sistema, não poderá ser criado
 		if imputDate.Before(currentDate) {
-			web.Error(c, http.StatusBadRequest, productrecord.ErrInvalidDate.Error())
+			// alterar pra conflict
+			web.Error(c, http.StatusConflict, productrecord.ErrInvalidDate.Error())
 			return
 		}
 
