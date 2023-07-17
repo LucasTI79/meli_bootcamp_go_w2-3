@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"testing"
 
@@ -27,9 +28,9 @@ const (
 func TestCreateOrders(t *testing.T) {
 	t.Run("Should return status 200 and the order created", func(t *testing.T) {
 		server, handler, mocks := InitServerWithGetPurchaseOrders(t)
+		server.POST(CreateOrders, handler.CreateOrders())
 
 		purchaseOrders := domain.PurchaseOrders{
-			ID:              1,
 			OrderNumber:     "order#1000",
 			OrderDate:       "2021-04-04",
 			TrackingCode:    "abscf123",
@@ -38,19 +39,12 @@ func TestCreateOrders(t *testing.T) {
 			OrderStatusID:   1,
 		}
 
+		jsonOrders, _ := json.Marshal(purchaseOrders)
+		request, response := testutil.MakeRequest("POST", CreateOrders, string(jsonOrders))
+
 		mocks.PurchaseOrdersServiceMock.On("Create", mock.Anything, mock.Anything).Return(purchaseOrders, nil)
 		mocks.BuyerServiceMock.On("ExistsID", mock.Anything, 1).Return(nil)
 
-		request, response := testutil.MakeRequest(http.MethodPost, CreateOrders, `{
-			"order_number": "order#1000",
-			"order_date": "2021-04-04",
-			"tracking_code": "abscf123",
-			"buyer_id": 1,
-			"product_record_id": 1,
-			"order_status_id": 1
-			}:`)
-
-		server.POST(CreateOrders, handler.CreateOrders())
 		server.ServeHTTP(response, request)
 
 		responseResult := domain.PurchaseOrdersResponseID{}
@@ -61,6 +55,81 @@ func TestCreateOrders(t *testing.T) {
 		assert.Equal(t, purchaseOrders, responseResult.Data)
 	})
 
+	t.Run("Should return err invalid body", func(t *testing.T) {
+		server, handler, mocks := InitServerWithGetPurchaseOrders(t)
+		server.POST(CreateOrders, handler.CreateOrders())
+
+		jsonOrders, _ := json.Marshal(&domain.PurchaseOrders{})
+		request, response := testutil.MakeRequest("POST", CreateOrders, string(jsonOrders))
+
+		mocks.PurchaseOrdersServiceMock.On("Create", mock.Anything, mock.Anything).Return(0, nil)
+		mocks.BuyerServiceMock.On("ExistsID", mock.Anything, 0).Return(nil)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("Should return status 400 when JSON is invalid", func(t *testing.T) {
+		server, handler, mocks := InitServerWithGetPurchaseOrders(t)
+		server.POST(CreateOrders, handler.CreateOrders())
+
+		request, response := testutil.MakeRequest(http.MethodPost, CreateOrders, `{"order_number":2}`)
+
+		mocks.PurchaseOrdersServiceMock.On("Create", mock.Anything, mock.Anything).Return(0, nil)
+		mocks.BuyerServiceMock.On("ExistsID", mock.Anything, 0).Return(nil)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+	t.Run("Should return status 409 when buyer not exists", func(t *testing.T) {
+		server, handler, mocks := InitServerWithGetPurchaseOrders(t)
+		server.POST(CreateOrders, handler.CreateOrders())
+
+		purchaseOrders := domain.PurchaseOrders{
+			OrderNumber:     "order#1000",
+			OrderDate:       "2021-04-04",
+			TrackingCode:    "abscf123",
+			BuyerID:         100,
+			ProductRecordID: 1,
+			OrderStatusID:   1,
+		}
+
+		jsonpurchaseOrders, _ := json.Marshal(purchaseOrders)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateOrders, string(jsonpurchaseOrders))
+
+		mocks.BuyerServiceMock.On("ExistsID", mock.Anything, 100).Return(errors.New("error"))
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusConflict, response.Code)
+	})
+
+	t.Run("Should return status 500 when internal error", func(t *testing.T) {
+		server, handler, mocks := InitServerWithGetPurchaseOrders(t)
+		server.POST(CreateOrders, handler.CreateOrders())
+
+		purchaseOrders := domain.PurchaseOrders{
+			OrderNumber:     "order#1000",
+			OrderDate:       "2021-04-04",
+			TrackingCode:    "abscf123",
+			BuyerID:         1,
+			ProductRecordID: 1,
+			OrderStatusID:   1,
+		}
+
+		jsonpurchaseOrders, _ := json.Marshal(purchaseOrders)
+		request, response := testutil.MakeRequest(http.MethodPost, CreateOrders, string(jsonpurchaseOrders))
+
+		mocks.PurchaseOrdersServiceMock.On("Create", mock.Anything, mock.Anything).Return(domain.PurchaseOrders{}, errors.New("error"))
+		mocks.BuyerServiceMock.On("ExistsID", mock.Anything, 1).Return(nil)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
 }
 
 func InitServerWithGetPurchaseOrders(t *testing.T) (*gin.Engine, *handler.PurchaseOrdersController, BuyerServiceMocks) {

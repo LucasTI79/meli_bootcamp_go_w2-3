@@ -89,9 +89,9 @@ func TestGetBuyerOrders(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.GET(GetBuyerOrders, handler.GetBuyerOrders())
 
-		mockService.On("GetBuyerOrders", mock.AnythingOfType("string")).Return([]domain.BuyerOrders{}, domain.ErrNotFound)
+		mockService.On("GetBuyerOrders", mock.Anything, 50).Return(domain.BuyerOrders{}, errors.New("error listing buyer"))
 
-		request, response := testutil.MakeRequest(http.MethodGet, "/buyers/reportPurchaseOrders/10", "")
+		request, response := testutil.MakeRequest(http.MethodGet, "/buyers/reportPurchaseOrders/50", "")
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -271,7 +271,7 @@ func TestGetBuyers(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.GET(Get, handler.Get())
 
-		mockService.On("Get", 10).Return(domain.Buyer{}, errors.New("error listing buyer"))
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Buyer{}, errors.New("error listing buyer"))
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/buyers/10", "")
 		server.ServeHTTP(response, request)
@@ -328,9 +328,9 @@ func TestDeleteBuyers(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.DELETE(Delete, handler.Delete())
 
-		mockService.On("Delete", 10).Return(domain.Buyer{}, errors.New("error"))
+		mockService.On("Delete", mock.Anything, 50).Return(errors.New("error listing buyer"))
 
-		request, response := testutil.MakeRequest(http.MethodDelete, "/buyers/10", "")
+		request, response := testutil.MakeRequest(http.MethodDelete, "/buyers/50", "")
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)

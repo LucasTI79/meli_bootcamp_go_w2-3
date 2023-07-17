@@ -61,7 +61,7 @@ func (po *PurchaseOrdersController) CreateOrders() gin.HandlerFunc {
 			OrderStatusID:   orderRequest.OrderStatusID,
 		})
 		if err != nil {
-			web.Error(c, http.StatusConflict, err.Error())
+			web.Error(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 

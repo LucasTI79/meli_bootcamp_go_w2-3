@@ -39,10 +39,7 @@ func NewService(r Repository) Service {
 func (b *buyerService) GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error) {
 	buyerOrders, err := b.repository.GetBuyerOrders(ctx, id)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
-			return domain.BuyerOrders{}, ErrNotFound
-		}
-		return domain.BuyerOrders{}, err
+		return domain.BuyerOrders{}, ErrNotFound
 	}
 	return buyerOrders, err
 }
@@ -76,10 +73,7 @@ func (b *buyerService) GetAll(ctx context.Context) ([]domain.Buyer, error) {
 func (b *buyerService) Get(ctx context.Context, id int) (domain.Buyer, error) {
 	buyer, err := b.repository.Get(ctx, id)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
-			return domain.Buyer{}, ErrNotFound
-		}
-		return domain.Buyer{}, err
+		return domain.Buyer{}, ErrNotFound
 	}
 	return buyer, err
 }
@@ -97,7 +91,7 @@ func (b *buyerService) Create(ctx context.Context, d domain.Buyer) (domain.Buyer
 func (b *buyerService) Update(ctx context.Context, d domain.Buyer, id int) (domain.Buyer, error) {
 	buyer, err := b.repository.Get(ctx, id)
 	if err != nil {
-		return domain.Buyer{}, errors.New("error getting buyer")
+		return domain.Buyer{}, ErrNotFound
 	}
 	if d.FirstName != "" {
 		buyer.FirstName = d.FirstName
@@ -107,7 +101,7 @@ func (b *buyerService) Update(ctx context.Context, d domain.Buyer, id int) (doma
 	}
 	err = b.repository.Update(ctx, buyer)
 	if err != nil {
-		return domain.Buyer{}, ErrNotFound
+		return domain.Buyer{}, err
 	}
 
 	return buyer, nil

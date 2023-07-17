@@ -30,6 +30,16 @@ func TestGetAll(t *testing.T) {
 
 		assert.NoError(t, err)
 	})
+	t.Run("Should return err and not return list of buyers", func(t *testing.T) {
+
+		repository, service := InitServerWithBuyersRepository(t)
+		repository.On("GetAll", mock.Anything).Return([]domain.Buyer{}, errors.New("error"))
+
+		_, err := service.GetAll(context.TODO())
+
+		assert.Error(t, err)
+		assert.Equal(t, errors.New("error"), err)
+	})
 }
 
 func TestCreate(t *testing.T) {
@@ -157,6 +167,26 @@ func TestUpdate(t *testing.T) {
 		_, err := service.Update(context.TODO(), expectedBuyer, 100)
 		assert.Error(t, err)
 	})
+	t.Run("Should return err", func(t *testing.T) {
+
+		expectedBuyer := domain.Buyer{
+			ID:           50,
+			CardNumberID: "2556",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
+
+		repository, service := InitServerWithBuyersRepository(t)
+		expectedError := errors.New("error")
+
+		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Buyer{}, nil)
+		repository.On("Update", mock.Anything, mock.Anything).Return(expectedError)
+
+		_, err := service.Update(context.TODO(), expectedBuyer, expectedBuyer.ID)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
 }
 
 func TestExistsID(t *testing.T) {
@@ -198,13 +228,13 @@ func TestGetBuyerOrders(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("Should not return buyer orders", func(t *testing.T) {
+	t.Run("Should return buyer not found", func(t *testing.T) {
 		mockRepository, service := InitServerWithBuyersRepository(t)
 
-		mockRepository.On("GetBuyerOrders", mock.Anything, 1).Return(domain.BuyerOrders{}, errors.New("error"))
+		mockRepository.On("GetBuyerOrders", mock.Anything, 50).Return(domain.BuyerOrders{}, domain.ErrNotFound)
 
-		buyerOrder, err := service.GetBuyerOrders(context.Background(), 1)
-		assert.Equal(t, domain.BuyerOrders{}, buyerOrder)
+		expectedBuyer, err := service.GetBuyerOrders(context.Background(), 50)
+		assert.Equal(t, domain.BuyerOrders{}, expectedBuyer)
 		assert.Error(t, err)
 	})
 }

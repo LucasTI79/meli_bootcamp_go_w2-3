@@ -85,11 +85,6 @@ func (m *BuyerRepositoryMock) Delete(ctx context.Context, id int) error {
 	return args.Error(0)
 }
 
-func (m *BuyerRepositoryMock) Create(ctx context.Context, b domain.Buyer) (domain.Buyer, error) {
-	args := m.Called(ctx, b)
-	return args.Get(0).(domain.Buyer), args.Error(1)
-}
-
 func (m *BuyerRepositoryMock) ExistsBuyer(ctx context.Context, cardnumber string) bool {
 	args := m.Called(ctx, cardnumber)
 	return args.Get(0).(bool)
