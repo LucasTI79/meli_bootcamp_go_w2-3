@@ -49,6 +49,62 @@ func (b *BuyerController) Get() gin.HandlerFunc {
 	}
 }
 
+// GetBuyerOrders gets the orders for a specific buyer
+// @Summary Get buyer orders
+// @Description Get the orders for a specific buyer
+// @Tags Buyers
+// @Param id path int true "Buyer ID"
+// @Produce json
+// @Success 200 {array} BuyerOrder
+// @Failure 400 {string} string "Invalid ID"
+// @Failure 404 {string} string "Buyer not found"
+// @Failure 500 {string} string "Error listing buyer"
+// @Router /api/v1/buyers/purchase_orders/{id} [get]
+func (b *BuyerController) GetBuyerOrders() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		buyerId, errId := strconv.Atoi(c.Param("id"))
+		if errId != nil {
+			web.Response(c, http.StatusBadRequest, "invalid id")
+			return
+		}
+		buyerOrders, errGet := b.buyerService.GetBuyerOrders(c, buyerId)
+		if errGet != nil {
+			buyerNotFound := errors.Is(errGet, buyer.ErrNotFound)
+			if buyerNotFound {
+				web.Error(c, http.StatusNotFound, "buyer not found")
+				return
+			}
+			web.Error(c, http.StatusInternalServerError, "error listing buyer")
+			return
+		}
+		web.Success(c, http.StatusOK, buyerOrders)
+	}
+}
+
+// GetBuyersOrders gets the orders for all buyers
+// @Summary Get buyers orders
+// @Description Get the orders for all buyers
+// @Tags Buyers
+// @Produce json
+// @Success 200 {array} BuyersOrdersResponse
+// @Failure 500 {string} string "Error listing buyers"
+// @Failure 204 {string} string "No content"
+// @Router /api/v1/buyers/purchase_orders [get]
+func (b *BuyerController) GetBuyersOrders() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		buyersOrders, err := b.buyerService.GetBuyersOrders(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, "error listing buyers")
+			return
+		}
+		if len(buyersOrders) == 0 {
+			web.Success(c, http.StatusNoContent, buyersOrders)
+			return
+		}
+		web.Success(c, http.StatusOK, buyersOrders)
+	}
+}
+
 // @Produce json
 // GET /buyers @Summary Returns a list of buyers
 // @Router /api/v1/buyers [get]
@@ -115,7 +171,7 @@ func (b *BuyerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var buyer domain.Buyer
 		if err := c.ShouldBindJSON(&buyer); err != nil {
-			web.Error(c, http.StatusUnprocessableEntity, "buyer not created")
+			web.Error(c, http.StatusUnprocessableEntity, "buyer not updated")
 			return
 		}
 		id, err := strconv.Atoi(c.Param("id"))

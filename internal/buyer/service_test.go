@@ -30,6 +30,16 @@ func TestGetAll(t *testing.T) {
 
 		assert.NoError(t, err)
 	})
+	t.Run("Should return err and not return list of buyers", func(t *testing.T) {
+
+		repository, service := InitServerWithBuyersRepository(t)
+		repository.On("GetAll", mock.Anything).Return([]domain.Buyer{}, errors.New("error"))
+
+		_, err := service.GetAll(context.TODO())
+
+		assert.Error(t, err)
+		assert.Equal(t, errors.New("error"), err)
+	})
 }
 
 func TestCreate(t *testing.T) {
@@ -42,7 +52,7 @@ func TestCreate(t *testing.T) {
 		}
 
 		repository, service := InitServerWithBuyersRepository(t)
-		repository.On("Exists", mock.Anything, "138935").Return(false)
+		repository.On("ExistsBuyer", mock.Anything, "138935").Return(false)
 		repository.On("Save", mock.Anything, expectedBuyer).Return(id, nil)
 
 		buyer, err := service.Create(context.TODO(), expectedBuyer)
@@ -56,7 +66,7 @@ func TestCreate(t *testing.T) {
 	t.Run("Should return err card_id already exists", func(t *testing.T) {
 		expectedMessage := "buyer already exists"
 		repository, service := InitServerWithBuyersRepository(t)
-		repository.On("Exists", mock.Anything, mock.Anything).Return(true)
+		repository.On("ExistsBuyer", mock.Anything, mock.Anything).Return(true)
 
 		_, err := service.Create(context.TODO(), domain.Buyer{})
 
@@ -135,7 +145,7 @@ func TestUpdate(t *testing.T) {
 
 		repository, service := InitServerWithBuyersRepository(t)
 		repository.On("Get", mock.Anything, expectedBuyer.ID).Return(expectedBuyer, nil)
-		repository.On("Exists", mock.Anything, expectedBuyer.ID).Return(false)
+		repository.On("ExistsID", mock.Anything, expectedBuyer.ID).Return(false)
 		repository.On("Update", mock.Anything, expectedBuyer).Return(nil)
 
 		updatedBuyer, err := service.Update(context.TODO(), expectedBuyer, expectedBuyer.ID)
@@ -143,16 +153,115 @@ func TestUpdate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, expectedBuyer, updatedBuyer)
 	})
-	t.Run("Should return nil when dont exists", func(t *testing.T) {
+	t.Run("should not update buyer if not exists", func(t *testing.T) {
 		repository, service := InitServerWithBuyersRepository(t)
 
-		expectedError := errors.New("buyer not found")
-		repository.On("Delete", mock.Anything, mock.Anything).Return(buyer.ErrNotFound)
+		expectedBuyer := domain.Buyer{
+			CardNumberID: "2556",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
 
-		err := service.Delete(context.TODO(), 19)
+		repository.On("Get", mock.Anything, 100).Return(domain.Buyer{}, errors.New("error"))
+		repository.On("Update", mock.Anything, mock.Anything).Return(errors.New("error"))
+		_, err := service.Update(context.TODO(), expectedBuyer, 100)
+		assert.Error(t, err)
+	})
+	t.Run("Should return err", func(t *testing.T) {
+
+		expectedBuyer := domain.Buyer{
+			ID:           50,
+			CardNumberID: "2556",
+			FirstName:    "Giulianna",
+			LastName:     "Oliveira",
+		}
+
+		repository, service := InitServerWithBuyersRepository(t)
+		expectedError := errors.New("error")
+
+		repository.On("Get", mock.Anything, mock.Anything).Return(domain.Buyer{}, nil)
+		repository.On("Update", mock.Anything, mock.Anything).Return(expectedError)
+
+		_, err := service.Update(context.TODO(), expectedBuyer, expectedBuyer.ID)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
+	})
+}
+
+func TestExistsID(t *testing.T) {
+	t.Run("Should return err if buyer not exists", func(t *testing.T) {
+		mockRepository, service := InitServerWithBuyersRepository(t)
+		mockRepository.On("ExistsID", 20).Return(false)
+
+		err := service.ExistsID(context.TODO(), 20)
+
+		assert.Error(t, err)
+	})
+
+	t.Run("should return nil if section exists", func(t *testing.T) {
+		mockRepository, service := InitServerWithBuyersRepository(t)
+		mockRepository.On("ExistsID", 1).Return(true)
+
+		err := service.ExistsID(context.TODO(), 1)
+
+		assert.NoError(t, err)
+	})
+}
+
+func TestGetBuyerOrders(t *testing.T) {
+	expectedBuyers := domain.BuyerOrders{
+
+		ID:                  7,
+		CardNumberID:        "1234",
+		FirstName:           "Giu",
+		LastName:            "Oli",
+		PurchaseOrdersCount: 4,
+	}
+	t.Run("Should return buyer orders", func(t *testing.T) {
+		mockRepository, service := InitServerWithBuyersRepository(t)
+
+		mockRepository.On("GetBuyerOrders", mock.Anything, 7).Return(expectedBuyers, nil)
+
+		buyerOrder, err := service.GetBuyerOrders(context.Background(), 7)
+		assert.Equal(t, expectedBuyers, buyerOrder)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Should return buyer not found", func(t *testing.T) {
+		mockRepository, service := InitServerWithBuyersRepository(t)
+
+		mockRepository.On("GetBuyerOrders", mock.Anything, 50).Return(domain.BuyerOrders{}, domain.ErrNotFound)
+
+		expectedBuyer, err := service.GetBuyerOrders(context.Background(), 50)
+		assert.Equal(t, domain.BuyerOrders{}, expectedBuyer)
+		assert.Error(t, err)
+	})
+}
+
+func TestGetBuyersOrders(t *testing.T) {
+	expectedBuyers := []domain.BuyerOrders{
+		{ID: 1, CardNumberID: "12345", FirstName: "Giulianna", LastName: "Oliveira", PurchaseOrdersCount: 2},
+		{ID: 2, CardNumberID: "12345", FirstName: "Giulianna", LastName: "Oliveira", PurchaseOrdersCount: 2},
+	}
+	t.Run("Should return buyers orders", func(t *testing.T) {
+		mockRepository, service := InitServerWithBuyersRepository(t)
+
+		mockRepository.On("GetBuyersOrders").Return(expectedBuyers, nil)
+
+		buyersOrders, err := service.GetBuyersOrders(context.Background())
+		assert.Equal(t, expectedBuyers, buyersOrders)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Should not return buyers orders", func(t *testing.T) {
+		mockRepository, service := InitServerWithBuyersRepository(t)
+
+		mockRepository.On("GetBuyersOrders", mock.Anything).Return([]domain.BuyerOrders{}, errors.New("error"))
+
+		buyersOrders, err := service.GetBuyersOrders(context.Background())
+		assert.Equal(t, []domain.BuyerOrders{}, buyersOrders)
+		assert.Error(t, err)
 	})
 }
 

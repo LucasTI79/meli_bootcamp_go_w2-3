@@ -13,6 +13,7 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	productbatch "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_batch"
 	productrecord "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_record"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/purchase_orders"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -47,6 +48,7 @@ func (r *router) MapRoutes() {
 	r.buildBuyerRoutes()
 	r.buildCarryRoutes()
 	r.buildSwagger()
+	r.buildPurchaseOrdersRoutes()
 	r.buildProductBatchRoutes()
 	r.buildLocalityRoutes()
 	r.buildInboundOrderRoutes()
@@ -141,9 +143,21 @@ func (r *router) buildBuyerRoutes() {
 	handler := handler.NewBuyer(service)
 	r.rg.GET("/buyers", handler.GetAll())
 	r.rg.GET("/buyers/:id", handler.Get())
+	r.rg.GET("/buyers/reportPurchaseOrders", handler.GetBuyersOrders())
+	r.rg.GET("/buyers/reportPurchaseOrders/:id", handler.GetBuyerOrders())
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
 	r.rg.DELETE("/buyers/:id", handler.Delete())
+}
+
+func (r *router) buildPurchaseOrdersRoutes() {
+	buyerRepo := buyer.NewRepository(r.db)
+	buyerService := buyer.NewService(buyerRepo)
+
+	repo := purchase_orders.NewRepository(r.db)
+	service := purchase_orders.NewService(repo)
+	handler := handler.NewPurchaseOrders(service, buyerService)
+	r.rg.POST("/purchaseOrders", handler.CreateOrders())
 }
 
 func (r *router) buildProductBatchRoutes() {
@@ -159,6 +173,7 @@ func (r *router) buildProductBatchRoutes() {
 
 	r.rg.POST("/productBatches", handler.Create())
 }
+
 func (r *router) buildCarryRoutes() {
 	repoCarry := carry.NewRepository(r.db)
 	repoLocalities := locality.NewRepository(r.db)
@@ -168,6 +183,7 @@ func (r *router) buildCarryRoutes() {
 	r.rg.GET("/localities/reportCarriers", handler.Read())
 	r.rg.POST("/carriers", handler.Create())
 }
+
 func (r *router) buildProductRecordRoutes() {
 	productRepo := product.NewRepository(r.db)
 	productService := product.NewService(productRepo)
