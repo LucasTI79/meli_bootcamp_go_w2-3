@@ -11,8 +11,12 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
+<<<<<<< HEAD
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/purchase_orders"
+=======
 	productbatch "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_batch"
 	productrecord "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_record"
+>>>>>>> develop
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -47,10 +51,14 @@ func (r *router) MapRoutes() {
 	r.buildBuyerRoutes()
 	r.buildCarryRoutes()
 	r.buildSwagger()
+<<<<<<< HEAD
+	r.buildPurchaseOrdersRoutes()
+=======
 	r.buildProductBatchRoutes()
 	r.buildLocalityRoutes()
 	r.buildInboundOrderRoutes()
 	r.buildProductRecordRoutes()
+>>>>>>> develop
 }
 
 func (r *router) setGroup() {
@@ -141,11 +149,23 @@ func (r *router) buildBuyerRoutes() {
 	handler := handler.NewBuyer(service)
 	r.rg.GET("/buyers", handler.GetAll())
 	r.rg.GET("/buyers/:id", handler.Get())
+	r.rg.GET("/buyers/reportPurchaseOrders", handler.GetBuyersOrders())
+	r.rg.GET("/buyers/reportPurchaseOrders/:id", handler.GetBuyerOrders())
 	r.rg.POST("/buyers", handler.Create())
 	r.rg.PATCH("/buyers/:id", handler.Update())
 	r.rg.DELETE("/buyers/:id", handler.Delete())
 }
 
+<<<<<<< HEAD
+func (r *router) buildPurchaseOrdersRoutes() {
+	buyerRepo := buyer.NewRepository(r.db)
+	buyerService := buyer.NewService(buyerRepo)
+
+	repo := purchase_orders.NewRepository(r.db)
+	service := purchase_orders.NewService(repo)
+	handler := handler.NewPurchaseOrders(service, buyerService)
+	r.rg.POST("/purchaseOrders", handler.CreateOrders())
+=======
 func (r *router) buildProductBatchRoutes() {
 	productRrepo := product.NewRepository(r.db)
 	productService := product.NewService(productRrepo)
@@ -179,6 +199,7 @@ func (r *router) buildProductRecordRoutes() {
 	r.rg.POST("/productRecords", handler.Create())
 	r.rg.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
 	r.rg.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+>>>>>>> develop
 }
 
 func (r *router) buildSwagger() {

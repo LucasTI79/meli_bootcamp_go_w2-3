@@ -11,10 +11,13 @@ import (
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Buyer, error)
 	Get(ctx context.Context, id int) (domain.Buyer, error)
-	Exists(ctx context.Context, cardNumberID string) bool
+	ExistsBuyer(ctx context.Context, cardNumberID string) bool
+	ExistsID(ctx context.Context, buyerID int) bool
 	Save(ctx context.Context, b domain.Buyer) (int, error)
 	Update(ctx context.Context, b domain.Buyer) error
 	Delete(ctx context.Context, id int) error
+	GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error)
+	GetBuyersOrders(ctx context.Context) ([]domain.BuyerOrders, error)
 }
 
 type repository struct {
@@ -25,6 +28,47 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{
 		db: db,
 	}
+}
+
+func (r *repository) GetBuyerOrders(ctx context.Context, id int) (domain.BuyerOrders, error) {
+	query := "SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) AS `purchase_orders_count` FROM buyers b LEFT JOIN purchase_orders po ON b.id = po.buyer_id WHERE b.id = ? GROUP BY b.id, b.card_number_id, b.first_name, b.last_name"
+	row := r.db.QueryRow(query, id)
+	b := domain.BuyerOrders{}
+	err := row.Scan(&b.ID, &b.CardNumberID, &b.FirstName, &b.LastName, &b.PurchaseOrdersCount)
+	if err != nil {
+		return domain.BuyerOrders{}, err
+	}
+
+	return b, nil
+}
+
+func (r *repository) GetBuyersOrders(ctx context.Context) ([]domain.BuyerOrders, error) {
+	query := "SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) AS `purchase_orders_count` FROM buyers b LEFT JOIN purchase_orders po ON b.id = po.buyer_id GROUP BY b.id, b.card_number_id, b.first_name, b.last_name"
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var buyers []domain.BuyerOrders
+
+	for rows.Next() {
+		b := domain.BuyerOrders{}
+		_ = rows.Scan(&b.ID, &b.CardNumberID, &b.FirstName, &b.LastName, &b.PurchaseOrdersCount)
+		buyers = append(buyers, b)
+	}
+
+	return buyers, nil
+}
+
+func (r *repository) ExistsID(ctx context.Context, buyerID int) bool {
+	query := "SELECT COUNT(*) FROM buyers WHERE id = ?"
+	var count int
+	err := r.db.QueryRow(query, buyerID).Scan(&count)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
 }
 
 func (r *repository) GetAll(ctx context.Context) ([]domain.Buyer, error) {
@@ -57,7 +101,7 @@ func (r *repository) Get(ctx context.Context, id int) (domain.Buyer, error) {
 	return b, nil
 }
 
-func (r *repository) Exists(ctx context.Context, cardNumberID string) bool {
+func (r *repository) ExistsBuyer(ctx context.Context, cardNumberID string) bool {
 	query := "SELECT card_number_id FROM buyers WHERE card_number_id=?;"
 	row := r.db.QueryRow(query, cardNumberID)
 	err := row.Scan(&cardNumberID)
