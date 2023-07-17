@@ -171,7 +171,7 @@ func (b *BuyerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var buyer domain.Buyer
 		if err := c.ShouldBindJSON(&buyer); err != nil {
-			web.Error(c, http.StatusUnprocessableEntity, "buyer not created")
+			web.Error(c, http.StatusUnprocessableEntity, "buyer not updated")
 			return
 		}
 		id, err := strconv.Atoi(c.Param("id"))

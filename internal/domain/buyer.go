@@ -28,3 +28,11 @@ type BuyerResponse struct {
 type BuyerResponseID struct {
 	Data Buyer `json:"data"`
 }
+
+type BuyerOrdersResponseID struct {
+	Data BuyerOrders `json:"data"`
+}
+
+type BuyerOrdersResponse struct {
+	Data []BuyerOrders `json:"data"`
+}

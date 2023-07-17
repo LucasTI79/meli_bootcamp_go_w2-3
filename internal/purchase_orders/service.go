@@ -16,7 +16,6 @@ var (
 )
 
 type Service interface {
-	GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll, error)
 	Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error)
 }
 
@@ -28,14 +27,6 @@ func NewService(r Repository) Service {
 	return &purchaseordersService{
 		repository: r,
 	}
-}
-
-func (s *purchaseordersService) GetAll(ctx context.Context) ([]domain.PurchaseOrdersGetAll, error) {
-	orders, err := s.repository.GetAll(ctx)
-	if err != nil {
-		return orders, err
-	}
-	return orders, nil
 }
 
 func (s *purchaseordersService) Create(ctx context.Context, o domain.PurchaseOrders) (domain.PurchaseOrders, error) {

@@ -26,30 +26,6 @@ func NewPurchaseOrders(o purchase_orders.Service, b buyer.Service) *PurchaseOrde
 	}
 }
 
-// GetAll gets all purchase orders
-// @Summary Get all purchase orders
-// @Description Get all purchase orders
-// @Tags Purchase Orders
-// @Produce json
-// @Success 200 {array} PurchaseOrder
-// @Failure 500 {string} string "Error listing orders"
-// @Failure 204 {string} string "No content"
-// @Router api/v1/buyers/purchase_orders [get]
-func (po *PurchaseOrdersController) GetAll() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		orders, err := po.purchaseordersService.GetAll(c)
-		if err != nil {
-			web.Error(c, http.StatusInternalServerError, "error listing orders")
-			return
-		}
-		if len(orders) == 0 {
-			web.Success(c, http.StatusNoContent, orders)
-			return
-		}
-		web.Success(c, http.StatusOK, orders)
-	}
-}
-
 // Create creates a new purchase order
 // @Summary Create a new purchase order
 // @Description Create a new purchase order
@@ -62,7 +38,7 @@ func (po *PurchaseOrdersController) GetAll() gin.HandlerFunc {
 // @Failure 409 {string} string "Conflict"
 // @Failure 422 {string} string "Unprocessable entity"
 // @Router api/v1/buyers/purchase_orders [post]
-func (po *PurchaseOrdersController) Create() gin.HandlerFunc {
+func (po *PurchaseOrdersController) CreateOrders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		orderRequest := &domain.PurchaseOrders{}
 		err := c.ShouldBindJSON(orderRequest)
@@ -92,6 +68,7 @@ func (po *PurchaseOrdersController) Create() gin.HandlerFunc {
 			web.Error(c, http.StatusConflict, err.Error())
 			return
 		}
+
 		web.Success(c, http.StatusCreated, order)
 	}
 }

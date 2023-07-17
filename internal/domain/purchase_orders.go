@@ -25,3 +25,7 @@ type PurchaseOrdersGetAll struct {
 type PurchaseOrdersResponse struct {
 	Data []PurchaseOrders `json:"data"`
 }
+
+type PurchaseOrdersResponseID struct {
+	Data PurchaseOrders `json:"data"`
+}
