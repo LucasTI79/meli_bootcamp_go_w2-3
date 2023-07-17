@@ -1,11 +1,7 @@
 package handler
 
 import (
-	//"errors"
-
 	"net/http"
-
-	//"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
