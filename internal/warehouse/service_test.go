@@ -21,7 +21,8 @@ func TestGetAllWarehouses(t *testing.T) {
 				Telephone:          "3712291281",
 				WarehouseCode:      "DAE",
 				MinimumCapacity:    10,
-				MinimumTemperature: 10,
+				MinimumTemperature: 10.0,
+				LocalityId:         1,
 			},
 			{
 				ID:                 2,
@@ -29,7 +30,8 @@ func TestGetAllWarehouses(t *testing.T) {
 				Telephone:          "1722919394",
 				WarehouseCode:      "EWQ",
 				MinimumCapacity:    10,
-				MinimumTemperature: 10,
+				MinimumTemperature: 10.0,
+				LocalityId:         1,
 			},
 		}
 
@@ -51,7 +53,8 @@ func TestCreateWarehouses(t *testing.T) {
 			Telephone:          "3712291281",
 			WarehouseCode:      "AEX",
 			MinimumCapacity:    10,
-			MinimumTemperature: 10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
 		}
 
 		repository, service := InitServerWithWarehousesRepository(t)
@@ -64,7 +67,8 @@ func TestCreateWarehouses(t *testing.T) {
 		assert.Equal(t, "3712291281", warehouse.Telephone)
 		assert.Equal(t, "AEX", warehouse.WarehouseCode)
 		assert.Equal(t, 10, warehouse.MinimumCapacity)
-		assert.Equal(t, 10, warehouse.MinimumTemperature)
+		assert.Equal(t, 10.0, warehouse.MinimumTemperature)
+		assert.Equal(t, 1, warehouse.LocalityId)
 		assert.Equal(t, 4, warehouse.ID)
 
 		assert.NoError(t, err)
@@ -104,7 +108,8 @@ func TestGetByIdWarehouses(t *testing.T) {
 			Telephone:          "3712291281",
 			WarehouseCode:      "AEX",
 			MinimumCapacity:    10,
-			MinimumTemperature: 10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
 		}
 
 		repository, service := InitServerWithWarehousesRepository(t)
@@ -147,7 +152,8 @@ func TestDeleteWarehouses(t *testing.T) {
 			Telephone:          "3712291281",
 			WarehouseCode:      "AEX",
 			MinimumCapacity:    10,
-			MinimumTemperature: 10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
 		}
 
 		repository, service := InitServerWithWarehousesRepository(t)
@@ -189,7 +195,8 @@ func TestUpdateWarehouses(t *testing.T) {
 			Telephone:          "37122911",
 			WarehouseCode:      "AEX",
 			MinimumCapacity:    10,
-			MinimumTemperature: 10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
 		}
 
 		repository, service := InitServerWithWarehousesRepository(t)
@@ -209,7 +216,8 @@ func TestUpdateWarehouses(t *testing.T) {
 			Telephone:          "37122911",
 			WarehouseCode:      "AEX",
 			MinimumCapacity:    10,
-			MinimumTemperature: 10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
 		}
 
 		repository, service := InitServerWithWarehousesRepository(t)
@@ -230,11 +238,12 @@ func TestUpdateWarehouses(t *testing.T) {
 			Telephone:          "37122911",
 			WarehouseCode:      "AEX",
 			MinimumCapacity:    10,
-			MinimumTemperature: 10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
 		}
 
 		updateWarehouse := domain.Warehouse{
-			WarehouseCode:      "ADA",
+			WarehouseCode: "ADA",
 		}
 
 		repository, service := InitServerWithWarehousesRepository(t)
@@ -256,7 +265,8 @@ func TestUpdateWarehouses(t *testing.T) {
 			Telephone:          "37122911",
 			WarehouseCode:      "AEX",
 			MinimumCapacity:    10,
-			MinimumTemperature: 10,
+			MinimumTemperature: 10.0,
+			LocalityId:         1,
 		}
 
 		repository, service := InitServerWithWarehousesRepository(t)

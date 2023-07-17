@@ -7,6 +7,12 @@ import (
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 )
 
+const (
+	SectionExists                   = "SELECT id FROM sections WHERE id=?"
+	SectionProductsReports          = "SELECT count(pb.id) as `products_count`, pb.section_id, s.section_number FROM product_batches pb JOIN sections s ON pb.section_id = s.id GROUP BY pb.section_id"
+	SectionProductsReportsBySection = "SELECT count(pb.id) as `products_count`, pb.section_id, s.section_number FROM product_batches pb JOIN sections s ON pb.section_id = s.id WHERE pb.section_id = ? GROUP BY pb.section_id"
+)
+
 // Repository encapsulates the storage of a section.
 type Repository interface {
 	GetAll(ctx context.Context) ([]domain.Section, error)
@@ -15,6 +21,9 @@ type Repository interface {
 	Save(ctx context.Context, s domain.Section) (int, error)
 	Update(ctx context.Context, s domain.Section) error
 	Delete(ctx context.Context, id int) error
+	ExistsById(sectionID int) bool
+	SectionProductsReportsBySection(id int) (domain.ProductBySection, error)
+	SectionProductsReports() ([]domain.ProductBySection, error)
 }
 
 type repository struct {
@@ -129,4 +138,37 @@ func (r *repository) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (r *repository) ExistsById(sectionID int) bool {
+	row := r.db.QueryRow(SectionExists, sectionID)
+	err := row.Scan(&sectionID)
+	return err == nil
+}
+
+func (r *repository) SectionProductsReportsBySection(id int) (domain.ProductBySection, error) {
+	row := r.db.QueryRow(SectionProductsReportsBySection, id)
+	var productBySection domain.ProductBySection
+	err := row.Scan(&productBySection.ProductsCount, &productBySection.SectionID, &productBySection.SectionNumber)
+	if err != nil {
+		return domain.ProductBySection{}, err
+	}
+	return productBySection, nil
+}
+
+func (r *repository) SectionProductsReports() ([]domain.ProductBySection, error) {
+	rows, err := r.db.Query(SectionProductsReports)
+	if err != nil {
+		return nil, err
+	}
+	var productsBySection []domain.ProductBySection
+	for rows.Next() {
+		var productBySection domain.ProductBySection
+		err := rows.Scan(&productBySection.ProductsCount, &productBySection.SectionID, &productBySection.SectionNumber)
+		if err != nil {
+			return nil, err
+		}
+		productsBySection = append(productsBySection, productBySection)
+	}
+	return productsBySection, nil
 }

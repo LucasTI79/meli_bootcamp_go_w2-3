@@ -165,6 +165,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/carriers": {
+            "post": {
+                "description": "Create Carriers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Carriers"
+                ],
+                "summary": "Create Carry",
+                "parameters": [
+                    {
+                        "description": "Carry Data",
+                        "name": "carry",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Carry"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Carry"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/carriers/{id}": {
+            "get": {
+                "description": "List one by Carry id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Carriers"
+                ],
+                "summary": "Get Carry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Carry ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Carry"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/employees": {
             "get": {
                 "description": "List all Employees",
@@ -316,6 +382,32 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/domain.Employee"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/localities/reportCarries": {
+            "get": {
+                "description": "List all Carriers of a Locality or All Localities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Carriers"
+                ],
+                "summary": "Read Carriers of a Locality",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.LocalityCarriersReport"
+                            }
                         }
                     }
                 }
@@ -978,6 +1070,29 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Carry": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cid": {
+                    "type": "string"
+                },
+                "company_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "locality_id": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.Employee": {
             "type": "object",
             "properties": {
@@ -995,6 +1110,20 @@ const docTemplate = `{
                 },
                 "warehouse_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "domain.LocalityCarriersReport": {
+            "type": "object",
+            "properties": {
+                "carriers_count": {
+                    "type": "integer"
+                },
+                "locality_id": {
+                    "type": "integer"
+                },
+                "locality_name": {
+                    "type": "string"
                 }
             }
         },
@@ -1098,6 +1227,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "locality_id": {
                     "type": "integer"
                 },
                 "minimum_capacity": {
