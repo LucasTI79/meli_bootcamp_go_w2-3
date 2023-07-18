@@ -665,6 +665,11 @@ paths:
       consumes:
       - application/json
       description: List all Carriers of a Locality or All Localities
+      parameters:
+      - description: Locality ID
+        in: query
+        name: id
+        type: integer
       produces:
       - application/json
       responses:

@@ -614,6 +614,14 @@ const docTemplate = `{
                     "Carriers"
                 ],
                 "summary": "Read Carriers of a Locality",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Locality ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

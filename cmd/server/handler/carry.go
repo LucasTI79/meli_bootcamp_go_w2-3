@@ -59,6 +59,7 @@ func (s *CarryController) Get() gin.HandlerFunc {
 // @Accept json
 // @Success 200 {object} []domain.LocalityCarriersReport
 // @Description List all Carriers of a Locality or All Localities
+// @Param id query int false "Locality ID"
 func (s *CarryController) Read() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		localityIDStr := c.Query("id")
