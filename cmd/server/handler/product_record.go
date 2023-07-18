@@ -30,7 +30,7 @@ func NewProductRecord(s productrecord.Service, ps product.Service) *ProductRecor
 // @Router /api/v1/productRecords [post]
 // @Tags ProductRecord
 // @Accept json
-// @Param product body domain.ProductRecord true "ProductRecord Data"
+// @Param product body domain.ProductRecordRequest true "ProductRecord Data"
 // @Success 201 {object} domain.ProductRecord
 // @Description Create ProductRecord
 func (p *ProductRecordController) Create() gin.HandlerFunc {

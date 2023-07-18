@@ -4,8 +4,8 @@ package domain
 type Product struct {
 	ID             int     `json:"id"`
 	Description    string  `json:"description"`
-	ExpirationRate int     `json:"expiration_rate"`
-	FreezingRate   int     `json:"freezing_rate"`
+	ExpirationRate float32 `json:"expiration_rate"`
+	FreezingRate   float32 `json:"freezing_rate"`
 	Height         float32 `json:"height"`
 	Length         float32 `json:"length"`
 	Netweight      float32 `json:"netweight"`
@@ -18,8 +18,8 @@ type Product struct {
 
 type ProductRequest struct {
 	Description    string  `json:"description"`
-	ExpirationRate int     `json:"expiration_rate"`
-	FreezingRate   int     `json:"freezing_rate"`
+	ExpirationRate float32 `json:"expiration_rate"`
+	FreezingRate   float32 `json:"freezing_rate"`
 	Height         float32 `json:"height"`
 	Length         float32 `json:"length"`
 	Netweight      float32 `json:"netweight"`

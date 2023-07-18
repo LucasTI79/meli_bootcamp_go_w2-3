@@ -70,6 +70,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/buyers/reportPurchaseOrders/": {
+            "get": {
+                "description": "Get the orders for all buyers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "Get buyers orders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.BuyerOrders"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error listing buyers",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/buyers/reportPurchaseOrders/{id}": {
+            "get": {
+                "description": "Get the orders for a specific buyer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "Get buyer orders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.BuyerOrders"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Buyer not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error listing buyer",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/buyers/{id}": {
             "get": {
                 "consumes": [
@@ -387,6 +469,138 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/inboundOrders": {
+            "post": {
+                "description": "Create Inbound Orders",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InboundOrders"
+                ],
+                "summary": "Create Inbound Orders",
+                "parameters": [
+                    {
+                        "description": "Inbound Order Data",
+                        "name": "inboundOrder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.InboundOrders"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.InboundOrders"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inboundOrders/{id}": {
+            "get": {
+                "description": "List one by Inbound Order id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InboundOrders"
+                ],
+                "summary": "Get Inbound Order by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Inbound Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.InboundOrders"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/localities": {
+            "post": {
+                "description": "Create a new locality with the provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "parameters": [
+                    {
+                        "description": "Locality object to be created",
+                        "name": "locality",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Locality"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Locality created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/domain.LocalityInput"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/localities/report-sellers": {
+            "get": {
+                "description": "Generates a report of sellers based on the provided locality ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Locality ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Report of sellers by locality",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.LocalityReport"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/localities/reportCarries": {
             "get": {
                 "description": "List all Carriers of a Locality or All Localities",
@@ -400,6 +614,14 @@ const docTemplate = `{
                     "Carriers"
                 ],
                 "summary": "Read Carriers of a Locality",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Locality ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -408,6 +630,74 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/domain.LocalityCarriersReport"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/productBatches": {
+            "post": {
+                "description": "Save Product Batch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProductBatch"
+                ],
+                "summary": "Save Product Batch",
+                "parameters": [
+                    {
+                        "description": "Product Batch",
+                        "name": "productBatch",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductBatch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductBatch"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/productRecords": {
+            "post": {
+                "description": "Create ProductRecord",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProductRecord"
+                ],
+                "summary": "Create ProductRecord",
+                "parameters": [
+                    {
+                        "description": "ProductRecord Data",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductRecordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductRecord"
                         }
                     }
                 }
@@ -466,6 +756,64 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/domain.Product"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products/reportRecords": {
+            "get": {
+                "description": "List product record reports of All Products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProductRecord"
+                ],
+                "summary": "Get All product record reports",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.ProductRecordReport"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products/reportRecords/{id}": {
+            "get": {
+                "description": "List the product record report of one  product by it's Product id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProductRecord"
+                ],
+                "summary": "Get Product Record Report by Product ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductRecordReport"
                         }
                     }
                 }
@@ -569,6 +917,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/purchaseOrders": {
+            "post": {
+                "description": "Create a new purchase order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Purchase Orders"
+                ],
+                "summary": "Create a new purchase order",
+                "parameters": [
+                    {
+                        "description": "Purchase Order Request",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.PurchaseOrders"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PurchaseOrders"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable entity",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/sections": {
             "get": {
                 "description": "List All Sections",
@@ -622,6 +1022,40 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/domain.Section"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sections/reportProducts": {
+            "get": {
+                "description": "Report Products by Section or All Sections",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Section"
+                ],
+                "summary": "Report Products by Section or All Sections",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Section ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Product"
+                            }
                         }
                     }
                 }
@@ -1056,6 +1490,26 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.BuyerOrders": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "purchase_orders_count": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.BuyerRequest": {
             "type": "object",
             "properties": {
@@ -1113,6 +1567,43 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.InboundOrders": {
+            "type": "object",
+            "properties": {
+                "employee_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order_date": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "product_batch_id": {
+                    "type": "integer"
+                },
+                "warehouse_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.Locality": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "locality_name": {
+                    "type": "string"
+                },
+                "province_name": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.LocalityCarriersReport": {
             "type": "object",
             "properties": {
@@ -1127,6 +1618,34 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.LocalityInput": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "id_province": {
+                    "type": "integer"
+                },
+                "locality_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.LocalityReport": {
+            "type": "object",
+            "properties": {
+                "id_locality": {
+                    "type": "integer"
+                },
+                "locality_name": {
+                    "type": "string"
+                },
+                "sellers_count": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.Product": {
             "type": "object",
             "properties": {
@@ -1134,10 +1653,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "expiration_rate": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "freezing_rate": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "height": {
                     "type": "number"
@@ -1165,6 +1684,133 @@ const docTemplate = `{
                 },
                 "width": {
                     "type": "number"
+                }
+            }
+        },
+        "domain.ProductBatch": {
+            "type": "object",
+            "required": [
+                "batch_number",
+                "current_quantity",
+                "current_temperature",
+                "due_date",
+                "initial_quantity",
+                "manufacturing_date",
+                "manufacturing_hour",
+                "minimum_temperature",
+                "product_id",
+                "section_id"
+            ],
+            "properties": {
+                "batch_number": {
+                    "type": "integer"
+                },
+                "current_quantity": {
+                    "type": "integer"
+                },
+                "current_temperature": {
+                    "type": "integer"
+                },
+                "due_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "initial_quantity": {
+                    "type": "integer"
+                },
+                "manufacturing_date": {
+                    "type": "string"
+                },
+                "manufacturing_hour": {
+                    "type": "integer"
+                },
+                "minimum_temperature": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "section_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProductRecord": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "last_update_date": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "purchase_price": {
+                    "type": "integer"
+                },
+                "sale_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProductRecordReport": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "records_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProductRecordRequest": {
+            "type": "object",
+            "properties": {
+                "last_update_date": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "purchase_price": {
+                    "type": "integer"
+                },
+                "sale_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.PurchaseOrders": {
+            "type": "object",
+            "properties": {
+                "buyer_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order_date": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "order_status_id": {
+                    "type": "integer"
+                },
+                "product_record_id": {
+                    "type": "integer"
+                },
+                "tracking_code": {
+                    "type": "string"
                 }
             }
         },
@@ -1215,6 +1861,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "locality_id": {
+                    "type": "integer"
+                },
                 "telephone": {
                     "type": "string"
                 }
@@ -1236,7 +1885,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "minimum_temperature": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "telephone": {
                     "type": "string"

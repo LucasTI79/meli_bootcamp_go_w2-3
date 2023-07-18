@@ -28,12 +28,12 @@ func NewPurchaseOrders(o purchase_orders.Service, b buyer.Service) *PurchaseOrde
 // @Tags Purchase Orders
 // @Accept json
 // @Produce json
-// @Param order body PurchaseOrderRequest true "Purchase Order Request"
-// @Success 201 {object} PurchaseOrder
+// @Router /api/v1/purchaseOrders [post]
+// @Param order body domain.PurchaseOrders true "Purchase Order Request"
+// @Success 201 {object} domain.PurchaseOrders
 // @Failure 400 {string} string "Bad request"
 // @Failure 409 {string} string "Conflict"
 // @Failure 422 {string} string "Unprocessable entity"
-// @Router api/v1/buyers/purchase_orders [post]
 func (po *PurchaseOrdersController) CreateOrders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		orderRequest := &domain.PurchaseOrders{}
