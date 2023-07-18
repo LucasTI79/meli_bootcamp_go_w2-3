@@ -70,6 +70,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/buyers/reportPurchaseOrders/": {
+            "get": {
+                "description": "Get the orders for all buyers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "Get buyers orders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.BuyerOrders"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error listing buyers",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/buyers/reportPurchaseOrders/{id}": {
+            "get": {
+                "description": "Get the orders for a specific buyer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "Get buyer orders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.BuyerOrders"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Buyer not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error listing buyer",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/buyers/{id}": {
             "get": {
                 "consumes": [
@@ -453,6 +535,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/localities": {
+            "post": {
+                "description": "Create a new locality with the provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "parameters": [
+                    {
+                        "description": "Locality object to be created",
+                        "name": "locality",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Locality"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Locality created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/domain.LocalityInput"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/localities/report-sellers": {
+            "get": {
+                "description": "Generates a report of sellers based on the provided locality ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Locality ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Report of sellers by locality",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.LocalityReport"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/localities/reportCarries": {
             "get": {
                 "description": "List all Carriers of a Locality or All Localities",
@@ -533,7 +681,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.ProductRecord"
+                            "$ref": "#/definitions/domain.ProductRecordRequest"
                         }
                     }
                 ],
@@ -1314,155 +1462,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/buyers/reportPurchaseOrders/": {
-            "get": {
-                "description": "Get the orders for all buyers",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyers"
-                ],
-                "summary": "Get buyers orders",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.BuyerOrders"
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Error listing buyers",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/buyers/reportPurchaseOrders/{id}": {
-            "get": {
-                "description": "Get the orders for a specific buyer",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyers"
-                ],
-                "summary": "Get buyer orders",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Buyer ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.BuyerOrders"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid ID",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Buyer not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Error listing buyer",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/locality": {
-            "post": {
-                "description": "Create a new locality with the provided data",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Locality"
-                ],
-                "parameters": [
-                    {
-                        "description": "Locality object to be created",
-                        "name": "locality",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.Locality"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Locality created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/domain.LocalityInput"
-                        }
-                    }
-                }
-            }
-        },
-        "/locality/report": {
-            "get": {
-                "description": "Generates a report of sellers based on the provided locality ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Locality"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Locality ID",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Report of sellers by locality",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.LocalityReport"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -1646,10 +1645,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "expiration_rate": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "freezing_rate": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "height": {
                     "type": "number"
@@ -1760,6 +1759,23 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "records_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProductRecordRequest": {
+            "type": "object",
+            "properties": {
+                "last_update_date": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "purchase_price": {
+                    "type": "integer"
+                },
+                "sale_price": {
                     "type": "integer"
                 }
             }

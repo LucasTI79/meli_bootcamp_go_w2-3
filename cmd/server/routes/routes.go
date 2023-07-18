@@ -180,7 +180,7 @@ func (r *router) buildCarryRoutes() {
 	service := carry.NewService(repoCarry, repoLocalities)
 	handler := handler.NewCarry(service)
 	r.rg.GET("/carriers/:id", handler.Get())
-	r.rg.GET("/localities/reportCarriers", handler.Read())
+	r.rg.GET("/localities/reportCarries", handler.Read())
 	r.rg.POST("/carriers", handler.Create())
 }
 

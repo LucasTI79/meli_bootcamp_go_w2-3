@@ -116,9 +116,9 @@ definitions:
       description:
         type: string
       expiration_rate:
-        type: integer
+        type: number
       freezing_rate:
-        type: integer
+        type: number
       height:
         type: number
       id:
@@ -194,6 +194,17 @@ definitions:
       product_id:
         type: integer
       records_count:
+        type: integer
+    type: object
+  domain.ProductRecordRequest:
+    properties:
+      last_update_date:
+        type: string
+      product_id:
+        type: integer
+      purchase_price:
+        type: integer
+      sale_price:
         type: integer
     type: object
   domain.PurchaseOrders:
@@ -362,6 +373,60 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Buyer'
+      tags:
+      - Buyers
+  /api/v1/buyers/reportPurchaseOrders/:
+    get:
+      description: Get the orders for all buyers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.BuyerOrders'
+            type: array
+        "204":
+          description: No content
+          schema:
+            type: string
+        "500":
+          description: Error listing buyers
+          schema:
+            type: string
+      summary: Get buyers orders
+      tags:
+      - Buyers
+  /api/v1/buyers/reportPurchaseOrders/{id}:
+    get:
+      description: Get the orders for a specific buyer
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.BuyerOrders'
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "404":
+          description: Buyer not found
+          schema:
+            type: string
+        "500":
+          description: Error listing buyer
+          schema:
+            type: string
+      summary: Get buyer orders
       tags:
       - Buyers
   /api/v1/carriers:
@@ -553,6 +618,48 @@ paths:
       summary: Get Inbound Order by ID
       tags:
       - InboundOrders
+  /api/v1/localities:
+    post:
+      consumes:
+      - application/json
+      description: Create a new locality with the provided data
+      parameters:
+      - description: Locality object to be created
+        in: body
+        name: locality
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Locality'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Locality created successfully
+          schema:
+            $ref: '#/definitions/domain.LocalityInput'
+      tags:
+      - Locality
+  /api/v1/localities/report-sellers:
+    get:
+      consumes:
+      - application/json
+      description: Generates a report of sellers based on the provided locality ID
+      parameters:
+      - description: Locality ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Report of sellers by locality
+          schema:
+            items:
+              $ref: '#/definitions/domain.LocalityReport'
+            type: array
+      tags:
+      - Locality
   /api/v1/localities/reportCarries:
     get:
       consumes:
@@ -603,7 +710,7 @@ paths:
         name: product
         required: true
         schema:
-          $ref: '#/definitions/domain.ProductRecord'
+          $ref: '#/definitions/domain.ProductRecordRequest'
       produces:
       - application/json
       responses:
@@ -1121,101 +1228,4 @@ paths:
       summary: Update Warehouse
       tags:
       - Warehouses
-  /buyers/reportPurchaseOrders/:
-    get:
-      description: Get the orders for all buyers
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/domain.BuyerOrders'
-            type: array
-        "204":
-          description: No content
-          schema:
-            type: string
-        "500":
-          description: Error listing buyers
-          schema:
-            type: string
-      summary: Get buyers orders
-      tags:
-      - Buyers
-  /buyers/reportPurchaseOrders/{id}:
-    get:
-      description: Get the orders for a specific buyer
-      parameters:
-      - description: Buyer ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.BuyerOrders'
-        "400":
-          description: Invalid ID
-          schema:
-            type: string
-        "404":
-          description: Buyer not found
-          schema:
-            type: string
-        "500":
-          description: Error listing buyer
-          schema:
-            type: string
-      summary: Get buyer orders
-      tags:
-      - Buyers
-  /locality:
-    post:
-      consumes:
-      - application/json
-      description: Create a new locality with the provided data
-      parameters:
-      - description: Locality object to be created
-        in: body
-        name: locality
-        required: true
-        schema:
-          $ref: '#/definitions/domain.Locality'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Locality created successfully
-          schema:
-            $ref: '#/definitions/domain.LocalityInput'
-      tags:
-      - Locality
-  /locality/report:
-    get:
-      consumes:
-      - application/json
-      description: Generates a report of sellers based on the provided locality ID
-      parameters:
-      - description: Locality ID
-        in: query
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Report of sellers by locality
-          schema:
-            items:
-              $ref: '#/definitions/domain.LocalityReport'
-            type: array
-      tags:
-      - Locality
 swagger: "2.0"
