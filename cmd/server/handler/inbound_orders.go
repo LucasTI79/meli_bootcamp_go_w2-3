@@ -60,7 +60,7 @@ func (s *InboundOrdersController) Get() gin.HandlerFunc {
 // @Router /api/v1/InboundOrders [post]
 // @Tags InboundOrders
 // @Accept json
-// @Param inbound order body domain.InboundOrders true "Inbound Order Data"
+// @Param inboundOrder body domain.InboundOrders true "Inbound Order Data"
 // @Success 201 {object} domain.InboundOrders
 // @Description Create Inbound Orders
 func (s *InboundOrdersController) Create() gin.HandlerFunc {

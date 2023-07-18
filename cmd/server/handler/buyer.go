@@ -55,7 +55,7 @@ func (b *BuyerController) Get() gin.HandlerFunc {
 // @Tags Buyers
 // @Param id path int true "Buyer ID"
 // @Produce json
-// @Success 200 {array} BuyerOrder
+// @Success 200 {object} domain.BuyerOrders
 // @Failure 400 {string} string "Invalid ID"
 // @Failure 404 {string} string "Buyer not found"
 // @Failure 500 {string} string "Error listing buyer"
@@ -86,7 +86,7 @@ func (b *BuyerController) GetBuyerOrders() gin.HandlerFunc {
 // @Description Get the orders for all buyers
 // @Tags Buyers
 // @Produce json
-// @Success 200 {array} BuyersOrdersResponse
+// @Success 200 {array} domain.BuyerOrders
 // @Failure 500 {string} string "Error listing buyers"
 // @Failure 204 {string} string "No content"
 // @Router /buyers/reportPurchaseOrders/ [get]
