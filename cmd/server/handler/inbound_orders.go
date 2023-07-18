@@ -27,7 +27,7 @@ func NewInboundOrders(s inbound_order.Service) *InboundOrdersController {
 // @Summary Get Inbound Order by ID
 // @Produce json
 // GET /InboundOrders/:id @Summary Returns a inbound order per Id
-// @Router /api/v1/InboundOrders/{id} [get]
+// @Router /api/v1/inboundOrders/{id} [get]
 // @Param id path int true "Inbound Order ID"
 // @Tags InboundOrders
 // @Accept json
@@ -57,7 +57,7 @@ func (s *InboundOrdersController) Get() gin.HandlerFunc {
 // @Summary Create Inbound Orders
 // @Produce json
 // POST /InboundOrders @Summary Create a Inbound Order
-// @Router /api/v1/InboundOrders [post]
+// @Router /api/v1/inboundOrders [post]
 // @Tags InboundOrders
 // @Accept json
 // @Param inboundOrder body domain.InboundOrders true "Inbound Order Data"

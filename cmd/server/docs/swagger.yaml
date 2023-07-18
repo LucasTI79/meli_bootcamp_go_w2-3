@@ -269,49 +269,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/InboundOrders:
-    post:
-      consumes:
-      - application/json
-      description: Create Inbound Orders
-      parameters:
-      - description: Inbound Order Data
-        in: body
-        name: inboundOrder
-        required: true
-        schema:
-          $ref: '#/definitions/domain.InboundOrders'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/domain.InboundOrders'
-      summary: Create Inbound Orders
-      tags:
-      - InboundOrders
-  /api/v1/InboundOrders/{id}:
-    get:
-      consumes:
-      - application/json
-      description: List one by Inbound Order id
-      parameters:
-      - description: Inbound Order ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.InboundOrders'
-      summary: Get Inbound Order by ID
-      tags:
-      - InboundOrders
   /api/v1/buyers:
     get:
       consumes:
@@ -553,6 +510,49 @@ paths:
       summary: Update Employee
       tags:
       - Employees
+  /api/v1/inboundOrders:
+    post:
+      consumes:
+      - application/json
+      description: Create Inbound Orders
+      parameters:
+      - description: Inbound Order Data
+        in: body
+        name: inboundOrder
+        required: true
+        schema:
+          $ref: '#/definitions/domain.InboundOrders'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.InboundOrders'
+      summary: Create Inbound Orders
+      tags:
+      - InboundOrders
+  /api/v1/inboundOrders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: List one by Inbound Order id
+      parameters:
+      - description: Inbound Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.InboundOrders'
+      summary: Get Inbound Order by ID
+      tags:
+      - InboundOrders
   /api/v1/localities/reportCarries:
     get:
       consumes:

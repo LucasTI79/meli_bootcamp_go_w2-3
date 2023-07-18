@@ -63,8 +63,8 @@ func (r *router) buildInboundOrderRoutes() {
 	repoInboundOrder := inbound_order.NewRepository(r.db)
 	service := inbound_order.NewService(repoInboundOrder)
 	handler := handler.NewInboundOrders(service)
-	r.rg.GET("/inbound-orders/:id", handler.Get())
-	r.rg.POST("/inbound-orders", handler.Create())
+	r.rg.GET("/inboundOrders/:id", handler.Get())
+	r.rg.POST("/inboundOrders", handler.Create())
 }
 
 func (r *router) buildSellerRoutes() {

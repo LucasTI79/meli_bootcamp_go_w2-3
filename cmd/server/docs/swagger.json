@@ -4,72 +4,6 @@
         "contact": {}
     },
     "paths": {
-        "/api/v1/InboundOrders": {
-            "post": {
-                "description": "Create Inbound Orders",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "InboundOrders"
-                ],
-                "summary": "Create Inbound Orders",
-                "parameters": [
-                    {
-                        "description": "Inbound Order Data",
-                        "name": "inboundOrder",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.InboundOrders"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/domain.InboundOrders"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/InboundOrders/{id}": {
-            "get": {
-                "description": "List one by Inbound Order id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "InboundOrders"
-                ],
-                "summary": "Get Inbound Order by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Inbound Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.InboundOrders"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/buyers": {
             "get": {
                 "consumes": [
@@ -436,6 +370,72 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/domain.Employee"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inboundOrders": {
+            "post": {
+                "description": "Create Inbound Orders",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InboundOrders"
+                ],
+                "summary": "Create Inbound Orders",
+                "parameters": [
+                    {
+                        "description": "Inbound Order Data",
+                        "name": "inboundOrder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.InboundOrders"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.InboundOrders"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inboundOrders/{id}": {
+            "get": {
+                "description": "List one by Inbound Order id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InboundOrders"
+                ],
+                "summary": "Get Inbound Order by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Inbound Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.InboundOrders"
                         }
                     }
                 }
