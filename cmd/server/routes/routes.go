@@ -66,7 +66,7 @@ func (r *router) buildInboundOrderRoutes() {
 	r.rg.GET("/inboundOrders/:id", handler.Get())
 	r.rg.POST("/inboundOrders", handler.Create())
 	r.rg.GET("/employees/reportInboundOrders", handler.ReportByAll())
-	r.rg.GET("/employees/reportImboundOrders/:id", handler.ReportByOne())
+	r.rg.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
 
 }
 

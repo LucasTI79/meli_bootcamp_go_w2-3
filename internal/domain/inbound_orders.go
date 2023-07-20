@@ -15,7 +15,7 @@ type InboundOrdersReport struct {
 	FirstName          string `json:"first_name"`
 	LastName           string `json:"last_name"`
 	WarehouseID        int    `json:"warehouse_id"`
-	InboundOrdersCount int    `jason:"inbound_orders_count"`
+	InboundOrdersCount int    `json:"inbound_orders_count"`
 }
 
 type InboundOrdersResponseId struct {
