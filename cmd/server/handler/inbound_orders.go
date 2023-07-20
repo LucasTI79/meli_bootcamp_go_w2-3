@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/web"
 	"github.com/gin-gonic/gin"
@@ -102,5 +103,60 @@ func (s *InboundOrdersController) Create() gin.HandlerFunc {
 
 		}
 		web.Success(c, http.StatusCreated, inboundOrdersDomain)
+	}
+}
+
+// @Summary Generate a report for all inbound orders
+// @Description Generates a report containing information for all inbound orders
+// @Tags InboundOrders
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} domain.InboundOrdersReport
+// @Failure 500 {string} ErrTryAgain
+// @Router /api/v1/reportInboundOrders [get]
+func (p *InboundOrdersController) ReportByAll() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		report, err := p.InboundOrdersService.ReportByAll(c)
+		if err != nil {
+			web.Error(c, http.StatusInternalServerError, inbound_order.ErrTryAgain.Error())
+
+			return
+		}
+		web.Success(c, http.StatusOK, report)
+	}
+}
+
+// @Summary Generate a report for a specific employee's inbound orders
+// @Description Generates a report containing information for inbound orders of a specific employee based on the provided employee ID
+// @Tags Inbound Orders
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID of the employee"
+// @Success 200 {object} domain.InboundOrdersReport
+// @Failure 400 {string} ErrInvalidId
+// @Failure 404 {string} ErrNotFound
+// @Failure 500 {string} ErrTryAgain
+// @Router /api/v1/reportInboundOrders{id} [get]
+func (p *InboundOrdersController) ReportByOne() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		employeeId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			web.Response(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
+			return
+		}
+
+		report, err := p.InboundOrdersService.ReportByOne(c, employeeId)
+		if err != nil {
+			if errors.Is(err, inbound_order.ErrNotFound) {
+				web.Error(c, http.StatusNotFound, inbound_order.ErrNotFound.Error())
+
+				return
+			}
+
+			web.Error(c, http.StatusInternalServerError, employee.ErrTryAgain.Error())
+
+			return
+		}
+		web.Success(c, http.StatusOK, report)
 	}
 }

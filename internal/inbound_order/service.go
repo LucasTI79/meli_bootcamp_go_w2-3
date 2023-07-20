@@ -21,6 +21,8 @@ var (
 type Service interface {
 	Get(ctx context.Context, id int) (domain.InboundOrders, error)
 	Create(ctx context.Context, d domain.InboundOrders) (domain.InboundOrders, error)
+	ReportByAll(ctx context.Context) ([]domain.InboundOrdersReport, error)
+	ReportByOne(ctx context.Context, id int) (domain.InboundOrdersReport, error)
 }
 
 type inboundOrderService struct {
@@ -52,4 +54,16 @@ func (s *inboundOrderService) Get(ctx context.Context, id int) (domain.InboundOr
 		return domain.InboundOrders{}, ErrNotFound
 	}
 	return inboundOrders, nil
+}
+
+func (s *inboundOrderService) ReportByAll(ctx context.Context) ([]domain.InboundOrdersReport, error) {
+	report, err := s.repository.ReportByAll(ctx)
+
+	return report, err
+}
+
+func (s *inboundOrderService) ReportByOne(ctx context.Context, id int) (domain.InboundOrdersReport, error) {
+	report, err := s.repository.ReportByOne(ctx, id)
+
+	return report, err
 }

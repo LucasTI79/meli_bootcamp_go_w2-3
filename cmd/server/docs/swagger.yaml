@@ -75,6 +75,21 @@ definitions:
       warehouse_id:
         type: integer
     type: object
+  domain.InboundOrdersReport:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      inbound_orders_count:
+        type: integer
+      last_name:
+        type: string
+      warehouse_id:
+        type: integer
+    type: object
   domain.Locality:
     properties:
       id:
@@ -902,6 +917,59 @@ paths:
       summary: Create a new purchase order
       tags:
       - Purchase Orders
+  /api/v1/reportInboundOrders:
+    get:
+      consumes:
+      - application/json
+      description: Generates a report containing information for all inbound orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.InboundOrdersReport'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Generate a report for all inbound orders
+      tags:
+      - InboundOrders
+  /api/v1/reportInboundOrders{id}:
+    get:
+      consumes:
+      - application/json
+      description: Generates a report containing information for inbound orders of
+        a specific employee based on the provided employee ID
+      parameters:
+      - description: ID of the employee
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.InboundOrdersReport'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Generate a report for a specific employee's inbound orders
+      tags:
+      - Inbound Orders
   /api/v1/sections:
     get:
       consumes:
