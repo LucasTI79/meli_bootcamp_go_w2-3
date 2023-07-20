@@ -242,6 +242,133 @@ func TestCreateInboundOrders(t *testing.T) {
 	})
 }
 
+func TestReportsByAllInboundOrders(t *testing.T) {
+	t.Run("Should return status 200 with inbound orders of all employees", func(t *testing.T) {
+		server, mockService, handler := InitServerWithInboundOrders(t)
+		expectedInboundOrders := []domain.InboundOrdersReport{
+			{
+				ID:                 1,
+				CardNumberID:       "1",
+				FirstName:          "Joana",
+				LastName:           "Costa",
+				WarehouseID:        01,
+				InboundOrdersCount: 001,
+			},
+			{
+				ID:                 2,
+				CardNumberID:       "2",
+				FirstName:          "Luiza",
+				LastName:           "Silva",
+				WarehouseID:        02,
+				InboundOrdersCount: 001,
+			},
+		}
+
+		server.GET("/employees/reportInboundOrders", handler.ReportByAll())
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders", "")
+
+		mockService.InboundOrderServiceMock.On("ReportByAll", mock.AnythingOfType("string")).Return(expectedInboundOrders, nil)
+		server.ServeHTTP(response, request)
+
+		responseResult := &domain.InboundOrdersReport{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
+		assert.Equal(t, http.StatusOK, response.Code)
+
+	})
+
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		var ExpectedEmptyReports = []domain.InboundOrdersReport{}
+
+		server, mockService, handler := InitServerWithInboundOrders(t)
+
+		server.GET("/employees/reportInboundOrders", handler.ReportByAll())
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders", "")
+
+		mockService.InboundOrderServiceMock.On("ReportByAll", mock.AnythingOfType("string")).Return(ExpectedEmptyReports, inbound_order.ErrTryAgain)
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+	})
+
+}
+
+func TestReportsByOneInboundOrders(t *testing.T) {
+
+	t.Run("Should return status 200 with the inbound order report", func(t *testing.T) {
+		expectedInboundOrders := []domain.InboundOrdersReport{
+			{
+				ID:                 1,
+				CardNumberID:       "1",
+				FirstName:          "Joana",
+				LastName:           "Costa",
+				WarehouseID:        01,
+				InboundOrdersCount: 001,
+			},
+		}
+		server, mockService, handler := InitServerWithInboundOrders(t)
+
+		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/1", "")
+
+		mockService.InboundOrderServiceMock.On("ReportByOne", mock.AnythingOfType("int")).Return(expectedInboundOrders, nil)
+
+		server.ServeHTTP(response, request)
+
+		responseResult := &domain.InboundOrdersResponseId{}
+
+		_ = json.Unmarshal(response.Body.Bytes(), responseResult)
+
+		assert.Equal(t, expectedInboundOrders, responseResult.Data)
+		assert.Equal(t, http.StatusOK, response.Code)
+
+	})
+
+	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
+		ExpectedEmptyInboundOrder := domain.InboundOrdersReport{}
+
+		server, mockService, handler := InitServerWithInboundOrders(t)
+
+		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+		mockService.InboundOrderServiceMock.On("ReportByOne", mock.Anything).Return(ExpectedEmptyInboundOrder, inbound_order.ErrTryAgain)
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/1", "")
+
+		server.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+
+	t.Run("Should return status 404 when the report of a employee is not found", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithInboundOrders(t)
+
+		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/1", "")
+
+		mockService.InboundOrderServiceMock.On("ReportByOne", mock.AnythingOfType("int")).Return(domain.InboundOrdersReport{}, inbound_order.ErrNotFound)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("Should return 400 when an employee Id is invalid", func(t *testing.T) {
+
+		server, mockService, handler := InitServerWithInboundOrders(t)
+		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+
+		mockService.InboundOrderServiceMock.On("ReportByOne", mock.Anything).Return(domain.InboundOrdersReport{}, inbound_order.ErrInvalidId)
+
+		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/invalidId", "")
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+}
+
 func InitServerWithInboundOrders(t *testing.T) (*gin.Engine, *mocks.InboundOrderServiceMock, *handler.InboundOrdersController) {
 	t.Helper()
 	server := testutil.CreateServer()

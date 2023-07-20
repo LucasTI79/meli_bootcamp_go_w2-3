@@ -101,6 +101,69 @@ func TestGetInboundOrders(t *testing.T) {
 	})
 }
 
+func TestReportByAllInboundOrders(t *testing.T) {
+	t.Run("Should return the inbound orders report when repository is called", func(t *testing.T) {
+
+		expectedReport := []domain.InboundOrdersReport{
+			{
+				ID:                 1,
+				CardNumberID:       "1",
+				FirstName:          "Joana",
+				LastName:           "Costa",
+				WarehouseID:        01,
+				InboundOrdersCount: 001,
+			},
+			{
+				ID:                 2,
+				CardNumberID:       "2",
+				FirstName:          "Luiza",
+				LastName:           "Silva",
+				WarehouseID:        02,
+				InboundOrdersCount: 001,
+			},
+		}
+
+		service, repository := InitServerWithInboundOrdersRepository(t)
+		repository.On("ReportByAll", mock.Anything).Return(expectedReport, nil)
+
+		reports, err := service.ReportByAll(context.TODO())
+
+		assert.True(t, len(reports) == 2)
+		assert.NoError(t, err)
+	})
+}
+
+func TestReportByOneInboundOrders(t *testing.T) {
+	t.Run("Should return the inbound order when it exists", func(t *testing.T) {
+
+		expectedReport := domain.InboundOrdersReport{
+			ID:                 1,
+			CardNumberID:       "1",
+			FirstName:          "Joana",
+			LastName:           "Costa",
+			WarehouseID:        01,
+			InboundOrdersCount: 001,
+		}
+		service, repository := InitServerWithInboundOrdersRepository(t)
+
+		repository.On("ReportByOne", mock.Anything).Return(expectedReport, nil)
+
+		report, err := service.ReportByOne(context.TODO(), 1)
+
+		assert.Equal(t, expectedReport, report)
+		assert.NoError(t, err)
+	})
+	t.Run("Should return an error when the employee does not exists", func(t *testing.T) {
+		expectedEmpityReport := domain.InboundOrdersReport{}
+		service, repository := InitServerWithInboundOrdersRepository(t)
+		expectedError := errors.New("employee not found")
+		repository.On("ReportByOne", mock.Anything).Return(expectedEmpityReport, inbound_order.ErrNotFound)
+		_, err := service.ReportByOne(context.TODO(), 1)
+		assert.Equal(t, expectedError, err)
+		assert.Error(t, err)
+	})
+}
+
 func InitServerWithInboundOrdersRepository(t *testing.T) (*mocks.InboundOrderRepositoryMock, inbound_order.Service) {
 	t.Helper()
 	mockRepositoryInboundOrders := &mocks.InboundOrderRepositoryMock{}

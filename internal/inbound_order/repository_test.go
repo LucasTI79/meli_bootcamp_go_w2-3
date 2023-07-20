@@ -88,6 +88,42 @@ func TestGetInboundOrderRepository(t *testing.T) {
 	})
 }
 
+func TestGetAllInboundOrders(t *testing.T) {
+	t.Run("Should get inbound order reports of all", func(t *testing.T) {
+
+		repository := inbound_order.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		report, err := repository.ReportByAll(ctx)
+		assert.NoError(t, err)
+		assert.True(t, len(report) > 1)
+	})
+}
+
+func TestGetOneInboundOrders(t *testing.T) {
+	t.Run("It should get the report of a employee record by the inbound order id.", func(t *testing.T) {
+		id := 1
+		repository := inbound_order.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		report, err := repository.ReportByOne(ctx, id)
+		assert.NoError(t, err)
+		assert.Equal(t, "card 1", report.CardNumberID)
+	})
+	t.Run("It should return an error when the record of a inbound order is not found.", func(t *testing.T) {
+		repository := inbound_order.NewRepository(db)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		_, err := repository.ReportByOne(ctx, 50000000)
+		assert.Error(t, err)
+		expectedErrorMessage := inbound_order.ErrNotFound.Error()
+		assert.Equal(t, expectedErrorMessage, err.Error())
+	})
+}
+
 func InitDatabase() *sql.DB {
 	txdb.Register("txdb", "mysql", "root:@/melisprint")
 	db, _ := sql.Open("txdb", uuid.New().String())
