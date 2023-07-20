@@ -65,6 +65,9 @@ func (r *router) buildInboundOrderRoutes() {
 	handler := handler.NewInboundOrders(service)
 	r.rg.GET("/inboundOrders/:id", handler.Get())
 	r.rg.POST("/inboundOrders", handler.Create())
+	r.rg.GET("/employees/reportInboundOrders", handler.ReportByAll())
+	r.rg.GET("/employees/reportImboundOrders/:id", handler.ReportByOne())
+
 }
 
 func (r *router) buildSellerRoutes() {
