@@ -113,7 +113,7 @@ func (s *InboundOrdersController) Create() gin.HandlerFunc {
 // @Produce  json
 // @Success 200 {object} Report
 // @Failure 500 {object} ErrorResponse
-// @Router /inbound-orders/report [get]
+// @Router /api/v1/inbound-orders/report [get]
 func (p *InboundOrdersController) ReportByAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		report, err := p.InboundOrdersService.ReportByAll(c)
@@ -136,7 +136,7 @@ func (p *InboundOrdersController) ReportByAll() gin.HandlerFunc {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /inbound-orders/report/{id} [get]
+// @Router /api/v1/inbound-orders/{id} [get]
 func (p *InboundOrdersController) ReportByOne() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employeeId, err := strconv.Atoi(c.Param("id"))
