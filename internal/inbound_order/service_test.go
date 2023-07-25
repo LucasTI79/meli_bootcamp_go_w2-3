@@ -146,7 +146,7 @@ func TestReportByOneInboundOrders(t *testing.T) {
 		}
 		repository, service := InitServerWithInboundOrdersRepository(t)
 
-		repository.On("ReportByOne", mock.Anything).Return(expectedReport, nil)
+		repository.On("ReportByOne", mock.Anything, mock.Anything).Return(expectedReport, nil)
 
 		report, err := service.ReportByOne(context.TODO(), 1)
 
@@ -158,7 +158,7 @@ func TestReportByOneInboundOrders(t *testing.T) {
 		repository, service := InitServerWithInboundOrdersRepository(t)
 
 		expectedError := errors.New("inbound orders not found")
-		repository.On("ReportByOne", mock.Anything).Return(expectedEmpityReport, inbound_order.ErrNotFound)
+		repository.On("ReportByOne", mock.Anything, mock.Anything).Return(expectedEmpityReport, inbound_order.ErrNotFound)
 		_, err := service.ReportByOne(context.TODO(), 1)
 		assert.Equal(t, expectedError, err)
 		assert.Error(t, err)
