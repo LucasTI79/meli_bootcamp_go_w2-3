@@ -19,7 +19,7 @@ type Repository interface {
 
 const (
 	ReportByAll = "SELECT io.employee_id as `id`, employees.card_number_id, employees.first_name, employees.last_name, employees.warehouse_id, count(io.id) as `inbound_order_count`FROM inbound_orders io JOIN employees ON io.employee_id = employees.id Group BY io.employee_id"
-	ReportByOne = "SELECT io.employee_id as `id`, employees.card_number_id, employees.first_name, employees.last_name, employees.warehouse_id, count(io.id) as `inbound_order_count`FROM inbound_orders io JOIN employees ON io.employee_id = employees.id WHERE employee_id=?Group BY io.employee_id"
+	ReportByOne = "SELECT io.employee_id as `id`, employees.card_number_id, employees.first_name, employees.last_name, employees.warehouse_id, count(io.id) as `inbound_order_count`FROM inbound_orders io JOIN employees ON io.employee_id = employees.id WHERE employee_id=? Group BY io.employee_id"
 )
 
 type repository struct {
@@ -64,10 +64,10 @@ func (r *repository) Get(ctx context.Context, id int) (domain.InboundOrders, err
 	return i, nil
 }
 
-func (r *repository) Exists(ctx context.Context, id string) bool {
-	query := "SELECT id FROM inbound_orders WHERE id=?;"
-	row := r.db.QueryRow(query, id)
-	err := row.Scan(&id)
+func (r *repository) Exists(ctx context.Context, orderNumber string) bool {
+	query := "SELECT id FROM inbound_orders WHERE order_number=?;"
+	row := r.db.QueryRow(query, orderNumber)
+	err := row.Scan(&orderNumber)
 	return err == nil
 }
 
