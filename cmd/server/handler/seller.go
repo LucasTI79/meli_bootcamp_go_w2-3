@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/locality"
@@ -13,13 +12,13 @@ import (
 )
 
 type SellerController struct {
-	sellerService      seller.Service
+	sellerService   seller.Service
 	localityService locality.Service
 }
 
 func NewSeller(s seller.Service, l locality.Service) *SellerController {
 	return &SellerController{
-		sellerService:      s,
+		sellerService:   s,
 		localityService: l,
 	}
 }
@@ -57,12 +56,8 @@ func (s *SellerController) GetAll() gin.HandlerFunc {
 // @Description List one by Seller id
 func (s *SellerController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sellerId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Response(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
-			return
-		}
-		sellerGet, err := s.sellerService.Get(c, sellerId)
+		id := c.GetInt("id")
+		sellerGet, err := s.sellerService.Get(c, id)
 		if err != nil {
 			if errors.Is(err, seller.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, seller.ErrNotFound.Error())
@@ -120,7 +115,7 @@ func (s *SellerController) Create() gin.HandlerFunc {
 
 		sellerSaved, err := s.sellerService.Save(c, *sellerInput)
 		if err != nil {
-			if errors.Is(err, seller.ErrCidAlreadyExists){
+			if errors.Is(err, seller.ErrCidAlreadyExists) {
 				web.Error(c, http.StatusConflict, err.Error())
 				return
 			}
@@ -142,11 +137,7 @@ func (s *SellerController) Create() gin.HandlerFunc {
 // @Description Update Seller
 func (s *SellerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, err.Error())
-			return
-		}
+		id := c.GetInt("id")
 		domain := new(domain.Seller)
 		if err := c.ShouldBindJSON(domain); err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, seller.ErrInvalidBody.Error())
@@ -178,14 +169,9 @@ func (s *SellerController) Update() gin.HandlerFunc {
 // @Description Delete Seller
 func (s *SellerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sellerId, err := strconv.Atoi(c.Param("id"))
+		id := c.GetInt("id")
 
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, seller.ErrInvalidId.Error())
-			return
-		}
-
-		err = s.sellerService.Delete(c, sellerId)
+		err := s.sellerService.Delete(c, id)
 
 		if err != nil {
 			if errors.Is(err, seller.ErrNotFound) {

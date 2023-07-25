@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
@@ -50,13 +49,9 @@ func (p *ProductController) GetAll() gin.HandlerFunc {
 // @Description List one product by it's Product id
 func (p *ProductController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		productId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Response(c, http.StatusBadRequest, product.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
-		newProduct, err := p.productService.Get(c, productId)
+		newProduct, err := p.productService.Get(c, id)
 		if err != nil {
 			if errors.Is(err, product.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, product.ErrNotFound.Error())
@@ -133,12 +128,7 @@ func (p *ProductController) Create() gin.HandlerFunc {
 // @Description Update Product
 func (p *ProductController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		productId, errId := strconv.Atoi(c.Param("id"))
-
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, product.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
 		productImput := &domain.ProductRequest{}
 		err := c.ShouldBindJSON(productImput)
@@ -155,7 +145,7 @@ func (p *ProductController) Update() gin.HandlerFunc {
 		}
 
 		productItem := domain.Product{
-			ID:             productId,
+			ID:             id,
 			Description:    productImput.Description,
 			ExpirationRate: productImput.ExpirationRate,
 			FreezingRate:   productImput.FreezingRate,
@@ -194,13 +184,9 @@ func (p *ProductController) Update() gin.HandlerFunc {
 // @Description Delete Product
 func (p *ProductController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		productId, err := strconv.Atoi(c.Param("id"))
+		id := c.GetInt("id")
 
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, product.ErrInvalidId.Error())
-			return
-		}
-		err = p.productService.Delete(c, productId)
+		err := p.productService.Delete(c, id)
 
 		if err != nil {
 			productNotFound := errors.Is(err, product.ErrNotFound)

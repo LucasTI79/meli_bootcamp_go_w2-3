@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
@@ -32,13 +31,9 @@ func NewWarehouse(w warehouse.Service) *WarehouseController {
 // @Description List one by Warehouse id
 func (w *WarehouseController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		warehouseId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Response(c, http.StatusBadRequest, warehouse.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
-		warehouseGet, err := w.warehouseService.Get(c, warehouseId)
+		warehouseGet, err := w.warehouseService.Get(c, id)
 		if err != nil {
 			if errors.Is(err, warehouse.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, warehouse.ErrNotFound.Error())
@@ -137,13 +132,9 @@ func (w *WarehouseController) Create() gin.HandlerFunc {
 // @Description Delete Warehouse
 func (w *WarehouseController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		warehouseId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, warehouse.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
-		err = w.warehouseService.Delete(c, warehouseId)
+		err := w.warehouseService.Delete(c, id)
 		if err != nil {
 			switch err {
 			case warehouse.ErrNotFound:
@@ -171,11 +162,7 @@ func (w *WarehouseController) Delete() gin.HandlerFunc {
 // @Description Update Warehouse
 func (w *WarehouseController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		warehouseId, errId := strconv.Atoi(c.Param("id"))
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, warehouse.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
 		domain := new(domain.Warehouse)
 		if err := c.ShouldBindJSON(domain); err != nil {
@@ -183,7 +170,7 @@ func (w *WarehouseController) Update() gin.HandlerFunc {
 			return
 		}
 
-		result, err := w.warehouseService.Update(c, *domain, warehouseId)
+		result, err := w.warehouseService.Update(c, *domain, id)
 		if err != nil {
 			switch err {
 			case warehouse.ErrNotFound:

@@ -62,12 +62,8 @@ func (b *BuyerController) Get() gin.HandlerFunc {
 // @Router /api/v1/buyers/reportPurchaseOrders/{id} [get]
 func (b *BuyerController) GetBuyerOrders() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		buyerId, errId := strconv.Atoi(c.Param("id"))
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, "invalid id")
-			return
-		}
-		buyerOrders, errGet := b.buyerService.GetBuyerOrders(c, buyerId)
+		id := c.GetInt("id")
+		buyerOrders, errGet := b.buyerService.GetBuyerOrders(c, id)
 		if errGet != nil {
 			buyerNotFound := errors.Is(errGet, buyer.ErrNotFound)
 			if buyerNotFound {
@@ -170,13 +166,9 @@ func (b *BuyerController) Create() gin.HandlerFunc {
 func (b *BuyerController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var buyer domain.Buyer
+		id := c.GetInt("id")
 		if err := c.ShouldBindJSON(&buyer); err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, "buyer not updated")
-			return
-		}
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, "invalid ID")
 			return
 		}
 		buyerUpdated, err := b.buyerService.Update(c, buyer, id)
@@ -197,12 +189,8 @@ func (b *BuyerController) Update() gin.HandlerFunc {
 // @Tags Buyers
 func (b *BuyerController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		buyerId, errId := strconv.Atoi(c.Param("id"))
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, "invalid id")
-			return
-		}
-		err := b.buyerService.Delete(c, buyerId)
+		id := c.GetInt("id")
+		err := b.buyerService.Delete(c, id)
 		if err != nil {
 			buyerNotFound := errors.Is(err, buyer.ErrNotFound)
 			if buyerNotFound {

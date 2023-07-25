@@ -51,11 +51,7 @@ func (s *SectionController) GetAll() gin.HandlerFunc {
 // @Description Describe by Section id
 func (s *SectionController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 		section, err := s.sectionService.Get(c, id)
 		if err != nil {
 			if errors.Is(err, domain.ErrNotFound) {
@@ -126,14 +122,10 @@ func (s *SectionController) Create() gin.HandlerFunc {
 // @Description Update Section
 func (s *SectionController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
 		sectionInput := &domain.SectionRequest{}
-		err = c.ShouldBindJSON(sectionInput)
+		err := c.ShouldBindJSON(sectionInput)
 		if err != nil {
 			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
 			return
@@ -202,12 +194,8 @@ func (s *SectionController) Update() gin.HandlerFunc {
 // @Description Delete Section
 func (s *SectionController) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, domain.ErrInvalidId.Error())
-			return
-		}
-		err = s.sectionService.Delete(c, id)
+		id := c.GetInt("id")
+		err := s.sectionService.Delete(c, id)
 		if err != nil {
 			if errors.Is(err, section.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, domain.ErrNotFound.Error())

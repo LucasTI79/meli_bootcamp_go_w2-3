@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
@@ -32,12 +31,8 @@ func NewEmployee(e employee.Service) *Employee {
 // @Description List one by Employee id
 func (e *Employee) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		employeeId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Response(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
-			return
-		}
-		employeeGet, err := e.employeeService.Get(c, employeeId)
+		id := c.GetInt("id")
+		employeeGet, err := e.employeeService.Get(c, id)
 		if err != nil {
 			if errors.Is(err, employee.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, employee.ErrNotFound.Error())
@@ -118,17 +113,13 @@ func (e *Employee) Create() gin.HandlerFunc {
 // @Description Update Employee
 func (e *Employee) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		employeeId, errId := strconv.Atoi(c.Param("id"))
-		if errId != nil {
-			web.Response(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 		domain := new(domain.Employee)
 		if err := c.ShouldBindJSON(domain); err != nil {
 			web.Error(c, http.StatusUnprocessableEntity, employee.ErrInvalidBody.Error())
 			return
 		}
-		result, err := e.employeeService.Update(c, *domain, employeeId)
+		result, err := e.employeeService.Update(c, *domain, id)
 		if err != nil {
 			switch err {
 			case employee.ErrNotFound:
@@ -154,14 +145,9 @@ func (e *Employee) Update() gin.HandlerFunc {
 // @Description Delete Employee
 func (e *Employee) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		employeeId, err := strconv.Atoi(c.Param("id"))
+		id := c.GetInt("id")
 
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
-			return
-		}
-
-		err = e.employeeService.Delete(c, employeeId)
+		err := e.employeeService.Delete(c, id)
 
 		if err != nil {
 			if errors.Is(err, employee.ErrNotFound) {

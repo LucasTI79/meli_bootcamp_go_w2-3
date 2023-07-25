@@ -5,6 +5,7 @@ import (
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/docs"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/buyer"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/carry"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
@@ -63,10 +64,10 @@ func (r *router) buildInboundOrderRoutes() {
 	repoInboundOrder := inbound_order.NewRepository(r.db)
 	service := inbound_order.NewService(repoInboundOrder)
 	handler := handler.NewInboundOrders(service)
-	r.rg.GET("/inboundOrders/:id", handler.Get())
+	r.rg.GET("/inboundOrders/:id", middlewares.ValidateParams("id"), handler.Get())
 	r.rg.POST("/inboundOrders", handler.Create())
 	r.rg.GET("/employees/reportInboundOrders", handler.ReportByAll())
-	r.rg.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+	r.rg.GET("/employees/reportInboundOrders/:id", middlewares.ValidateParams("id"), handler.ReportByOne())
 
 }
 
@@ -79,10 +80,10 @@ func (r *router) buildSellerRoutes() {
 
 	handler := handler.NewSeller(serviceSellers, serviceLocalities)
 	r.rg.GET("/sellers", handler.GetAll())
-	r.rg.GET("/sellers/:id", handler.Get())
+	r.rg.GET("/sellers/:id", middlewares.ValidateParams("id"), handler.Get())
 	r.rg.POST("/sellers", handler.Create())
-	r.rg.DELETE("/sellers/:id", handler.Delete())
-	r.rg.PATCH("/sellers/:id", handler.Update())
+	r.rg.DELETE("/sellers/:id", middlewares.ValidateParams("id"), handler.Delete())
+	r.rg.PATCH("/sellers/:id", middlewares.ValidateParams("id"), handler.Update())
 }
 
 func (r *router) buildLocalityRoutes() {
@@ -99,9 +100,9 @@ func (r *router) buildProductRoutes() {
 	handler := handler.NewProduct(service)
 	r.rg.POST("/products", handler.Create())
 	r.rg.GET("/products", handler.GetAll())
-	r.rg.DELETE("/products/:id", handler.Delete())
-	r.rg.GET("/products/:id", handler.Get())
-	r.rg.PATCH("/products/:id", handler.Update())
+	r.rg.DELETE("/products/:id", middlewares.ValidateParams("id"), handler.Delete())
+	r.rg.GET("/products/:id", middlewares.ValidateParams("id"), handler.Get())
+	r.rg.PATCH("/products/:id", middlewares.ValidateParams("id"), handler.Update())
 }
 
 func (r *router) buildSectionRoutes() {
@@ -110,10 +111,10 @@ func (r *router) buildSectionRoutes() {
 	handler := handler.NewSection(service)
 
 	r.rg.GET("/sections", handler.GetAll())
-	r.rg.GET("/sections/:id", handler.Get())
+	r.rg.GET("/sections/:id", middlewares.ValidateParams("id"), handler.Get())
 	r.rg.POST("/sections", handler.Create())
-	r.rg.DELETE("/sections/:id", handler.Delete())
-	r.rg.PATCH("/sections/:id", handler.Update())
+	r.rg.DELETE("/sections/:id", middlewares.ValidateParams("id"), handler.Delete())
+	r.rg.PATCH("/sections/:id", middlewares.ValidateParams("id"), handler.Update())
 	r.rg.GET("/sections/reportProducts", handler.ReportProducts())
 }
 
@@ -122,10 +123,10 @@ func (r *router) buildWarehouseRoutes() {
 	service := warehouse.NewService(repo)
 	handler := handler.NewWarehouse(service)
 	r.rg.GET("/warehouses", handler.GetAll())
-	r.rg.GET("/warehouses/:id", handler.Get())
+	r.rg.GET("/warehouses/:id", middlewares.ValidateParams("id"), handler.Get())
 	r.rg.POST("/warehouses", handler.Create())
-	r.rg.DELETE("/warehouses/:id", handler.Delete())
-	r.rg.PATCH("/warehouses/:id", handler.Update())
+	r.rg.DELETE("/warehouses/:id", middlewares.ValidateParams("id"), handler.Delete())
+	r.rg.PATCH("/warehouses/:id", middlewares.ValidateParams("id"), handler.Update())
 }
 
 func (r *router) buildEmployeeRoutes() {
@@ -135,9 +136,9 @@ func (r *router) buildEmployeeRoutes() {
 
 	r.rg.POST("/employees", handler.Create())
 	r.rg.GET("/employees", handler.GetAll())
-	r.rg.GET("/employees/:id", handler.Get())
-	r.rg.DELETE("/employees/:id", handler.Delete())
-	r.rg.PATCH("/employees/:id", handler.Update())
+	r.rg.GET("/employees/:id", middlewares.ValidateParams("id"), handler.Get())
+	r.rg.DELETE("/employees/:id", middlewares.ValidateParams("id"), handler.Delete())
+	r.rg.PATCH("/employees/:id", middlewares.ValidateParams("id"), handler.Update())
 }
 
 func (r *router) buildBuyerRoutes() {
@@ -147,10 +148,10 @@ func (r *router) buildBuyerRoutes() {
 	r.rg.GET("/buyers", handler.GetAll())
 	r.rg.GET("/buyers/:id", handler.Get())
 	r.rg.GET("/buyers/reportPurchaseOrders", handler.GetBuyersOrders())
-	r.rg.GET("/buyers/reportPurchaseOrders/:id", handler.GetBuyerOrders())
+	r.rg.GET("/buyers/reportPurchaseOrders/:id", middlewares.ValidateParams("id"), handler.GetBuyerOrders())
 	r.rg.POST("/buyers", handler.Create())
-	r.rg.PATCH("/buyers/:id", handler.Update())
-	r.rg.DELETE("/buyers/:id", handler.Delete())
+	r.rg.PATCH("/buyers/:id", middlewares.ValidateParams("id"), handler.Update())
+	r.rg.DELETE("/buyers/:id", middlewares.ValidateParams("id"), handler.Delete())
 }
 
 func (r *router) buildPurchaseOrdersRoutes() {
@@ -182,7 +183,7 @@ func (r *router) buildCarryRoutes() {
 	repoLocalities := locality.NewRepository(r.db)
 	service := carry.NewService(repoCarry, repoLocalities)
 	handler := handler.NewCarry(service)
-	r.rg.GET("/carriers/:id", handler.Get())
+	r.rg.GET("/carriers/:id", middlewares.ValidateParams("id"), handler.Get())
 	r.rg.GET("/localities/reportCarries", handler.Read())
 	r.rg.POST("/carriers", handler.Create())
 }
@@ -197,7 +198,7 @@ func (r *router) buildProductRecordRoutes() {
 
 	r.rg.POST("/productRecords", handler.Create())
 	r.rg.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
-	r.rg.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+	r.rg.GET("/products/reportRecords/:id", middlewares.ValidateParams("id"), handler.RecordsByOneProductReport())
 }
 
 func (r *router) buildSwagger() {
