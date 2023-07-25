@@ -41,21 +41,21 @@ func (m *InboundOrderRepositoryMock) Exists(ctx context.Context, orderNumber str
 }
 
 func (m *InboundOrderServiceMock) ReportByAll(ctx context.Context) ([]domain.InboundOrdersReport, error) {
-	args := m.Called()
+	args := m.Called(ctx)
 	return args.Get(0).([]domain.InboundOrdersReport), args.Error(1)
 }
 
 func (m *InboundOrderRepositoryMock) ReportByAll(ctx context.Context) ([]domain.InboundOrdersReport, error) {
-	args := m.Called()
+	args := m.Called(ctx)
 	return args.Get(0).([]domain.InboundOrdersReport), args.Error(1)
 }
 
 func (m *InboundOrderServiceMock) ReportByOne(ctx context.Context, id int) (domain.InboundOrdersReport, error) {
-	args := m.Called(id)
+	args := m.Called(ctx, id)
 	return args.Get(0).(domain.InboundOrdersReport), args.Error(1)
 }
 
 func (m *InboundOrderRepositoryMock) ReportByOne(ctx context.Context, id int) (domain.InboundOrdersReport, error) {
-	args := m.Called(id)
+	args := m.Called(ctx, id)
 	return args.Get(0).(domain.InboundOrdersReport), args.Error(1)
 }
