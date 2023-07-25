@@ -21,3 +21,7 @@ type InboundOrdersReport struct {
 type InboundOrdersResponseId struct {
 	Data InboundOrders `json:"data"`
 }
+
+type InboundOrdersReportResponse struct {
+	Data InboundOrdersReport `json:"data"`
+}

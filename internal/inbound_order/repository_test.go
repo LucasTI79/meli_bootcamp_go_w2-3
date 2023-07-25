@@ -9,6 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-txdb"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -23,6 +24,13 @@ var InboundOrdersExpected = domain.InboundOrders{
 	EmployeeID:     1,
 	ProductBatchID: 1,
 	WarehouseID:    1,
+}
+
+var EmployeeExpected = domain.Employee{
+	CardNumberID: "card 1",
+	FirstName: "Maria",
+	LastName: "Silva",
+	WarehouseID: 1,
 }
 
 func TestCreateInboundOrdersRepository(t *testing.T) {
@@ -54,7 +62,8 @@ func TestExistsByIdInboundOrderRepository(t *testing.T) {
 		result, err := repository.Create(ctx, InboundOrdersExpected)
 		assert.NoError(t, err)
 
-		getResult, _ := repository.Get(ctx, result)
+		getResult, err := repository.Get(ctx, result)
+		assert.NoError(t, err)
 
 		existsResult := repository.Exists(ctx, getResult.OrderNumber)
 		assert.True(t, existsResult)
@@ -92,25 +101,45 @@ func TestGetAllInboundOrders(t *testing.T) {
 	t.Run("Should get inbound order reports of all", func(t *testing.T) {
 
 		repository := inbound_order.NewRepository(db)
+		repositoryEmployee := employee.NewRepository(db)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
+		resultEmployee, err := repositoryEmployee.Save(ctx, EmployeeExpected)
+		assert.NoError(t, err)
+
+		InboundOrdersExpected.EmployeeID = resultEmployee
+
+		_, err = repository.Create(ctx, InboundOrdersExpected)
+		assert.NoError(t, err)
+
 		report, err := repository.ReportByAll(ctx)
 		assert.NoError(t, err)
-		assert.True(t, len(report) > 1)
+		assert.True(t, len(report) > 0)
 	})
 }
 
 func TestGetOneInboundOrders(t *testing.T) {
 	t.Run("It should get the report of a employee record by the inbound order id.", func(t *testing.T) {
-		id := 1
 		repository := inbound_order.NewRepository(db)
+		repositoryEmployee := employee.NewRepository(db)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		report, err := repository.ReportByOne(ctx, id)
+		resultEmployee, err := repositoryEmployee.Save(ctx, EmployeeExpected)
 		assert.NoError(t, err)
-		assert.Equal(t, "card 1", report.CardNumberID)
+
+		InboundOrdersExpected.EmployeeID = resultEmployee
+
+		_, err = repository.Create(ctx, InboundOrdersExpected)
+		assert.NoError(t, err)
+
+		result, err := repository.ReportByOne(ctx, resultEmployee)
+		assert.NoError(t, err)
+		assert.Equal(t, resultEmployee, result.ID)
+		assert.True(t, result.InboundOrdersCount == 1)
 	})
 	t.Run("It should return an error when the record of a inbound order is not found.", func(t *testing.T) {
 		repository := inbound_order.NewRepository(db)

@@ -969,7 +969,7 @@ paths:
             type: string
       summary: Generate a report for a specific employee's inbound orders
       tags:
-      - Inbound Orders
+      - InboundOrders
   /api/v1/sections:
     get:
       consumes:

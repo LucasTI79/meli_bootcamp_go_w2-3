@@ -1008,7 +1008,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Inbound Orders"
+                    "InboundOrders"
                 ],
                 "summary": "Generate a report for a specific employee's inbound orders",
                 "parameters": [

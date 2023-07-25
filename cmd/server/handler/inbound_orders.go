@@ -128,7 +128,7 @@ func (p *InboundOrdersController) ReportByAll() gin.HandlerFunc {
 
 // @Summary Generate a report for a specific employee's inbound orders
 // @Description Generates a report containing information for inbound orders of a specific employee based on the provided employee ID
-// @Tags Inbound Orders
+// @Tags InboundOrders
 // @Accept  json
 // @Produce  json
 // @Param id path int true "ID of the employee"

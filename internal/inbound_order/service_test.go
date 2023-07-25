@@ -123,7 +123,7 @@ func TestReportByAllInboundOrders(t *testing.T) {
 			},
 		}
 
-		service, repository := InitServerWithInboundOrdersRepository(t)
+		repository, service := InitServerWithInboundOrdersRepository(t)
 		repository.On("ReportByAll", mock.Anything).Return(expectedReport, nil)
 
 		reports, err := service.ReportByAll(context.TODO())
@@ -144,20 +144,21 @@ func TestReportByOneInboundOrders(t *testing.T) {
 			WarehouseID:        01,
 			InboundOrdersCount: 001,
 		}
-		service, repository := InitServerWithInboundOrdersRepository(t)
+		repository, service := InitServerWithInboundOrdersRepository(t)
 
-		repository.On("ReportByOne", mock.Anything).Return(expectedReport, nil)
+		repository.On("ReportByOne", mock.Anything, mock.Anything).Return(expectedReport, nil)
 
 		report, err := service.ReportByOne(context.TODO(), 1)
 
 		assert.Equal(t, expectedReport, report)
 		assert.NoError(t, err)
 	})
-	t.Run("Should return an error when the employee does not exists", func(t *testing.T) {
+	t.Run("Should return an error when the inbound orders does not exists", func(t *testing.T) {
 		expectedEmpityReport := domain.InboundOrdersReport{}
-		service, repository := InitServerWithInboundOrdersRepository(t)
-		expectedError := errors.New("employee not found")
-		repository.On("ReportByOne", mock.Anything).Return(expectedEmpityReport, inbound_order.ErrNotFound)
+		repository, service := InitServerWithInboundOrdersRepository(t)
+
+		expectedError := errors.New("inbound orders not found")
+		repository.On("ReportByOne", mock.Anything, mock.Anything).Return(expectedEmpityReport, inbound_order.ErrNotFound)
 		_, err := service.ReportByOne(context.TODO(), 1)
 		assert.Equal(t, expectedError, err)
 		assert.Error(t, err)
