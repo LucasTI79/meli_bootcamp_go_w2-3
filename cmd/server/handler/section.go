@@ -84,34 +84,19 @@ func (s *SectionController) Create() gin.HandlerFunc {
 		sectionInput := &domain.Section{}
 		err := c.ShouldBindJSON(sectionInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, domain.ErrTryAgain.Error(), err)
+			ginError := &web.ApiError{}
+
+			errors := ginError.CustomError(err)
+			if len(errors) > 0 {
+				web.Error(c, http.StatusUnprocessableEntity, errors[0].Message)
+				return
+			}
+			web.Error(c, http.StatusUnprocessableEntity, domain.ErrTryAgain.Error(), err)
 			return
 		}
 
-		switch {
-		case sectionInput.SectionNumber == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid section_number field")
-			return
-		case sectionInput.CurrentTemperature == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid current_temperature field")
-			return
-		case sectionInput.MinimumTemperature == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_temperature field")
-			return
-		case sectionInput.CurrentCapacity == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid current_capacity field")
-			return
-		case sectionInput.MinimumCapacity == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid minimum_capacity field")
-			return
-		case sectionInput.MaximumCapacity == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid maximum_capacity field")
-			return
-		case sectionInput.WarehouseID == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid warehouse_id field")
-			return
-		case sectionInput.ProductTypeID == 0:
-			web.Error(c, http.StatusUnprocessableEntity, "invalid product_type_id field")
+		if err := sectionInput.Validate(); err != nil {
+			web.Error(c, http.StatusBadRequest, err.Error())
 			return
 		}
 
