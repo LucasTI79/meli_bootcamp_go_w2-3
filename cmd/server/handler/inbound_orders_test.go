@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/inbound_order"
 
@@ -298,16 +299,16 @@ func TestReportsByOneInboundOrders(t *testing.T) {
 
 	t.Run("Should return status 200 with the inbound order report", func(t *testing.T) {
 		expectedInboundOrders := domain.InboundOrdersReport{
-				ID:                 1,
-				CardNumberID:       "1",
-				FirstName:          "Joana",
-				LastName:           "Costa",
-				WarehouseID:        01,
-				InboundOrdersCount: 001,
+			ID:                 1,
+			CardNumberID:       "1",
+			FirstName:          "Joana",
+			LastName:           "Costa",
+			WarehouseID:        01,
+			InboundOrdersCount: 001,
 		}
 		server, mockService, handler := InitServerWithInboundOrders(t)
 
-		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+		server.GET("/employees/reportInboundOrders/:id", middlewares.ValidateParams("id"), handler.ReportByOne())
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/1", "")
 
 		mockService.On("ReportByOne", mock.Anything, mock.Anything).Return(expectedInboundOrders, nil)
@@ -318,7 +319,6 @@ func TestReportsByOneInboundOrders(t *testing.T) {
 
 		_ = json.Unmarshal(response.Body.Bytes(), responseResult)
 
-
 		assert.Equal(t, expectedInboundOrders, responseResult.Data)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
@@ -328,7 +328,7 @@ func TestReportsByOneInboundOrders(t *testing.T) {
 
 		server, mockService, handler := InitServerWithInboundOrders(t)
 
-		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+		server.GET("/employees/reportInboundOrders/:id", middlewares.ValidateParams("id"), handler.ReportByOne())
 		mockService.On("ReportByOne", mock.Anything, mock.Anything).Return(ExpectedEmptyInboundOrder, inbound_order.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/1", "")
@@ -341,7 +341,7 @@ func TestReportsByOneInboundOrders(t *testing.T) {
 
 		server, mockService, handler := InitServerWithInboundOrders(t)
 
-		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+		server.GET("/employees/reportInboundOrders/:id", middlewares.ValidateParams("id"), handler.ReportByOne())
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/1", "")
 
 		mockService.On("ReportByOne", mock.Anything, mock.Anything).Return(domain.InboundOrdersReport{}, inbound_order.ErrNotFound)
@@ -354,7 +354,7 @@ func TestReportsByOneInboundOrders(t *testing.T) {
 	t.Run("Should return 400 when an employee Id is invalid", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithInboundOrders(t)
-		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
+		server.GET("/employees/reportInboundOrders/:id", middlewares.ValidateParams("id"), handler.ReportByOne())
 
 		mockService.On("ReportByOne", mock.Anything, mock.Anything).Return(domain.InboundOrdersReport{}, inbound_order.ErrInvalidId)
 

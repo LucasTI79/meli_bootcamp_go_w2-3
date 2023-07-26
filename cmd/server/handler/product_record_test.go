@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	productrecord "github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product_record"
@@ -85,7 +86,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProductRecords(t)
 
-		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+		server.GET("/products/reportRecords/:id", middlewares.ValidateParams("id"), handler.RecordsByOneProductReport())
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
 
 		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.AnythingOfType("int")).Return(expectedProductRecordReport, nil)
@@ -106,7 +107,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProductRecords(t)
 
-		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+		server.GET("/products/reportRecords/:id", middlewares.ValidateParams("id"), handler.RecordsByOneProductReport())
 		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.Anything).Return(ExpectedEmpityProductReport, productrecord.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
@@ -119,7 +120,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProductRecords(t)
 
-		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+		server.GET("/products/reportRecords/:id", middlewares.ValidateParams("id"), handler.RecordsByOneProductReport())
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords/1", "")
 
 		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.AnythingOfType("int")).Return(domain.ProductRecordReport{}, productrecord.ErrNotFound)
@@ -132,7 +133,7 @@ func TestRecordsByOneProductReport(t *testing.T) {
 	t.Run("Should return 400 when an product Id is invalid", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProductRecords(t)
-		server.GET("/products/reportRecords/:id", handler.RecordsByOneProductReport())
+		server.GET("/products/reportRecords/:id", middlewares.ValidateParams("id"), handler.RecordsByOneProductReport())
 
 		mockService.MockProductRecordService.On("RecordsByOneProductReport", mock.Anything).Return(domain.ProductRecordReport{}, product.ErrInvalidId)
 

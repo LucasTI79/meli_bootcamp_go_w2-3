@@ -32,13 +32,9 @@ func NewCarry(s carry.Service) *CarryController {
 // @Description List one by Carry id
 func (s *CarryController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		carryId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, carry.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
-		carryGet, err := s.carryService.Get(c, carryId)
+		carryGet, err := s.carryService.Get(c, id)
 		if err != nil {
 			if errors.Is(err, carry.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, carry.ErrNotFound.Error())

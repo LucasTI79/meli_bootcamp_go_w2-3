@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/employee"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
@@ -84,7 +85,7 @@ func TestDeleteEmployees(t *testing.T) {
 
 	t.Run("Should return 204 when employee exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.DELETE("/employees/:id", handler.Delete())
+		server.DELETE("/employees/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/employees/1", "")
 		mockService.On("Delete", mock.Anything, mock.AnythingOfType("int")).Return(nil)
@@ -94,7 +95,7 @@ func TestDeleteEmployees(t *testing.T) {
 
 	t.Run("Should return 404 when employee does not exist", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.DELETE("/employees/:id", handler.Delete())
+		server.DELETE("/employees/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/employees/1", "")
 		mockService.On("Delete", mock.Anything, mock.Anything).Return(employee.ErrNotFound)
@@ -104,7 +105,7 @@ func TestDeleteEmployees(t *testing.T) {
 
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.DELETE("/employees/:id", handler.Delete())
+		server.DELETE("/employees/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		mockService.On("Delete", mock.Anything, mock.Anything).Return(employee.ErrTryAgain)
 
@@ -116,7 +117,7 @@ func TestDeleteEmployees(t *testing.T) {
 
 	t.Run("Should return 400 when an Id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.DELETE("/employees/:id", handler.Delete())
+		server.DELETE("/employees/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		mockService.On("Delete", mock.Anything, mock.Anything).Return(employee.ErrInvalidId)
 
@@ -130,7 +131,7 @@ func TestDeleteEmployees(t *testing.T) {
 func TestGetEmployeeById(t *testing.T) {
 	t.Run("Should return status 200 with the requested employee", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.GET("/employees/:id", handler.Get())
+		server.GET("/employees/:id", middlewares.ValidateParams("id"), handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/1", "")
 		mockService.On("Get", mock.Anything, mock.AnythingOfType("int")).Return(expectedEmployees, nil)
 
@@ -145,7 +146,7 @@ func TestGetEmployeeById(t *testing.T) {
 	})
 	t.Run("Should return status 404 when the employee is not found", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.GET("/employees/:id", handler.Get())
+		server.GET("/employees/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/2", "")
 		mockService.On("Get", mock.Anything, mock.AnythingOfType("int")).Return(domain.Employee{}, employee.ErrNotFound)
@@ -157,7 +158,7 @@ func TestGetEmployeeById(t *testing.T) {
 		ExpectedEmptyEmployees := domain.Employee{}
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
-		server.GET("/employees/:id", handler.Get())
+		server.GET("/employees/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		mockService.On("Get", mock.Anything, mock.Anything).Return(ExpectedEmptyEmployees, employee.ErrTryAgain)
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/1", "")
@@ -169,7 +170,7 @@ func TestGetEmployeeById(t *testing.T) {
 		ExpectedEmptyEmployees := domain.Employee{}
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
-		server.GET("/employees/:id", handler.Get())
+		server.GET("/employees/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		mockService.On("Get", mock.Anything, mock.Anything).Return(ExpectedEmptyEmployees, employee.ErrInvalidId)
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/invalidId", "")
@@ -251,7 +252,7 @@ func TestUpdateEmployee(t *testing.T) {
 		responseResult := domain.EmployeeResponseID{}
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(expectedEmployees, nil)
-		server.PATCH("/employees/:id", handler.Update())
+		server.PATCH("/employees/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		server.ServeHTTP(response, request)
 
@@ -264,7 +265,7 @@ func TestUpdateEmployee(t *testing.T) {
 
 	t.Run("Should return 404 when employee does not exist", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
-		server.PATCH("/employees/:id", handler.Update())
+		server.PATCH("/employees/:id", middlewares.ValidateParams("id"), handler.Update())
 		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", employeeJson)
 		responseResult := domain.Employee{}
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
@@ -277,7 +278,7 @@ func TestUpdateEmployee(t *testing.T) {
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
-		server.PATCH("/employees/:id", handler.Update())
+		server.PATCH("/employees/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Employee{}, employee.ErrTryAgain)
 
@@ -292,7 +293,7 @@ func TestUpdateEmployee(t *testing.T) {
 
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
-		server.PATCH("/employees/:id", handler.Update())
+		server.PATCH("/employees/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Employee{}, employee.ErrNotFound)
 
@@ -306,7 +307,7 @@ func TestUpdateEmployee(t *testing.T) {
 	t.Run("Should return 400 when field is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetEmployees(t)
 
-		server.PATCH("/employees/:id", handler.Update())
+		server.PATCH("/employees/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		mockService.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(domain.Employee{}, employee.ErrInvalidId)
 
@@ -320,7 +321,7 @@ func TestUpdateEmployee(t *testing.T) {
 	t.Run("Should return 422 when Json is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithGetEmployees(t)
 
-		server.PATCH("/employees/:id", handler.Update())
+		server.PATCH("/employees/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/employees/1", string(`{"CardNumberID":}`))
 

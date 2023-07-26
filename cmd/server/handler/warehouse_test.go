@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/warehouse"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
@@ -107,7 +108,7 @@ func TestGetByIdWarehouses(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.GET(BaseEndpointWithIdWarehouse, handler.Get())
+		server.GET(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Get())
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.WarehouseResponseId{}
@@ -119,11 +120,11 @@ func TestGetByIdWarehouses(t *testing.T) {
 	t.Run("Should return status 400 when the warehouse id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		mockService.On("Get", mock.Anything, "invalid").Return(domain.Warehouse{}, warehouse.ErrInvalidId)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Warehouse{}, warehouse.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/warehouses/invalid", "")
 
-		server.GET(BaseEndpointWithIdWarehouse, handler.Get())
+		server.GET(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -136,7 +137,7 @@ func TestGetByIdWarehouses(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.GET(BaseEndpointWithIdWarehouse, handler.Get())
+		server.GET(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -145,7 +146,7 @@ func TestGetByIdWarehouses(t *testing.T) {
 
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		mockService.On("Get", mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWithIdNumberWarehouse, "")
 
@@ -267,7 +268,7 @@ func TestDeleteWarehouses(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodDelete, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNoContent, response.Code)
@@ -279,7 +280,7 @@ func TestDeleteWarehouses(t *testing.T) {
 
 		mockService.On("Delete", mock.Anything, 1).Return(warehouse.ErrNotFound)
 
-		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -291,7 +292,7 @@ func TestDeleteWarehouses(t *testing.T) {
 
 		mockService.On("Delete", mock.Anything, mock.Anything).Return(warehouse.ErrInvalidId)
 
-		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -303,7 +304,7 @@ func TestDeleteWarehouses(t *testing.T) {
 
 		mockService.On("Delete", mock.Anything, 1).Return(warehouse.ErrTryAgain)
 
-		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
+		server.DELETE(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -326,7 +327,7 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumberWarehouse, `{"address":"Rua Pedro Dias","telephone":"371928"}`)
 
-		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		responseResult := domain.WarehouseResponseId{}
@@ -342,7 +343,7 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/warehouses/invalid", `{"address":"Rua Pedro Dias","telephone":"371928"}`)
 
-		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -354,7 +355,7 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPatch, BaseEndpointWithIdNumberWarehouse, "")
 
-		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
@@ -366,7 +367,7 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrNotFound)
 
-		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -378,7 +379,7 @@ func TestUpdateWarehouse(t *testing.T) {
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Warehouse{}, warehouse.ErrTryAgain)
 
-		server.PATCH(BaseEndpointWithIdWarehouse, handler.Update())
+		server.PATCH(BaseEndpointWithIdWarehouse, middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)

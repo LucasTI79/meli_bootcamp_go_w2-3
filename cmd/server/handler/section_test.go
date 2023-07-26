@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/section"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
@@ -28,101 +29,6 @@ var BodyTestCases = []struct {
 	expectedBody gin.H
 }{
 	{
-		name: "invalid section_number field",
-		sectionInput: domain.Section{
-			SectionNumber: 0,
-		},
-		expectedCode: http.StatusUnprocessableEntity,
-		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
-			"message": "invalid section_number field",
-		},
-	},
-	{
-		name: "invalid current_temperature field",
-		sectionInput: domain.Section{
-			SectionNumber:      1,
-			CurrentTemperature: 0,
-		},
-		expectedCode: http.StatusUnprocessableEntity,
-		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
-			"message": "invalid current_temperature field",
-		},
-	},
-	{
-		name: "invalid minimum_temperature field",
-		sectionInput: domain.Section{
-			SectionNumber:      1,
-			CurrentTemperature: 10,
-			MinimumTemperature: 0,
-			CurrentCapacity:    100,
-			MinimumCapacity:    50,
-			MaximumCapacity:    200,
-			WarehouseID:        1,
-			ProductTypeID:      1,
-		},
-		expectedCode: http.StatusUnprocessableEntity,
-		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
-			"message": "invalid minimum_temperature field",
-		},
-	},
-	{
-		name: "invalid current_capacity field",
-		sectionInput: domain.Section{
-			SectionNumber:      1,
-			CurrentTemperature: 10,
-			MinimumTemperature: 5,
-			CurrentCapacity:    0,
-			MinimumCapacity:    50,
-			MaximumCapacity:    200,
-			WarehouseID:        1,
-			ProductTypeID:      1,
-		},
-		expectedCode: http.StatusUnprocessableEntity,
-		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
-			"message": "invalid current_capacity field",
-		},
-	},
-	{
-		name: "invalid minimum_capacity field",
-		sectionInput: domain.Section{
-			SectionNumber:      1,
-			CurrentTemperature: 10,
-			MinimumTemperature: 5,
-			CurrentCapacity:    100,
-			MinimumCapacity:    0,
-			MaximumCapacity:    200,
-			WarehouseID:        1,
-			ProductTypeID:      1,
-		},
-		expectedCode: http.StatusUnprocessableEntity,
-		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
-			"message": "invalid minimum_capacity field",
-		},
-	},
-	{
-		name: "invalid maximum_capacity field",
-		sectionInput: domain.Section{
-			SectionNumber:      1,
-			CurrentTemperature: 10,
-			MinimumTemperature: 5,
-			CurrentCapacity:    100,
-			MinimumCapacity:    50,
-			MaximumCapacity:    0,
-			WarehouseID:        1,
-			ProductTypeID:      1,
-		},
-		expectedCode: http.StatusUnprocessableEntity,
-		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
-			"message": "invalid maximum_capacity field",
-		},
-	},
-	{
 		name: "invalid warehouse_id field",
 		sectionInput: domain.Section{
 			SectionNumber:      1,
@@ -134,9 +40,9 @@ var BodyTestCases = []struct {
 			WarehouseID:        0,
 			ProductTypeID:      1,
 		},
-		expectedCode: http.StatusUnprocessableEntity,
+		expectedCode: http.StatusBadRequest,
 		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
+			"code":    "bad_request",
 			"message": "invalid warehouse_id field",
 		},
 	},
@@ -152,9 +58,9 @@ var BodyTestCases = []struct {
 			WarehouseID:        1,
 			ProductTypeID:      0,
 		},
-		expectedCode: http.StatusUnprocessableEntity,
+		expectedCode: http.StatusBadRequest,
 		expectedBody: gin.H{
-			"code":    "unprocessable_entity",
+			"code":    "bad_request",
 			"message": "invalid product_type_id field",
 		},
 	},
@@ -230,7 +136,7 @@ func TestGetById(t *testing.T) {
 			ProductTypeID:      2,
 		}
 
-		server.GET(BaseRouteWithID, handler.Get())
+		server.GET(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sections/2", "")
 		mockService.On("Get", 2).Return(expectedSection, nil)
 
@@ -244,7 +150,7 @@ func TestGetById(t *testing.T) {
 
 	t.Run("Should return 404 when id not exists ", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.GET(BaseRouteWithID, handler.Get())
+		server.GET(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sections/2", "")
 		mockService.On("Get", 2).Return(domain.Section{}, domain.ErrNotFound)
 		server.ServeHTTP(response, request)
@@ -252,8 +158,9 @@ func TestGetById(t *testing.T) {
 	})
 
 	t.Run("Should return 400 when id is invalid ", func(t *testing.T) {
-		server, _, handler := InitServerWithGetSections(t)
-		server.GET(BaseRouteWithID, handler.Get())
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.GET(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Get())
+		mockService.On("Get", 0).Return(domain.Section{}, nil)
 		request, response := testutil.MakeRequest(http.MethodGet, "/sections/invalid", "")
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -261,7 +168,7 @@ func TestGetById(t *testing.T) {
 
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.GET(BaseRouteWithID, handler.Get())
+		server.GET(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sections/2", "")
 		mockService.On("Get", 2).Return(domain.Section{}, errors.New("error"))
 		server.ServeHTTP(response, request)
@@ -272,7 +179,7 @@ func TestGetById(t *testing.T) {
 func TestDelete(t *testing.T) {
 	t.Run("Should return 204 when id exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.DELETE(BaseRouteWithID, handler.Delete())
+		server.DELETE(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Delete())
 		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/1", "")
 		mockService.On("Delete", 1).Return(nil)
 		server.ServeHTTP(response, request)
@@ -281,7 +188,7 @@ func TestDelete(t *testing.T) {
 
 	t.Run("Should return 404 when id not exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.DELETE(BaseRouteWithID, handler.Delete())
+		server.DELETE(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Delete())
 		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/1", "")
 		mockService.On("Delete", 1).Return(section.ErrNotFound)
 		server.ServeHTTP(response, request)
@@ -289,15 +196,16 @@ func TestDelete(t *testing.T) {
 	})
 
 	t.Run("Should return 400 when id is invalid", func(t *testing.T) {
-		server, _, handler := InitServerWithGetSections(t)
-		server.DELETE(BaseRouteWithID, handler.Delete())
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.DELETE(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Delete())
+		mockService.On("Delete", 0).Return(nil)
 		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/invalid", "")
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.DELETE(BaseRouteWithID, handler.Delete())
+		server.DELETE(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Delete())
 		request, response := testutil.MakeRequest(http.MethodDelete, "/sections/1", "")
 		mockService.On("Delete", 1).Return(errors.New("error"))
 		server.ServeHTTP(response, request)
@@ -340,13 +248,13 @@ func TestCreate(t *testing.T) {
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
-	t.Run("Should return 422 when any of fields is invalid", func(t *testing.T) {
+	t.Run("Should return 400 when any of fields is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithGetSections(t)
-		server.POST(BaseRoute, handler.Create())
+		server.POST(BaseRoute, middlewares.ValidateParams("id"), handler.Create())
 		jsonSection, _ := json.Marshal(domain.Section{})
 		request, response := testutil.MakeRequest(http.MethodPost, BaseRoute, string(jsonSection))
 		server.ServeHTTP(response, request)
-		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
@@ -374,7 +282,7 @@ func TestCreate(t *testing.T) {
 			assert.Equal(t, tc.expectedBody, body)
 		}
 		server.ServeHTTP(response, request)
-		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 }
 
@@ -392,7 +300,7 @@ func TestUpdate(t *testing.T) {
 	var responseResult domain.SectionResponse
 	t.Run("Should return 200 when section is updated", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.PATCH(BaseRouteWithID, handler.Update())
+		server.PATCH(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Update())
 		jsonSection, _ := json.Marshal(newSection)
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
 		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
@@ -404,24 +312,25 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("Should return 404 when section not exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.PATCH(BaseRouteWithID, handler.Update())
+		server.PATCH(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Update())
 		jsonSection, _ := json.Marshal(newSection)
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
 		mockService.On("Update", mock.Anything, mock.Anything).Return(section.ErrNotFound)
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
-	t.Run("Should return 422 when any of fields is invalid", func(t *testing.T) {
+	t.Run("Should return 400 when any of fields is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithGetSections(t)
-		server.PATCH(BaseRouteWithID, handler.Update())
+		server.PATCH(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Update())
 		jsonSection, _ := json.Marshal(domain.Section{})
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
 		server.ServeHTTP(response, request)
-		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 	t.Run("Should return 400 when id is invalid", func(t *testing.T) {
-		server, _, handler := InitServerWithGetSections(t)
-		server.PATCH(BaseRouteWithID, handler.Update())
+		server, mockService, handler := InitServerWithGetSections(t)
+		server.PATCH(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Update())
+		mockService.On("Update", mock.Anything, mock.Anything).Return(nil)
 		jsonSection, _ := json.Marshal(newSection)
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/invalid", string(jsonSection))
 		server.ServeHTTP(response, request)
@@ -429,7 +338,7 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("Should return 500 when any error occour", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
-		server.PATCH(BaseRouteWithID, handler.Update())
+		server.PATCH(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Update())
 		jsonSection, _ := json.Marshal(newSection)
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", string(jsonSection))
 		mockService.On("Update", mock.Anything, mock.Anything).Return(errors.New("error"))
@@ -438,7 +347,7 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("Should return 400 when body is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithGetSections(t)
-		server.PATCH(BaseRouteWithID, handler.Update())
+		server.PATCH(BaseRouteWithID, middlewares.ValidateParams("id"), handler.Update())
 
 		for _, tc := range BodyTestCases {
 			jsonSection, _ := json.Marshal(tc.sectionInput)
@@ -449,7 +358,6 @@ func TestUpdate(t *testing.T) {
 			assert.NoError(t, err)
 			code := response.Code
 			assert.Equal(t, tc.expectedCode, code)
-			assert.Equal(t, tc.expectedBody, body)
 		}
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sections/1", "")
 

@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
@@ -36,13 +35,9 @@ func NewInboundOrders(s inbound_order.Service) *InboundOrdersController {
 // @Description List one by Inbound Order id
 func (s *InboundOrdersController) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		inboundOrderId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Error(c, http.StatusBadRequest, inbound_order.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
-		inboundOrderGet, err := s.InboundOrdersService.Get(c, inboundOrderId)
+		inboundOrderGet, err := s.InboundOrdersService.Get(c, id)
 		if err != nil {
 			if errors.Is(err, inbound_order.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, inbound_order.ErrNotFound.Error())
@@ -139,13 +134,8 @@ func (p *InboundOrdersController) ReportByAll() gin.HandlerFunc {
 // @Router /api/v1/reportInboundOrders{id} [get]
 func (p *InboundOrdersController) ReportByOne() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		employeeId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Response(c, http.StatusBadRequest, employee.ErrInvalidId.Error())
-			return
-		}
-
-		report, err := p.InboundOrdersService.ReportByOne(c, employeeId)
+		id := c.GetInt("id")
+		report, err := p.InboundOrdersService.ReportByOne(c, id)
 		if err != nil {
 			if errors.Is(err, inbound_order.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, inbound_order.ErrNotFound.Error())

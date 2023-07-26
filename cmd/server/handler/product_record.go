@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
@@ -114,13 +113,9 @@ func (p *ProductRecordController) RecordsByAllProductsReport() gin.HandlerFunc {
 // @Description List the product record report of one  product by it's Product id
 func (p *ProductRecordController) RecordsByOneProductReport() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		productId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			web.Response(c, http.StatusBadRequest, product.ErrInvalidId.Error())
-			return
-		}
+		id := c.GetInt("id")
 
-		productRecord, err := p.productRecordService.RecordsByOneProductReport(c, productId)
+		productRecord, err := p.productRecordService.RecordsByOneProductReport(c, id)
 		if err != nil {
 			if errors.Is(err, productrecord.ErrNotFound) {
 				web.Error(c, http.StatusNotFound, productrecord.ErrNotFound.Error())

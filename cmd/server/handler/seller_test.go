@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/seller"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
@@ -92,7 +93,7 @@ func TestGetSeller(t *testing.T) {
 			LocalityId:  1,
 		}
 		mockService.On("Get", mock.Anything, 1).Return(expectedSeller, nil)
-		server.GET("/sellers/:id", handler.Get())
+		server.GET("/sellers/:id", middlewares.ValidateParams("id"), handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRouteWithIDSeller, "")
 
 		server.ServeHTTP(response, request)
@@ -107,7 +108,7 @@ func TestGetSeller(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
 		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Seller{}, seller.ErrInvalidId)
 
-		server.GET("/sellers/:id", handler.Get())
+		server.GET("/sellers/:id", middlewares.ValidateParams("id"), handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sellers/invalid", "")
 		server.ServeHTTP(response, request)
 
@@ -117,7 +118,7 @@ func TestGetSeller(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
 
 		mockService.On("Get", mock.Anything, 1).Return(domain.Seller{}, seller.ErrNotFound)
-		server.GET("/sellers/:id", handler.Get())
+		server.GET("/sellers/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRouteWithIDSeller, "")
 		server.ServeHTTP(response, request)
@@ -128,7 +129,7 @@ func TestGetSeller(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
 
 		mockService.On("Get", mock.Anything, 1).Return(domain.Seller{}, seller.ErrTryAgain)
-		server.GET("/sellers/:id", handler.Get())
+		server.GET("/sellers/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRouteWithIDSeller, "")
 		server.ServeHTTP(response, request)
@@ -166,7 +167,7 @@ func TestCreateSeller(t *testing.T) {
 	t.Run("Should return status 409 when locality ID does not exist", func(t *testing.T) {
 		server, _, mockLocality, handler := InitServer(t)
 		server.POST(BaseRouteSeller, handler.Create())
-	
+
 		requestBody := domain.Seller{
 			ID:          1,
 			CID:         1,
@@ -176,14 +177,14 @@ func TestCreateSeller(t *testing.T) {
 			LocalityId:  1,
 		}
 		jsonSeller, _ := json.Marshal(requestBody)
-	
+
 		request, response := testutil.MakeRequest(http.MethodPost, BaseRouteSeller, string(jsonSeller))
 		mockLocality.On("ExistsById", mock.Anything, requestBody.ID).Return(errors.New("locality does not exist"))
 		server.ServeHTTP(response, request)
-	
+
 		var responseData web.ErrorResponse
 		_ = json.Unmarshal(response.Body.Bytes(), &responseData)
-	
+
 		assert.Equal(t, "locality does not exist", responseData.Message)
 		assert.Equal(t, http.StatusConflict, response.Code)
 	})
@@ -201,7 +202,6 @@ func TestCreateSeller(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPost, BaseRouteSeller, string(jsonSeller))
 		mockLocality.On("ExistsById", mock.Anything, requestBody.LocalityId).Return(nil)
-
 
 		server.ServeHTTP(response, request)
 
@@ -230,7 +230,7 @@ func TestCreateSeller(t *testing.T) {
 
 		var responseData web.ErrorResponse
 		_ = json.Unmarshal(response.Body.Bytes(), &responseData)
-		
+
 		assert.Equal(t, "company name is required", responseData.Message)
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
@@ -321,14 +321,14 @@ func TestCreateSeller(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
-			LocalityId: 1,
+			LocalityId:  1,
 		}
 		jsonSeller, _ := json.Marshal(requestBody)
 
 		request, response := testutil.MakeRequest(http.MethodPost, BaseRouteSeller, string(jsonSeller))
 		mockService.On("Save", mock.Anything, mock.Anything).Return(domain.Seller{}, seller.ErrCidAlreadyExists)
 		mockLocality.On("ExistsById", mock.Anything, requestBody.LocalityId).Return(nil)
-		
+
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusConflict, response.Code)
@@ -342,7 +342,7 @@ func TestCreateSeller(t *testing.T) {
 			CompanyName: "Company Name",
 			Address:     "Address",
 			Telephone:   "88748585",
-			LocalityId: 1,
+			LocalityId:  1,
 		}
 		jsonSeller, _ := json.Marshal(requestBody)
 
@@ -358,7 +358,7 @@ func TestCreateSeller(t *testing.T) {
 func TestDeleteSeller(t *testing.T) {
 	t.Run("Should return 204 and delete seller with id", func(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
-		server.DELETE("/sellers/:id", handler.Delete())
+		server.DELETE("/sellers/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, BaseRouteWithIDSeller, "")
 		mockService.On("Delete", mock.Anything, 1).Return(nil)
@@ -369,7 +369,7 @@ func TestDeleteSeller(t *testing.T) {
 	})
 	t.Run("Should return status 404 when id seller is not found", func(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
-		server.DELETE("/sellers/:id", handler.Delete())
+		server.DELETE("/sellers/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, BaseRouteWithIDSeller, "")
 
@@ -381,7 +381,7 @@ func TestDeleteSeller(t *testing.T) {
 	t.Run("Should return status 400 when the seller id is invalid", func(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
 
-		server.DELETE("/sellers/:id", handler.Delete())
+		server.DELETE("/sellers/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/sellers/invalid", "")
 		mockService.On("Delete", mock.Anything, mock.Anything).Return(seller.ErrInvalidId)
@@ -397,7 +397,7 @@ func TestDeleteSeller(t *testing.T) {
 
 		mockService.On("Delete", mock.Anything, 1).Return(seller.ErrTryAgain)
 
-		server.DELETE("/sellers/:id", handler.Delete())
+		server.DELETE("/sellers/:id", middlewares.ValidateParams("id"), handler.Delete())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -421,7 +421,7 @@ func TestUpdateSeller(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPatch, BaseRouteWithIDSeller, `{"address":"Address","telephone":"88748585"}`)
 
-		server.PATCH("/sellers/:id", handler.Update())
+		server.PATCH("/sellers/:id", middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusOK, response.Code)
@@ -439,7 +439,7 @@ func TestUpdateSeller(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sellers/invalid", `{"address":"Address","telephone":"88748585"}`)
 
-		server.PATCH("/sellers/:id", handler.Update())
+		server.PATCH("/sellers/:id", middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -451,7 +451,7 @@ func TestUpdateSeller(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodPatch, BaseRouteWithIDSeller, "")
 
-		server.PATCH("/sellers/:id", handler.Update())
+		server.PATCH("/sellers/:id", middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
@@ -463,7 +463,7 @@ func TestUpdateSeller(t *testing.T) {
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Seller{}, seller.ErrNotFound)
 
-		server.PATCH("/sellers/:id", handler.Update())
+		server.PATCH("/sellers/:id", middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -475,7 +475,7 @@ func TestUpdateSeller(t *testing.T) {
 
 		mockService.On("Update", mock.Anything, mock.Anything, 1).Return(domain.Seller{}, seller.ErrTryAgain)
 
-		server.PATCH("/sellers/:id", handler.Update())
+		server.PATCH("/sellers/:id", middlewares.ValidateParams("id"), handler.Update())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
