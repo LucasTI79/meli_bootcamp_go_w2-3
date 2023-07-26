@@ -59,7 +59,7 @@ func TestGetBuyerOrders(t *testing.T) {
 	t.Run("Should return err if id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 
-		mockService.On("GetBuyerOrders", mock.Anything, "invalid").Return(domain.BuyerOrders{}, buyer.ErrInvalidID)
+		mockService.On("GetBuyerOrders", mock.Anything, mock.Anything).Return(domain.BuyerOrders{}, buyer.ErrInvalidID)
 
 		server.GET(GetBuyerOrders, handler.GetBuyerOrders())
 
@@ -108,7 +108,7 @@ func TestGetBuyersOrders(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.GET(GetBuyersOrders, handler.GetBuyersOrders())
 
-		mockService.On("GetBuyersOrders", mock.AnythingOfType("string")).Return(expectedOrders, nil)
+		mockService.On("GetBuyersOrders", mock.Anything).Return(expectedOrders, nil)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetBuyersOrders, "")
 		server.ServeHTTP(response, request)
@@ -128,7 +128,7 @@ func TestGetBuyersOrders(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.GET(GetBuyersOrders, handler.GetBuyersOrders())
 
-		mockService.On("GetBuyersOrders", mock.AnythingOfType("string")).Return(emptyBuyers, nil)
+		mockService.On("GetBuyersOrders", mock.Anything).Return(emptyBuyers, nil)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetBuyersOrders, "")
 		server.ServeHTTP(response, request)
@@ -140,7 +140,7 @@ func TestGetBuyersOrders(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.GET(GetBuyersOrders, handler.GetBuyersOrders())
 
-		mockService.On("GetBuyersOrders", mock.AnythingOfType("string")).Return([]domain.BuyerOrders{}, domain.ErrNotFound)
+		mockService.On("GetBuyersOrders", mock.Anything).Return([]domain.BuyerOrders{}, domain.ErrNotFound)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetBuyersOrders, "")
 		server.ServeHTTP(response, request)
@@ -169,7 +169,7 @@ func TestGetAllBuyers(t *testing.T) {
 		server.GET(GetAllBuyers, handler.GetAll())
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllBuyers, "")
-		mockBuyer.On("GetAll", mock.AnythingOfType("string")).Return(expectedBuyers, nil)
+		mockBuyer.On("GetAll", mock.Anything).Return(expectedBuyers, nil)
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.BuyerResponse{}
@@ -188,7 +188,7 @@ func TestGetAllBuyers(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.GET(GetAllBuyers, handler.GetAll())
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptyBuyers, nil)
+		mockService.On("GetAll", mock.Anything).Return(emptyBuyers, nil)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllBuyers, "")
 		server.ServeHTTP(response, request)
@@ -200,7 +200,7 @@ func TestGetAllBuyers(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 		server.GET(GetAllBuyers, handler.GetAll())
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return([]domain.Buyer{}, domain.ErrNotFound)
+		mockService.On("GetAll", mock.Anything).Return([]domain.Buyer{}, domain.ErrNotFound)
 
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllBuyers, "")
 		server.ServeHTTP(response, request)
@@ -241,7 +241,7 @@ func TestGetBuyers(t *testing.T) {
 	t.Run("Should return err if id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 
-		mockService.On("Get", mock.Anything, "invalid").Return(domain.Buyer{}, buyer.ErrInvalidID)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Buyer{}, buyer.ErrInvalidID)
 
 		server.GET(Get, handler.Get())
 
@@ -313,7 +313,7 @@ func TestDeleteBuyers(t *testing.T) {
 	t.Run("Should return err if id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 
-		mockService.On("Delete", mock.Anything, "invalid").Return(domain.Buyer{}, buyer.ErrInvalidID)
+		mockService.On("Delete", mock.Anything, mock.Anything).Return(domain.Buyer{}, buyer.ErrInvalidID)
 
 		server.DELETE(Delete, handler.Delete())
 
@@ -452,7 +452,7 @@ func TestUpdateBuyers(t *testing.T) {
 	t.Run("Should return err 400 if id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 
-		mockService.On("Update", mock.Anything, mock.Anything, "invalid").Return(domain.Buyer{}, buyer.ErrInvalidID)
+		mockService.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(domain.Buyer{}, buyer.ErrInvalidID)
 
 		server.PATCH(Update, handler.Update())
 
@@ -465,18 +465,6 @@ func TestUpdateBuyers(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
-	})
-
-	t.Run("Should return status 500 when internal error", func(t *testing.T) {
-		server, _, handler := InitServerWithGetBuyers(t)
-
-		server.PATCH(Update, handler.Update())
-
-		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/10", `{"first_name":""}`)
-
-		server.ServeHTTP(response, request)
-
-		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
 
 	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {

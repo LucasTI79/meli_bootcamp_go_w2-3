@@ -88,7 +88,7 @@ func TestGetAllProducts(t *testing.T) {
 		server.GET(GetAllProducts, handler.GetAll())
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllProducts, "")
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(expectedProducts, nil)
+		mockService.On("GetAll").Return(expectedProducts, nil)
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.ProductResponse{}
@@ -108,7 +108,7 @@ func TestGetAllProducts(t *testing.T) {
 		server.GET(GetAllProducts, handler.GetAll())
 		request, response := testutil.MakeRequest(http.MethodGet, GetAllProducts, "")
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(ExpectedEmpityProducts, product.ErrTryAgain)
+		mockService.On("GetAll").Return(ExpectedEmpityProducts, product.ErrTryAgain)
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)

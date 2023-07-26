@@ -65,7 +65,7 @@ func TestGetCarriers(t *testing.T) {
 	t.Run("Should return status 400 when the carry id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithCarriers(t)
 
-		mockService.On("Get", mock.Anything, "invalid").Return(domain.Carry{}, carry.ErrInvalidId)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Carry{}, carry.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointCarriers+"/invalid", "")
 
@@ -121,7 +121,7 @@ func TestReadCarriers(t *testing.T) {
 	t.Run("Should return status 400 when the locality id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithCarriers(t)
 
-		mockService.On("Read", mock.Anything, "invalid").Return([]domain.LocalityCarriersReport{}, carry.ErrInvalidId)
+		mockService.On("Read", mock.Anything, mock.Anything).Return([]domain.LocalityCarriersReport{}, carry.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointLocalityCarriers+"?id=invalid", "")
 

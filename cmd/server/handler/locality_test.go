@@ -165,7 +165,7 @@ func TestReportSellersByLocality(t *testing.T) {
 	t.Run("Should return status 400 when the locality id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerLocality(t)
 
-		mockService.On("ReportSellersByLocality", mock.Anything, "invalid").Return([]domain.LocalityReport{}, errors.New("error"))
+		mockService.On("ReportSellersByLocality", mock.Anything, mock.Anything).Return([]domain.LocalityReport{}, errors.New("error"))
 
 		request, response := testutil.MakeRequest(http.MethodGet, RouteLocalityReport+"?id=invalid", "")
 

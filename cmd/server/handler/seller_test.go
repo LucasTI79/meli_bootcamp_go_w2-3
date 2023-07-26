@@ -46,7 +46,7 @@ func TestGetAllSeller(t *testing.T) {
 		}
 		server.GET(BaseRouteSeller, handler.GetAll())
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(expectedSellers, nil)
+		mockService.On("GetAll").Return(expectedSellers, nil)
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRouteSeller, "")
 		server.ServeHTTP(response, request)
 
@@ -61,7 +61,7 @@ func TestGetAllSeller(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
 		server.GET(BaseRouteSeller, handler.GetAll())
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptySellers, nil)
+		mockService.On("GetAll").Return(emptySellers, nil)
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRouteSeller, "")
 
 		server.ServeHTTP(response, request)
@@ -72,7 +72,7 @@ func TestGetAllSeller(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
 		server.GET(BaseRouteSeller, handler.GetAll())
 
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(emptySellers, seller.ErrTryAgain)
+		mockService.On("GetAll").Return(emptySellers, seller.ErrTryAgain)
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRouteSeller, "")
 
 		server.ServeHTTP(response, request)
@@ -105,7 +105,7 @@ func TestGetSeller(t *testing.T) {
 
 	t.Run("Should return status 400 when the seller id is invalid", func(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
-		mockService.On("Get", mock.Anything, "invalid").Return(domain.Seller{}, seller.ErrInvalidId)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Seller{}, seller.ErrInvalidId)
 
 		server.GET("/sellers/:id", handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sellers/invalid", "")
@@ -384,7 +384,7 @@ func TestDeleteSeller(t *testing.T) {
 		server.DELETE("/sellers/:id", handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/sellers/invalid", "")
-		mockService.On("Delete", mock.Anything, "invalid").Return(seller.ErrInvalidId)
+		mockService.On("Delete", mock.Anything, mock.Anything).Return(seller.ErrInvalidId)
 
 		server.ServeHTTP(response, request)
 
@@ -435,7 +435,7 @@ func TestUpdateSeller(t *testing.T) {
 	t.Run("Should return status 400 when the seller id is invalid", func(t *testing.T) {
 		server, mockService, _, handler := InitServer(t)
 
-		mockService.On("Update", mock.Anything, mock.Anything, "invalid").Return(domain.Seller{}, seller.ErrInvalidId)
+		mockService.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(domain.Seller{}, seller.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/sellers/invalid", `{"address":"Address","telephone":"88748585"}`)
 
