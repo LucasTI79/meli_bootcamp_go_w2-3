@@ -84,11 +84,11 @@ func (e *Employee) Create() gin.HandlerFunc {
 		employeeInput := &domain.Employee{}
 		err := c.ShouldBindJSON(employeeInput)
 		if err != nil {
-			web.Error(c, http.StatusBadRequest, "error, try again %s", err)
+			web.Error(c, http.StatusUnprocessableEntity, "error, try again %s", err)
 			return
 		}
 		if employeeInput.CardNumberID == "" || employeeInput.FirstName == "" || employeeInput.LastName == "" || employeeInput.WarehouseID == 0 {
-			web.Error(c, http.StatusUnprocessableEntity, "invalid body")
+			web.Error(c, http.StatusBadRequest, "invalid body")
 			return
 		}
 		employeeResult, err := e.employeeService.Save(c, *employeeInput)

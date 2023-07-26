@@ -44,7 +44,7 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 		server.GET("/products/reportRecords", handler.RecordsByAllProductsReport())
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords", "")
 
-		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(expectedProductRecords, nil)
+		mockService.MockProductRecordService.On("RecordsByAllProductsReport").Return(expectedProductRecords, nil)
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.ProductRecordReports{}
@@ -65,7 +65,7 @@ func TestRecordsByAllProductsReport(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/reportRecords", "")
 
-		mockService.MockProductRecordService.On("RecordsByAllProductsReport", mock.AnythingOfType("string")).Return(ExpectedEmpityReports, productrecord.ErrTryAgain)
+		mockService.MockProductRecordService.On("RecordsByAllProductsReport").Return(ExpectedEmpityReports, productrecord.ErrTryAgain)
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)

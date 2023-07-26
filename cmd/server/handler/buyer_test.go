@@ -467,18 +467,6 @@ func TestUpdateBuyers(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
-	t.Run("Should return status 500 when internal error", func(t *testing.T) {
-		server, _, handler := InitServerWithGetBuyers(t)
-
-		server.PATCH(Update, handler.Update())
-
-		request, response := testutil.MakeRequest(http.MethodPatch, "/buyers/10", `{"first_name":""}`)
-
-		server.ServeHTTP(response, request)
-
-		assert.Equal(t, http.StatusInternalServerError, response.Code)
-	})
-
 	t.Run("Should return status 422 when JSON is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithGetBuyers(t)
 

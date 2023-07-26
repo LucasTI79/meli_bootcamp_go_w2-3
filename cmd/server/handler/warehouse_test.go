@@ -46,7 +46,7 @@ func TestGetAllWarehouses(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWarehouse, "")
 
-		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(expectedWarehouses, nil)
+		mockService.On("GetAll", mock.Anything).Return(expectedWarehouses, nil)
 
 		server.GET(BaseEndpointWarehouse, handler.GetAll())
 		server.ServeHTTP(response, request)
@@ -63,7 +63,7 @@ func TestGetAllWarehouses(t *testing.T) {
 	t.Run("Should return status 204 with no content", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(emptyWarehouses, nil)
+		mockService.On("GetAll", mock.Anything).Return(emptyWarehouses, nil)
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWarehouse, "")
 
@@ -81,7 +81,7 @@ func TestGetAllWarehouses(t *testing.T) {
 	t.Run("Should return status 500 with no content", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string")).Return(emptyWarehouses, warehouse.ErrTryAgain)
+		mockService.On("GetAll", mock.Anything).Return(emptyWarehouses, warehouse.ErrTryAgain)
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointWarehouse, "")
 
@@ -289,7 +289,7 @@ func TestDeleteWarehouses(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/warehouses/invalid", "")
 
-		mockService.On("Delete", mock.Anything, "invalid").Return(warehouse.ErrInvalidId)
+		mockService.On("Delete", mock.Anything, mock.Anything).Return(warehouse.ErrInvalidId)
 
 		server.DELETE(BaseEndpointWithIdWarehouse, handler.Delete())
 		server.ServeHTTP(response, request)
@@ -338,7 +338,7 @@ func TestUpdateWarehouse(t *testing.T) {
 	t.Run("Should return status 400 when the warehouse id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithWarehouses(t)
 
-		mockService.On("Update", mock.Anything, mock.Anything, "invalid").Return(domain.Warehouse{}, warehouse.ErrInvalidId)
+		mockService.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(domain.Warehouse{}, warehouse.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/warehouses/invalid", `{"address":"Rua Pedro Dias","telephone":"371928"}`)
 

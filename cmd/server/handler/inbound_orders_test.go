@@ -49,7 +49,7 @@ func TestGetInboundOrders(t *testing.T) {
 	t.Run("Should return status 400 when the inbound order id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithInboundOrders(t)
 
-		mockService.On("Get", mock.Anything, "invalid").Return(domain.InboundOrders{}, inbound_order.ErrInvalidId)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.InboundOrders{}, inbound_order.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointInboundOrders+"/invalid", "")
 
@@ -285,7 +285,7 @@ func TestReportsByAllInboundOrders(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders", "")
 
-		mockService.On("ReportByAll", mock.AnythingOfType(mock.Anything)).Return(ExpectedEmptyReports, inbound_order.ErrTryAgain)
+		mockService.On("ReportByAll", mock.Anything).Return(ExpectedEmptyReports, inbound_order.ErrTryAgain)
 
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
@@ -356,7 +356,7 @@ func TestReportsByOneInboundOrders(t *testing.T) {
 		server, mockService, handler := InitServerWithInboundOrders(t)
 		server.GET("/employees/reportInboundOrders/:id", handler.ReportByOne())
 
-		mockService.On("ReportByOne", mock.Anything).Return(domain.InboundOrdersReport{}, inbound_order.ErrInvalidId)
+		mockService.On("ReportByOne", mock.Anything, mock.Anything).Return(domain.InboundOrdersReport{}, inbound_order.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/employees/reportInboundOrders/invalidId", "")
 
