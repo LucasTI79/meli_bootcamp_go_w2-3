@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/product"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/pkg/testutil"
@@ -122,7 +123,7 @@ func TestGetProductById(t *testing.T) {
 	t.Run("Should return status 200 with the requested product", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
 
-		server.GET("/products/:id", handler.Get())
+		server.GET("/products/:id", middlewares.ValidateParams("id"), handler.Get())
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/1", "")
 
 		mockService.On("Get", mock.AnythingOfType("int")).Return(expectedProduct, nil)
@@ -143,7 +144,7 @@ func TestGetProductById(t *testing.T) {
 	t.Run("Should return status 404 when the product is not found", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProducts(t)
-		server.GET("/products/:id", handler.Get())
+		server.GET("/products/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/2", "")
 		mockService.On("Get", mock.AnythingOfType("int")).Return(domain.Product{}, product.ErrNotFound)
@@ -157,7 +158,7 @@ func TestGetProductById(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProducts(t)
 
-		server.GET("/products/:id", handler.Get())
+		server.GET("/products/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		mockService.On("Get", mock.Anything).Return(ExpectedEmpityProduct, product.ErrTryAgain)
 		request, response := testutil.MakeRequest(http.MethodGet, "/products/1", "")
@@ -171,7 +172,7 @@ func TestGetProductById(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProducts(t)
 
-		server.GET("/products/:id", handler.Get())
+		server.GET("/products/:id", middlewares.ValidateParams("id"), handler.Get())
 
 		mockService.On("Get", mock.Anything).Return(ExpectedEmpityProduct, product.ErrInvalidId)
 
@@ -188,7 +189,7 @@ func TestDeleteProduct(t *testing.T) {
 
 	t.Run("Should return 204 when product exists", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
-		server.DELETE("/products/:id", handler.Delete())
+		server.DELETE("/products/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/products/1", "")
 		mockService.On("Delete", mock.AnythingOfType("int")).Return(nil)
@@ -198,7 +199,7 @@ func TestDeleteProduct(t *testing.T) {
 
 	t.Run("Should return 404 when product does not exist", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
-		server.DELETE("/products/:id", handler.Delete())
+		server.DELETE("/products/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		request, response := testutil.MakeRequest(http.MethodDelete, "/products/1", "")
 		mockService.On("Delete", mock.Anything).Return(product.ErrNotFound)
@@ -210,7 +211,7 @@ func TestDeleteProduct(t *testing.T) {
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
 
-		server.DELETE("/products/:id", handler.Delete())
+		server.DELETE("/products/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		mockService.On("Delete", mock.Anything).Return(product.ErrTryAgain)
 
@@ -225,7 +226,7 @@ func TestDeleteProduct(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProducts(t)
 
-		server.DELETE("/products/:id", handler.Delete())
+		server.DELETE("/products/:id", middlewares.ValidateParams("id"), handler.Delete())
 
 		mockService.On("Delete", mock.Anything).Return(product.ErrInvalidId)
 
@@ -305,7 +306,7 @@ func TestUpdateProduct(t *testing.T) {
 	t.Run("Should return 200 when product is updated", func(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProducts(t)
-		server.PATCH("/products/:id", handler.Update())
+		server.PATCH("/products/:id", middlewares.ValidateParams("id"), handler.Update())
 		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", productJson)
 
 		responseResult := domain.ProductResponseById{}
@@ -322,7 +323,7 @@ func TestUpdateProduct(t *testing.T) {
 
 	t.Run("Should return 404 when product does not exist", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
-		server.PATCH("/products/:id", handler.Update())
+		server.PATCH("/products/:id", middlewares.ValidateParams("id"), handler.Update())
 		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", productJson)
 		responseResult := domain.Product{}
 		_ = json.Unmarshal(response.Body.Bytes(), &responseResult)
@@ -335,7 +336,7 @@ func TestUpdateProduct(t *testing.T) {
 	t.Run("Should return status 500 when an internal server error occurs.", func(t *testing.T) {
 		server, mockService, handler := InitServerWithProducts(t)
 
-		server.PATCH("/products/:id", handler.Update())
+		server.PATCH("/products/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		mockService.On("Update", mock.Anything, mock.Anything).Return(product.ErrTryAgain)
 
@@ -350,7 +351,7 @@ func TestUpdateProduct(t *testing.T) {
 
 		server, mockService, handler := InitServerWithProducts(t)
 
-		server.PATCH("/products/:id", handler.Update())
+		server.PATCH("/products/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		mockService.On("Update", mock.Anything, mock.Anything).Return(product.ErrInvalidId)
 
@@ -364,7 +365,7 @@ func TestUpdateProduct(t *testing.T) {
 	t.Run("Should return 400 when field is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithProducts(t)
 
-		server.PATCH("/products/:id", handler.Update())
+		server.PATCH("/products/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", string(`{"ExpirationRate": 0}`))
 
@@ -376,7 +377,7 @@ func TestUpdateProduct(t *testing.T) {
 	t.Run("Should return 422 when Json is invalid", func(t *testing.T) {
 		server, _, handler := InitServerWithProducts(t)
 
-		server.PATCH("/products/:id", handler.Update())
+		server.PATCH("/products/:id", middlewares.ValidateParams("id"), handler.Update())
 
 		request, response := testutil.MakeRequest(http.MethodPatch, "/products/1", string(`{"ExpirationRate":}`))
 

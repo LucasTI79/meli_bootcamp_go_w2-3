@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/handler"
+	"github.com/extmatperez/meli_bootcamp_go_w2-3/cmd/server/middlewares"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/carry"
 	"github.com/extmatperez/meli_bootcamp_go_w2-3/internal/domain"
 
@@ -53,7 +54,7 @@ func TestGetCarriers(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointCarriers+"/1", "")
 
-		server.GET(BaseEndpointWithIdCarriers, handler.Get())
+		server.GET(BaseEndpointWithIdCarriers, middlewares.ValidateParams("id"), handler.Get())
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.CarryResponseId{}
@@ -65,11 +66,11 @@ func TestGetCarriers(t *testing.T) {
 	t.Run("Should return status 400 when the carry id is invalid", func(t *testing.T) {
 		server, mockService, handler := InitServerWithCarriers(t)
 
-		mockService.On("Get", mock.Anything, "invalid").Return(domain.Carry{}, carry.ErrInvalidId)
+		mockService.On("Get", mock.Anything, mock.Anything).Return(domain.Carry{}, carry.ErrInvalidId)
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointCarriers+"/invalid", "")
 
-		server.GET(BaseEndpointWithIdCarriers, handler.Get())
+		server.GET(BaseEndpointWithIdCarriers, middlewares.ValidateParams("id"), handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -81,7 +82,7 @@ func TestGetCarriers(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointCarriers+"/1", "")
 
-		server.GET(BaseEndpointWithIdCarriers, handler.Get())
+		server.GET(BaseEndpointWithIdCarriers, middlewares.ValidateParams("id"), handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -94,7 +95,7 @@ func TestGetCarriers(t *testing.T) {
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseEndpointCarriers+"/1", "")
 
-		server.GET(BaseEndpointWithIdCarriers, handler.Get())
+		server.GET(BaseEndpointWithIdCarriers, middlewares.ValidateParams("id"), handler.Get())
 		server.ServeHTTP(response, request)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
