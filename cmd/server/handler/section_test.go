@@ -190,7 +190,7 @@ func TestGetAllSections(t *testing.T) {
 		server.GET(BaseRoute, handler.GetAll())
 
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRoute, "")
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return(expectedSections, nil)
+		mockService.On("GetAll").Return(expectedSections, nil)
 		server.ServeHTTP(response, request)
 
 		responseResult := &domain.SectionsResponse{}
@@ -208,7 +208,7 @@ func TestGetAllSections(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		server.GET(BaseRoute, handler.GetAll())
 		request, response := testutil.MakeRequest(http.MethodGet, BaseRoute, "")
-		mockService.On("GetAll", mock.AnythingOfType("string")).Return([]domain.Section{}, domain.ErrNotFound)
+		mockService.On("GetAll").Return([]domain.Section{}, domain.ErrNotFound)
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
@@ -475,7 +475,7 @@ func TestProductBySection(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		server.GET("/sections/reportProducts", handler.ReportProducts())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sections/reportProducts", "")
-		mockService.On("ReportProducts", mock.AnythingOfType("string")).Return(expectedProductReports, nil)
+		mockService.On("ReportProducts").Return(expectedProductReports, nil)
 		server.ServeHTTP(response, request)
 		responseResult := &domain.ProductBySectionResponse{}
 		err := json.Unmarshal(response.Body.Bytes(), responseResult)
@@ -517,7 +517,7 @@ func TestProductBySection(t *testing.T) {
 		server, mockService, handler := InitServerWithGetSections(t)
 		server.GET("/sections/reportProducts", handler.ReportProducts())
 		request, response := testutil.MakeRequest(http.MethodGet, "/sections/reportProducts", "")
-		mockService.On("ReportProducts", mock.AnythingOfType("string")).Return([]domain.ProductBySection{}, errors.New("error"))
+		mockService.On("ReportProducts").Return([]domain.ProductBySection{}, errors.New("error"))
 		server.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
